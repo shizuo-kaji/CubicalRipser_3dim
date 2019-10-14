@@ -34,6 +34,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 #include "dense_cubical_grids.h"
+#include "npy.hpp"
 
 using namespace std;
 
@@ -42,6 +43,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 	threshold = _threshold;
 	format = _format;
 
+	// read file
 	switch(format){
 		case DIPHA:
 		{
@@ -119,10 +121,43 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 								} 
 							} 
 						}
-						else { 
+						else {
 							dense3[x][y][z] = threshold; 
 						} 
+//						cout << "(" << x << " , " << y << " , " << z << ") = " << dense3[x][y][z] << endl;
 					} 
+				}
+			}
+			break;
+		}
+		case NUMPY:
+		{
+			cout << filename << endl;
+			vector<unsigned long> shape;
+			vector<double> data;
+			npy::LoadArrayFromNumpy(filename.c_str(), shape, data);
+			if(shape.size() != 3){
+				cerr << "Input array should be 3 dimensional " << endl;
+				exit(-1);
+			}
+			dim = shape.size();
+			ax = shape[0];
+			ay = shape[1];
+			az = shape[2];
+			assert(0 < ax && ax < 510 && 0 < ay && ay < 510 && 0 < az && az < 510);
+			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
+
+			int i = 0;
+			for(int z = 0; z < az + 2; ++z){
+				for (int y = 0; y <ay + 2; ++y) { 
+					for (int x = 0; x < ax + 2; ++x) { 
+						if(0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az){ 
+							dense3[x][y][z] = data[i++];
+						}else{ // fill the boundary with the threashold value
+							dense3[x][y][z] = threshold; 
+						}
+//						cout << "(" << x << " , " << y << " , " << z << ") = " << dense3[x][y][z] << endl;
+					}
 				}
 			}
 			break;

@@ -73,8 +73,8 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vector<Wr
 }
 
 void JointPairs::joint_pairs_main(){
-	cubes_edges.reserve(2);
 	UnionFind dset(ctr_moi, dcg);
+	int u,v=0;
 	ctr -> columns_to_reduce.clear();
 	ctr -> dim = 1;
 	double min_birth = dcg -> threshold;
@@ -84,14 +84,9 @@ void JointPairs::joint_pairs_main(){
 	}
 	
 	for(auto e : dim1_simplex_list){
-		cubes_edges.clear();
 		dcg -> GetSimplexVertices(e.getIndex(), 1, vtx);
-
-		cubes_edges[0] = vtx -> vertex[0] -> getIndex();
-		cubes_edges[1] = vtx -> vertex[1] -> getIndex();
-
-		u = dset.find(cubes_edges[0]);
-		v = dset.find(cubes_edges[1]);
+		u = dset.find(vtx -> vertex[0] -> getIndex());
+		v = dset.find(vtx -> vertex[1] -> getIndex());
 			
 		if(min_birth >= min(dset.birthtime[u], dset.birthtime[v])){
 			min_birth = min(dset.birthtime[u], dset.birthtime[v]);
@@ -102,7 +97,7 @@ void JointPairs::joint_pairs_main(){
 			double death = max(dset.time_max[u], dset.time_max[v]);
 			dset.link(u, v);
 			if(birth != death){
-				int idx = dset.find(u);
+				int idx = (dset.birthtime[u] > dset.birthtime[v]) ? v:u;
 				int x = idx & 511;
 				int y = (idx >> 9) & 511;
 				int z = (idx >> 18) & 511;
@@ -116,10 +111,13 @@ void JointPairs::joint_pairs_main(){
 		}
 	}
 
+	// the based point component
+	int x = u & 511;
+	int y = (u >> 9) & 511;
+	int z = (u >> 18) & 511;
 	if(print == true){
-		cout << "[" << min_birth << ", )" << endl;
+		cout << "[" << min_birth << ", )" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
 	}
-
-	wp -> push_back(WritePairs(-1, min_birth, dcg -> threshold));
+	wp -> push_back(WritePairs(-1, min_birth, dcg -> threshold,x,y,z));
 	sort(ctr -> columns_to_reduce.begin(), ctr -> columns_to_reduce.end(), BirthdayIndexComparator());
 }

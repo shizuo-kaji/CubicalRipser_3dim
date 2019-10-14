@@ -34,7 +34,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-enum file_format { DIPHA, PERSEUS };
+enum file_format { DIPHA, PERSEUS, NUMPY };
 
 class DenseCubicalGrids { // file_read
 public:

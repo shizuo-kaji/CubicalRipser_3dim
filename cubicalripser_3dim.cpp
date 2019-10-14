@@ -57,8 +57,9 @@ void print_usage_and_exit(int exit_code) {
 	      << endl
 	      << "  --help           print this screen" << endl
 	      << "  --format         use the specified file format for the input. Options are:" << endl
-	      << "                     dipha          (voxel matrix in DIPHA file format; default)" << endl
-	      << "                     perseus        (voxel matrix in Perseus file format)" << endl
+	      << "                     dipha          (3d array in DIPHA file format; default)" << endl
+	      << "                     perseus        (3d array in Perseus file format)" << endl
+	      << "                     numpy        (3d array in numpy file format)" << endl
 	      << "  --threshold <t>  compute cubical complexes up to birth time <t>" << endl
 	      << "  --maxdim <t>  compute persistent homology up to dimension <t>" << endl
 	      << "  --method         method to compute the persistent homology of the cubical complexes. Options are" << endl
@@ -101,6 +102,8 @@ int main(int argc, char** argv){
 				format = DIPHA;
 			} else if (parameter == "perseus") {
 				format = PERSEUS;
+			} else if (parameter == "numpy") {
+				format = NUMPY;
 			} else {
 				print_usage_and_exit(-1);
 			}

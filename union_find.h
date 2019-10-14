@@ -40,9 +40,7 @@ public:
 	vector<double> time_max;
 	DenseCubicalGrids* dcg;
 
-	UnionFind(int moi, DenseCubicalGrids* _dcg); // Thie "n" is the number of cubes.
-	
-	int find(int x); // Thie "x" is Index.
-	
+	UnionFind(int moi, DenseCubicalGrids* _dcg); 
+	int find(int x); 
 	void link(int x, int y);
 };

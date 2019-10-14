@@ -43,7 +43,6 @@ class JointPairs{
 	vector<WritePairs> *wp;
 	bool print;
 	Vertices* vtx;
-	double u, v;
 	vector<int64_t> cubes_edges;
 	vector<BirthdayIndex> dim1_simplex_list;
 
