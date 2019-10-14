@@ -36,7 +36,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-UnionFind::UnionFind(int moi, DenseCubicalGrids* _dcg) : parent(moi), birthtime(moi), time_max(moi) { // Thie "n" is the number of cubes.
+UnionFind::UnionFind(int moi, DenseCubicalGrids* _dcg) : parent(moi), birthtime(moi), time_max(moi) {
 	dcg = _dcg;
 	max_of_index = moi;
 
@@ -47,12 +47,14 @@ UnionFind::UnionFind(int moi, DenseCubicalGrids* _dcg) : parent(moi), birthtime(
 	}
 }
 
-int UnionFind::find(int x){ // Thie "x" is Index.
+// find the root of a node x (specified by the index)
+int UnionFind::find(int x){
 	int y = x, z = parent[y];
 	while (z != y) {
 		y = z;
 		z = parent[y];
 	}
+	// reassign parents to the found root z
 	y = parent[x];
 	while (z != y) {
 		parent[x] = z;
@@ -62,17 +64,16 @@ int UnionFind::find(int x){ // Thie "x" is Index.
 	return z;
 }
 
+// merge nodes x and y
 void UnionFind::link(int x, int y){
 	x = find(x);
 	y = find(y);
 	if (x == y) return;
 	if (birthtime[x] > birthtime[y]){
 		parent[x] = y; 
-		birthtime[y] = min(birthtime[x], birthtime[y]);
 		time_max[y] = max(time_max[x], time_max[y]);
 	} else if(birthtime[x] < birthtime[y]) {
 		parent[y] = x;
-		birthtime[x] = min(birthtime[x], birthtime[y]);
 		time_max[x] = max(time_max[x], time_max[y]);
 	} else { //birthtime[x] == birthtime[y]
 		parent[x] = y;

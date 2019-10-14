@@ -30,10 +30,13 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "write_pairs.h"
 
-WritePairs::WritePairs(int64_t _dim, double _birth, double _death){
+WritePairs::WritePairs(int64_t _dim, double _birth, double _death, int64_t _birth_x,int64_t _birth_y,int64_t _birth_z){
 	dim = _dim;
 	birth = _birth;
 	death = _death;
+	birth_x = _birth_x;
+	birth_y = _birth_y;
+	birth_z = _birth_z;
 }
 
 int64_t WritePairs::getDimension(){
@@ -47,4 +50,13 @@ double WritePairs::getBirth(){
 double WritePairs::getDeath(){
 	return death;
 }
-	
+
+int64_t WritePairs::getBirthX(){
+	return birth_x;
+}
+int64_t WritePairs::getBirthY(){
+	return birth_y;
+}
+int64_t WritePairs::getBirthZ(){
+	return birth_z;
+}

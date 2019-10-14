@@ -100,15 +100,16 @@ void JointPairs::joint_pairs_main(){
 		if(u != v){
 			double birth = max(dset.birthtime[u], dset.birthtime[v]);
 			double death = max(dset.time_max[u], dset.time_max[v]);
-
-			if(birth == death){
-				dset.link(u, v);
-			} else {
+			dset.link(u, v);
+			if(birth != death){
+				int idx = dset.find(u);
+				int x = idx & 511;
+				int y = (idx >> 9) & 511;
+				int z = (idx >> 18) & 511;
 				if(print == true){
-					cout << "[" << birth << "," << death << ")" << endl;
+					cout << "[" << birth << "," << death << ")" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
 				}
-				wp -> push_back(WritePairs(0, birth, death));
-				dset.link(u, v);
+				wp -> push_back(WritePairs(0, birth, death, x, y, z));
 			}
 		} else { // If two values have same "parent", these are potential edges which make a 2-simplex.
 			ctr -> columns_to_reduce.push_back(e);

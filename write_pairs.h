@@ -36,13 +36,17 @@ public:
 	int64_t dim;
 	double birth;
 	double death;
+	int64_t birth_x;
+	int64_t birth_y;
+	int64_t birth_z;
 
-	WritePairs(int64_t _dim, double _birth, double _death);
+	WritePairs(int64_t _dim, double _birth, double _death, int64_t _birth_x=-1,int64_t _birth_y=-1,int64_t _birth_z=-1);
 
 	int64_t getDimension();
-
 	double getBirth();
-
 	double getDeath();
+	int64_t getBirthX();
+	int64_t getBirthY();
+	int64_t getBirthZ();
 	
 };

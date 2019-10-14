@@ -1,41 +1,30 @@
+CFLAGS = -O3 -std=c++11 -march=native
 TARGET = CR3
 SRCS = cubicalripser_3dim.cpp dense_cubical_grids.cpp coeff.cpp vertices.cpp birthday_index.cpp columns_to_reduce.cpp simplex_coboundary_enumerator.cpp write_pairs.cpp union_find.cpp joint_pairs.cpp compute_pairs.cpp
 OBJS = cubicalripser_3dim.o dense_cubical_grids.o coeff.o vertices.o birthday_index.o columns_to_reduce.o simplex_coboundary_enumerator.o write_pairs.o union_find.o joint_pairs.o compute_pairs.o
+CC = c++
 
+.PHONY: all
 all: $(TARGET)
 
+.cpp.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.PHONY: clean
+clean:
+	rm -f $(TARGET) *.o
+
 $(TARGET): $(OBJS) $(SRCS)
-	c++ -std=c++11 -o $@ $(OBJS)
+	$(CC) -o $@ $(OBJS)
 
 cubicalripser_3dim.o: cubicalripser_3dim.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-dense_cubical_grids.o: dense_cubical_grids.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-coeff.o: coeff.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-vertices.o: vertices.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-birthday_index.o: birthday_index.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-columns_to_reduce.o: columns_to_reduce.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-simplex_coboundary_enumerator.o: simplex_coboundary_enumerator.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-write_pairs.o: write_pairs.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-union_find.o: union_find.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-joint_pairs.o: joint_pairs.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
-
-compute_pairs.o: compute_pairs.cpp
-	c++ -std=c++11 -c -o $@ $< -Ofast
+dense_cubical_grids.o: dense_cubical_grids.cpp dense_cubical_grids.h
+coeff.o: coeff.cpp coeff.h
+vertices.o: vertices.cpp vertices.h
+birthday_index.o: birthday_index.cpp birthday_index.h
+columns_to_reduce.o: columns_to_reduce.cpp columns_to_reduce.h
+simplex_coboundary_enumerator.o: simplex_coboundary_enumerator.cpp simplex_coboundary_enumerator.h
+write_pairs.o: write_pairs.cpp write_pairs.h
+union_find.o: union_find.cpp union_find.h
+joint_pairs.o: joint_pairs.cpp joint_pairs.h
+compute_pairs.o: compute_pairs.cpp compute_pairs.h
