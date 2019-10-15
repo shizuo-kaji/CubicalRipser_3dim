@@ -44,7 +44,7 @@ using namespace std;
 #include "write_pairs.h"
 #include "joint_pairs.h"
 #include "compute_pairs.h"
-
+#include "npy.hpp"
 
 enum calculation_method { LINKFIND, COMPUTEPAIRS};
 
@@ -56,10 +56,6 @@ void print_usage_and_exit(int exit_code) {
 	      << "Options:" << endl
 	      << endl
 	      << "  --help           print this screen" << endl
-	      << "  --format         use the specified file format for the input. Options are:" << endl
-	      << "                     dipha          (3d array in DIPHA file format; default)" << endl
-	      << "                     perseus        (3d array in Perseus file format)" << endl
-	      << "                     numpy        (3d array in numpy file format)" << endl
 	      << "  --threshold <t>  compute cubical complexes up to birth time <t>" << endl
 	      << "  --maxdim <t>  compute persistent homology up to dimension <t>" << endl
 	      << "  --method         method to compute the persistent homology of the cubical complexes. Options are" << endl
@@ -76,9 +72,9 @@ void print_usage_and_exit(int exit_code) {
 
 int main(int argc, char** argv){
 
-	const char* filename = nullptr;
-	string output_filename = "answer_3dim.diagram"; //default output filename
-	file_format format = DIPHA;
+	string filename = "";
+	string output_filename = "output.csv"; //default output filename
+	file_format format;
 	calculation_method method = LINKFIND;
 	double threshold = 99999;
 	int maxdim = 2;  // compute PH up to this dimension
@@ -96,17 +92,6 @@ int main(int argc, char** argv){
 			if (next_pos != parameter.size()) print_usage_and_exit(-1);
 		} else if (arg == "--maxdim") {
 			maxdim = stoi(argv[++i]);
-		} else if (arg == "--format") {
-			string parameter = string(argv[++i]);
-			if (parameter == "dipha") {
-				format = DIPHA;
-			} else if (parameter == "perseus") {
-				format = PERSEUS;
-			} else if (parameter == "numpy") {
-				format = NUMPY;
-			} else {
-				print_usage_and_exit(-1);
-			}
 		} else if(arg == "--method") {
 			string parameter = string(argv[++i]);
 			if (parameter == "link_find") {
@@ -123,18 +108,25 @@ int main(int argc, char** argv){
 		} else if (arg == "--location"){
 			location = true;
 		} else {
-			if (filename) { print_usage_and_exit(-1); }
+			if (!filename.empty()) { print_usage_and_exit(-1); }
 			filename = argv[i];
 		}
 	}
 
-	if (!filename) { print_usage_and_exit(-1); }
+	if (filename.empty()) { print_usage_and_exit(-1); }
     ifstream file_stream(filename);
-	if (filename && file_stream.fail()) {
+	if (!filename.empty() && file_stream.fail()) {
 		cerr << "couldn't open file " << filename << endl;
 		exit(-1);
 	}
-
+	// infer input file type from its extention
+	if(filename.find(".txt")!= std::string::npos){
+		format = PERSEUS;
+	}else if(filename.find(".npy")!= std::string::npos){
+		format = NUMPY;
+	}else{
+		format = DIPHA;
+	}
 	vector<WritePairs> writepairs; // dim birth death
 	writepairs.clear();
 	
@@ -175,15 +167,13 @@ int main(int argc, char** argv){
 
 #ifdef FILE_OUTPUT
 	ofstream writing_file;
-	writing_file.open(output_filename, ios::out);
-	if(!writing_file.is_open()){
-		cerr << " error: open file for output failed! " << endl;
-	}
 	int64_t p = writepairs.size();
 	cout << "the number of pairs : " << p << endl;
-	
-	string extension = ".csv";
-	if(equal(extension.rbegin(), extension.rend(), output_filename.rbegin()) == true){
+	if(output_filename.find(".csv")!= std::string::npos){
+		writing_file.open(output_filename, ios::out);
+		if(!writing_file.is_open()){
+			cerr << " error: open file for output failed! " << endl;
+		}
 		for(int64_t i = 0; i < p; ++i){
 			int64_t d = writepairs[i].getDimension();
 			writing_file << d << ",";
@@ -195,7 +185,24 @@ int main(int argc, char** argv){
 			writing_file << endl;
 		}
 		writing_file.close();
-	} else {
+	}else if(output_filename.find(".npy")!= std::string::npos){
+		long unsigned leshape[] = {0,6};
+		leshape[0] = p;
+		vector<double> data(6*p);
+		for(int64_t i = 0; i < p; ++i){
+			data[6*i] = writepairs[i].getDimension();
+			data[6*i+1] = writepairs[i].getBirth();
+			data[6*i+2] = writepairs[i].getDeath();
+			data[6*i+3] = writepairs[i].getBirthX();
+			data[6*i+4] = writepairs[i].getBirthY();
+			data[6*i+5] = writepairs[i].getBirthZ();
+		}
+		npy::SaveArrayAsNumpy(output_filename, false, 2, leshape, data);
+	} else { // DIPHA format
+		writing_file.open(output_filename, ios::out | ios::binary);
+		if(!writing_file.is_open()){
+			cerr << " error: open file for output failed! " << endl;
+		}
 		int64_t mn = 8067171840;
 		writing_file.write((char *) &mn, sizeof( int64_t )); // magic number
 		int64_t type = 2;

@@ -27,5 +27,19 @@ To see the command-line options:
 
 Example:
 
-    % ./CR3 --format perseus dat/3dimsample1.txt --print --location --maxdim 2 --output out.csv
+    % ./CR3 --print --location --maxdim 2 --output out.csv dat/3dimsample1.txt
 
+## Input file format
+- Text file. The filename should end with ".txt"
+```
+3
+max_x
+max_y
+max_z
+val[1,1,1]
+val[2,1,1]
+...
+val[max_x,max_y,max_z]
+```
+- Numpy array (3D). The filename should end with ".npy"
+- [DIPHA binary format](https://github.com/DIPHA/dipha#file-formats) 
