@@ -64,19 +64,14 @@ int UnionFind::find(int x){
 	return z;
 }
 
-// merge nodes x and y
+// merge nodes x and y (they should be root nodes); older will be the new parent
 void UnionFind::link(int x, int y){
-	x = find(x);
-	y = find(y);
 	if (x == y) return;
-	if (birthtime[x] > birthtime[y]){
+	if (birthtime[x] >= birthtime[y]){
 		parent[x] = y; 
 		time_max[y] = std::max(time_max[x], time_max[y]);
 	} else if(birthtime[x] < birthtime[y]) {
 		parent[y] = x;
 		time_max[x] = std::max(time_max[x], time_max[y]);
-	} else { //birthtime[x] == birthtime[y]
-		parent[x] = y;
-		time_max[y] = std::max(time_max[x], time_max[y]);
 	}
 }

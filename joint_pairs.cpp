@@ -93,14 +93,21 @@ void JointPairs::joint_pairs_main(){
 		}
 
 		if(u != v){
-			double birth = max(dset.birthtime[u], dset.birthtime[v]);
-			double death = max(dset.time_max[u], dset.time_max[v]);
+			double birth;
+			int idx;
+			if(dset.birthtime[u] >= dset.birthtime[v]){
+				birth = dset.birthtime[u]; 
+				idx = u; // the one who dies to make a cycle
+			}else{
+				birth = dset.birthtime[v]; 
+				idx = v; // the one who dies to make a cycle
+			}
+			double death = e.getBirthday();
 			dset.link(u, v);
 			if(birth != death){
-				int idx = (dset.birthtime[u] < dset.birthtime[v]) ? v:u;  // the one who dies
-				int x = idx & 511;
-				int y = (idx >> 9) & 511;
-				int z = (idx >> 18) & 511;
+				int x = idx & 0x01ff;
+				int y = (idx >> 9) & 0x01ff;
+				int z = (idx >> 18) & 0x01ff;
 				if(print == true){
 					cout << "[" << birth << "," << death << ")" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
 				}
@@ -112,9 +119,9 @@ void JointPairs::joint_pairs_main(){
 	}
 
 	// the based point component
-	int x = u & 511;
-	int y = (u >> 9) & 511;
-	int z = (u >> 18) & 511;
+	int x = u & 0x01ff;
+	int y = (u >> 9) & 0x01ff;
+	int z = (u >> 18) & 0x01ff;
 	if(print == true){
 		cout << "[" << min_birth << ", )" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
 	}

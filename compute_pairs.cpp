@@ -78,6 +78,7 @@ void ComputePairs::compute_pairs_main(){
 		priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator> 
 		working_coboundary;
 		double birth = column_to_reduce.getBirthday();
+		long idx = column_to_reduce.getIndex();
 
 		int j = i;
 		BirthdayIndex pivot(0, -1, 0);
@@ -129,17 +130,17 @@ void ComputePairs::compute_pairs_main(){
 						recorded_wc.insert(make_pair(i, working_coboundary));
 						// I output PP as Writepairs
 						double death = pivot.getBirthday();
-						outputPP(dim, birth, death);
+						outputPP(dim, birth, death, idx);
 						pivot_column_index.insert(make_pair(pivot.getIndex(), i));
 						break;
 					}
 				} else { // If wc is empty, I output a PP as [birth,) 
-					outputPP(-1, birth, dcg -> threshold);
+					outputPP(-1, birth, dcg -> threshold, idx);
 					break;
 				}
 			} else { // (B) I have a new pivot and output PP as Writepairs 
 				double death = pivot.getBirthday();
-				outputPP(dim, birth, death);
+				outputPP(dim, birth, death, idx);
 				pivot_column_index.insert(make_pair(pivot.getIndex(), i));
 				break;
 			}			
@@ -148,18 +149,21 @@ void ComputePairs::compute_pairs_main(){
 	}
 }
 
-void ComputePairs::outputPP(int _dim, double _birth, double _death){
+void ComputePairs::outputPP(int _dim, double _birth, double _death, int idx){
 	if(_birth != _death){
+		int x = idx & 0x01ff;
+		int y = (idx >> 9) & 0x01ff;
+		int z = (idx >> 18) & 0x01ff;
 		if(_death != dcg -> threshold){
 			if(print == true){
-				cout << "[" <<_birth << "," << _death << ")" << endl;
+				cout << "[" << _birth << "," << _death << ")" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
 			}
-			wp -> push_back(WritePairs(_dim, _birth, _death));
+			wp -> push_back(WritePairs(_dim, _birth, _death,x,y,z));
 		} else {
 			if(print == true){
-				cout << "[" << _birth << ", )" << endl;
+				cout << "[" << _birth << ", )" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
 			}
-			wp -> push_back(WritePairs(-1, _birth, dcg -> threshold));
+			wp -> push_back(WritePairs(_dim, _birth, _death,x,y,z));
 		}
 	}
 }

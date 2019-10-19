@@ -179,7 +179,7 @@ int main(int argc, char** argv){
 			writing_file << d << ",";
 			writing_file << writepairs[i].getBirth() << ",";
 			writing_file << writepairs[i].getDeath();
-			if(location && d==0){
+			if(location){
 				writing_file << "," << writepairs[i].getBirthX() << "," << writepairs[i].getBirthY()<< "," << writepairs[i].getBirthZ();
 			}
 			writing_file << endl;

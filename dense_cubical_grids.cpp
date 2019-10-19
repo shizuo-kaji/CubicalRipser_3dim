@@ -148,9 +148,9 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			int i = 0;
-			for(int z = 0; z < az + 2; ++z){
+			for(int x = 0; x < ax + 2; ++x){
 				for (int y = 0; y <ay + 2; ++y) { 
-					for (int x = 0; x < ax + 2; ++x) { 
+					for (int z = 0; z < az + 2; ++z) { 
 						if(0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az){ 
 							dense3[x][y][z] = data[i++];
 						}else{ // fill the boundary with the threashold value

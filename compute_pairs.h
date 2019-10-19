@@ -50,7 +50,7 @@ public:
 
 	void compute_pairs_main();
 
-	void outputPP(int _dim, double _birth, double _death);
+	void outputPP(int _dim, double _birth, double _death, int idx);
 
 	BirthdayIndex pop_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
 		column);
