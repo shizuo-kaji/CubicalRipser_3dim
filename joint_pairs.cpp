@@ -97,7 +97,7 @@ void JointPairs::joint_pairs_main(){
 			double death = max(dset.time_max[u], dset.time_max[v]);
 			dset.link(u, v);
 			if(birth != death){
-				int idx = (dset.birthtime[u] > dset.birthtime[v]) ? v:u;
+				int idx = (dset.birthtime[u] < dset.birthtime[v]) ? v:u;  // the one who dies
 				int x = idx & 511;
 				int y = (idx >> 9) & 511;
 				int z = (idx >> 18) & 511;

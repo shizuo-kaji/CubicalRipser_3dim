@@ -44,7 +44,8 @@ ColumnsToReduce::ColumnsToReduce(DenseCubicalGrids* _dcg) {
 	max_of_index = 512 * 512 * (az + 2);
 	int index;
 	double birthday;
-		
+	columns_to_reduce.reserve(ax*ay*az);
+
 	for(int z = az; z > 0; --z){
 		for (int y = ay; y > 0; --y) {
 			for (int x = ax; x > 0; --x) {

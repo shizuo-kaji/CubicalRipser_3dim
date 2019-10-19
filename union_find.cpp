@@ -29,7 +29,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <vector>
-
+#include <algorithm>
 #include "birthday_index.h"
 #include "dense_cubical_grids.h"
 #include "union_find.h"
@@ -71,12 +71,12 @@ void UnionFind::link(int x, int y){
 	if (x == y) return;
 	if (birthtime[x] > birthtime[y]){
 		parent[x] = y; 
-		time_max[y] = max(time_max[x], time_max[y]);
+		time_max[y] = std::max(time_max[x], time_max[y]);
 	} else if(birthtime[x] < birthtime[y]) {
 		parent[y] = x;
-		time_max[x] = max(time_max[x], time_max[y]);
+		time_max[x] = std::max(time_max[x], time_max[y]);
 	} else { //birthtime[x] == birthtime[y]
 		parent[x] = y;
-		time_max[y] = max(time_max[x], time_max[y]);
+		time_max[y] = std::max(time_max[x], time_max[y]);
 	}
 }

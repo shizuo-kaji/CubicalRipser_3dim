@@ -59,8 +59,8 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --threshold <t>  compute cubical complexes up to birth time <t>" << endl
 	      << "  --maxdim <t>  compute persistent homology up to dimension <t>" << endl
 	      << "  --method         method to compute the persistent homology of the cubical complexes. Options are" << endl
-	      << "                     link_find      (calculating the 0-dim PP, use 'link_find' algorithm; default)" << endl
-	      << "                     compute_pairs  (calculating the 0-dim PP, use 'compute_pairs' algorithm)" << endl
+	      << "                     link_find      (calculating the 0-dim PH, use 'link_find' algorithm; default)" << endl
+	      << "                     compute_pairs  (calculating the 0-dim PH, use 'compute_pairs' algorithm)" << endl
 	      << "  --output         name of file that will contain the persistence diagram " << endl
 	      << "  --print          print persistence pairs on your console" << endl
 	      << "  --location          output birth location (currently, only for dim 0)" << endl
