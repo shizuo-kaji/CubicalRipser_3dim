@@ -60,14 +60,18 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			fin.read( ( char * ) &d, sizeof( int64_t ) ); //data num
 			fin.read( ( char * ) &d, sizeof( int64_t ) ); // dim 
 			dim = d;
-			assert(dim == 3);
+			assert(dim < 4);
 			fin.read( ( char * ) &d, sizeof( int64_t ) );
 			ax = d;
 			fin.read( ( char * ) &d, sizeof( int64_t ) );
 			ay = d;
-			fin.read( ( char * ) &d, sizeof( int64_t ) );
-			az = d;
-			assert(0 < ax && ax < 510 && 0 < ay && ay < 510 && 0 < az && az < 510);
+			if (dim == 3) {
+				fin.read((char *)&d, sizeof(int64_t));
+				az = d;
+			}else {
+				az = 1;
+			}
+			assert(0 < ax && ax <= MAX_SIZE-2 && 0 < ay && ay <= MAX_SIZE - 2 && 0 < az && az <= MAX_SIZE - 2);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			double dou;
@@ -81,8 +85,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 							} else {
 								cerr << "file endof error " << endl;
 							}
-						}
-						else {
+						}else {
 							dense3[x][y][z] = threshold;
 						}
 					}
@@ -100,13 +103,18 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			string reading_line_buffer; 
 			getline(reading_file, reading_line_buffer); 
 			dim = atoi(reading_line_buffer.c_str());
-			getline(reading_file, reading_line_buffer); 
+			assert(dim < 4);
+			getline(reading_file, reading_line_buffer);
 			ax = atoi(reading_line_buffer.c_str()); 
 			getline(reading_file, reading_line_buffer); 
 			ay = atoi(reading_line_buffer.c_str()); 
-			getline(reading_file, reading_line_buffer); 
-			az = atoi(reading_line_buffer.c_str());
-			assert(0 < ax && ax < 510 && 0 < ay && ay < 510 && 0 < az && az < 510);
+			if (dim == 3) {
+				getline(reading_file, reading_line_buffer);
+				az = atoi(reading_line_buffer.c_str());
+			}else {
+				az = 1;
+			}
+			assert(0 < ax && ax <= MAX_SIZE - 2 && 0 < ay && ay <= MAX_SIZE - 2 && 0 < az && az <= MAX_SIZE - 2);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			for(int z = 0; z < az + 2; ++z){
@@ -144,7 +152,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			ax = shape[0];
 			ay = shape[1];
 			az = shape[2];
-			assert(0 < ax && ax < 510 && 0 < ay && ay < 510 && 0 < az && az < 510);
+			assert(0 < ax && ax <= MAX_SIZE - 2 && 0 < ay && ay <= MAX_SIZE - 2 && 0 < az && az <= MAX_SIZE - 2);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			int i = 0;
@@ -166,11 +174,12 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 }
 
 
-double DenseCubicalGrids::getBirthday(int index, int dim){
-	int cx = index & 0x01ff;
-	int cy = (index >> 9) & 0x01ff;
-	int cz = (index >> 18) & 0x01ff;
-	int cm = (index >> 27) & 0xff;
+double DenseCubicalGrids::getBirthday(long ind, int dim){
+	ArrayIndex index(ind);
+	int cx = index.cx;
+	int cy = index.cy;
+	int cz = index.cz;
+	int cm = index.cm;
 
 	switch(dim){
 		case 0:
@@ -206,11 +215,6 @@ double DenseCubicalGrids::getBirthday(int index, int dim){
 }
 
 
-void DenseCubicalGrids::GetSimplexVertices(int index, int dim, Vertices* v){
-	int cx = index & 0x01ff;
-	int cy = (index >> 9) & 0x01ff;
-	int cz = (index >> 18) & 0x01ff;
-	int cm = (index >> 27) & 0xff;
-
-	v -> setVertices(dim ,cx, cy, cz , cm);
+void DenseCubicalGrids::GetSimplexVertices(long index, int dim, Vertices* v){
+	v -> setVertices(dim,index);
 }

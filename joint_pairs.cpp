@@ -40,6 +40,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "union_find.h"
 #include "write_pairs.h"
 #include "joint_pairs.h"
+#include "array_index.h"
 
 using namespace std;
 
@@ -50,7 +51,7 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vector<Wr
 	az = dcg -> az;
 	ctr = _ctr; // ctr is "0-dim"simplex list.
 	ctr_moi = ctr -> max_of_index;
-	n = ctr -> columns_to_reduce.size();
+//	n = ctr -> columns_to_reduce.size();
 	print = _print;
 
 	wp = &_wp;
@@ -59,8 +60,8 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vector<Wr
 	for(int x = 1; x <= ax; ++x){
 		for(int y = 1; y <= ay; ++y){
 			for(int z = 1; z <= az; ++z){
-				for(int type = 0; type < 3; ++type){
-					int index = x | (y << 9) | (z << 18) | (type << 27);
+				for(int m = 0; m < 3; ++m){
+					long index = x + y * MAX_SIZE + z * MAX_SIZE*MAX_SIZE + m * MAX_SIZE*MAX_SIZE*MAX_SIZE;
 					double birthday = dcg -> getBirthday(index, 1);
 					if(birthday < dcg -> threshold){
 						dim1_simplex_list.push_back(BirthdayIndex(birthday, index, 1));
@@ -74,7 +75,7 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vector<Wr
 
 void JointPairs::joint_pairs_main(){
 	UnionFind dset(ctr_moi, dcg);
-	int u,v=0;
+	long u,v=0;
 	ctr -> columns_to_reduce.clear();
 	ctr -> dim = 1;
 	double min_birth = dcg -> threshold;
@@ -105,13 +106,7 @@ void JointPairs::joint_pairs_main(){
 			double death = e.getBirthday();
 			dset.link(u, v);
 			if(birth != death){
-				int x = idx & 0x01ff;
-				int y = (idx >> 9) & 0x01ff;
-				int z = (idx >> 18) & 0x01ff;
-				if(print == true){
-					cout << "[" << birth << "," << death << ")" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
-				}
-				wp -> push_back(WritePairs(0, birth, death, x, y, z));
+				wp -> push_back(WritePairs(0, birth, death, idx, print));
 			}
 		} else { // If two values have same "parent", these are potential edges which make a 2-simplex.
 			ctr -> columns_to_reduce.push_back(e);
@@ -119,12 +114,6 @@ void JointPairs::joint_pairs_main(){
 	}
 
 	// the based point component
-	int x = u & 0x01ff;
-	int y = (u >> 9) & 0x01ff;
-	int z = (u >> 18) & 0x01ff;
-	if(print == true){
-		cout << "[" << min_birth << ", )" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
-	}
-	wp -> push_back(WritePairs(-1, min_birth, dcg -> threshold,x,y,z));
+	wp -> push_back(WritePairs(-1, min_birth, dcg -> threshold,u,print));
 	sort(ctr -> columns_to_reduce.begin(), ctr -> columns_to_reduce.end(), BirthdayIndexComparator());
 }

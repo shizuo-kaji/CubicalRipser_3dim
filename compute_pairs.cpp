@@ -46,6 +46,7 @@ using namespace std;
 #include "write_pairs.h"
 #include "joint_pairs.h"
 #include "compute_pairs.h"
+#include "array_index.h"
 	
 ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vector<WritePairs> &_wp, const bool _print){
 	dcg = _dcg;
@@ -149,22 +150,9 @@ void ComputePairs::compute_pairs_main(){
 	}
 }
 
-void ComputePairs::outputPP(int _dim, double _birth, double _death, int idx){
+void ComputePairs::outputPP(int _dim, double _birth, double _death, long idx){
 	if(_birth != _death){
-		int x = idx & 0x01ff;
-		int y = (idx >> 9) & 0x01ff;
-		int z = (idx >> 18) & 0x01ff;
-		if(_death != dcg -> threshold){
-			if(print == true){
-				cout << "[" << _birth << "," << _death << ")" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
-			}
-			wp -> push_back(WritePairs(_dim, _birth, _death,x,y,z));
-		} else {
-			if(print == true){
-				cout << "[" << _birth << ", )" << " birth loc (" << x << "," << y << "," << z << ")" << endl;
-			}
-			wp -> push_back(WritePairs(_dim, _birth, _death,x,y,z));
-		}
+		wp -> push_back(WritePairs(_dim, _birth, _death, idx, print));
 	}
 }
 
@@ -208,7 +196,7 @@ void ComputePairs::assemble_columns_to_reduce() {
 			for (int y = 1; y <= ay; ++y) {
 				for (int x = 1; x <= ax; ++x) {
 					for (int m = 0; m < 3; ++m) { // the number of type
-						double index = x | (y << 9) | (z << 18) | (m << 27);
+						long index = x + y * MAX_SIZE + z * MAX_SIZE*MAX_SIZE + m * MAX_SIZE*MAX_SIZE*MAX_SIZE;
 						if (pivot_column_index.find(index) == pivot_column_index.end()) {
 							double birthday = dcg -> getBirthday(index, 1);
 							if (birthday != dcg -> threshold) {
@@ -225,7 +213,7 @@ void ComputePairs::assemble_columns_to_reduce() {
 			for (int y = 1; y <= ay; ++y) {
 				for (int x = 1; x <= ax; ++x) {
 					for (int m = 0; m < 3; ++m) { // the number of type
-						double index = x | (y << 9) | (z << 18) | (m << 27);
+						long index = x + y * MAX_SIZE + z * MAX_SIZE*MAX_SIZE + m * MAX_SIZE*MAX_SIZE*MAX_SIZE;
 						if (pivot_column_index.find(index) == pivot_column_index.end()) {
 							double birthday = dcg -> getBirthday(index, 2);
 							if (birthday != dcg -> threshold) {

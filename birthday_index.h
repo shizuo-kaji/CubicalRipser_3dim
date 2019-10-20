@@ -33,12 +33,13 @@ class BirthdayIndex
 	
 public:
 	double birthday;
-	int index;
+	long index;
 	int dim;
 
 	BirthdayIndex();
 		
-	BirthdayIndex(double _b, int _i, int _d);
+	BirthdayIndex(double _b, long _index, int _d);
+	BirthdayIndex(double _b, int x, int y, int z, int m, int _d);
 
 	BirthdayIndex(const BirthdayIndex& b);
 
@@ -51,8 +52,6 @@ public:
 	int getDimension();
 
 	void print();
-
-	void VertexPrint();
 };
 
 struct BirthdayIndexComparator

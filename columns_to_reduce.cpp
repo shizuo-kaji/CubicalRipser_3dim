@@ -41,16 +41,16 @@ ColumnsToReduce::ColumnsToReduce(DenseCubicalGrids* _dcg) {
 	int ax = _dcg -> ax;
 	int ay = _dcg -> ay;
 	int az = _dcg -> az;
-	max_of_index = 512 * 512 * (az + 2);
-	int index;
+	max_of_index = MAX_SIZE * MAX_SIZE * (az + 2);
 	double birthday;
+	int index;
 	columns_to_reduce.reserve(ax*ay*az);
 
 	for(int z = az; z > 0; --z){
 		for (int y = ay; y > 0; --y) {
 			for (int x = ax; x > 0; --x) {
 				birthday = _dcg -> dense3[x][y][z];
-				index = x | (y << 9) | (z << 18);
+				index = x + y * MAX_SIZE + z * MAX_SIZE*MAX_SIZE;
 				if (birthday != _dcg -> threshold) {
 					columns_to_reduce.push_back(BirthdayIndex(birthday, index, 0));
 				}
@@ -60,6 +60,6 @@ ColumnsToReduce::ColumnsToReduce(DenseCubicalGrids* _dcg) {
 	sort(columns_to_reduce.begin(), columns_to_reduce.end(), BirthdayIndexComparator());
 }
 
-int ColumnsToReduce::size() {
+long ColumnsToReduce::size() {
 	return columns_to_reduce.size();
 }

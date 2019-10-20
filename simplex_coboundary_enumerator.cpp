@@ -59,48 +59,49 @@ void SimplexCoboundaryEnumerator::setSimplexCoboundaryEnumerator(BirthdayIndex _
 
 
 bool SimplexCoboundaryEnumerator::hasNextCoface() {
-	int index = 0;
 	double birthday = 0;
+	int m = 0;
 	cx = vtx -> ox;
 	cy = vtx -> oy;
 	cz = vtx -> oz;
+	ArrayIndex index;
 	switch (vtx->dim) {
 		case 0: // dim0
 		for (int i = count; i < 6; ++i) {
 			switch (i){
 				case 0:
-				index = (2 << 27) | (cz << 18) | (cy << 9) | cx;
-				birthday = max(birthtime, dcg -> dense3[cx][cy][cz + 1]);
+					index.set(cx, cy, cz, 2);
+					birthday = max(birthtime, dcg -> dense3[cx][cy][cz + 1]);
 				break;
 
 				case 1:
-				index = (2 << 27) | ((cz - 1) << 18) | (cy << 9) | cx;
-				birthday = max(birthtime, dcg -> dense3[cx][cy][cz - 1]);
+					index.set(cx, cy, cz-1, 2);
+					birthday = max(birthtime, dcg -> dense3[cx][cy][cz - 1]);
 				break;
 
 				case 2:
-				index = (1 << 27) | (cz << 18) | (cy << 9) | cx;
-				birthday = max(birthtime, dcg -> dense3[cx][cy + 1][cz]);
+					index.set(cx, cy, cz, 1);
+					birthday = max(birthtime, dcg -> dense3[cx][cy + 1][cz]);
 				break;
 
 				case 3:
-				index = (1 << 27) | (cz << 18) | ((cy - 1) << 9) | cx;
-				birthday = max(birthtime, dcg -> dense3[cx][cy - 1][cz]);
+					index.set(cx, cy-1, cz, 1);
+					birthday = max(birthtime, dcg -> dense3[cx][cy - 1][cz]);
 				break;
 
 				case 4:
-				index = (0 << 27) | (cz << 18) | (cy << 9) | cx;
-				birthday = max(birthtime, dcg -> dense3[cx + 1][cy][cz]);
+					index.set(cx, cy, cz, 0);
+					birthday = max(birthtime, dcg -> dense3[cx + 1][cy][cz]);
 				break;
 
 				case 5:
-				index = (0 << 27) | (cz << 18) | (cy << 9) | (cx - 1);
-				birthday = max(birthtime, dcg -> dense3[cx - 1][cy][cz]);
+					index.set(cx-1, cy, cz, 0);
+					birthday = max(birthtime, dcg -> dense3[cx - 1][cy][cz]);
 				break;
 			}
 			if (birthday != threshold) {
 				count = i + 1;
-				nextCoface = BirthdayIndex(birthday, index, 1);
+				nextCoface = BirthdayIndex(birthday, index.getIndex(), 1);
 				return true;
 			}
 		}
@@ -112,29 +113,29 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			for(int i = count; i < 4; ++i){
 				switch(i){
 					case 0:
-					index = (1 << 27) | (cz << 18) | (cy << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx][cy][cz + 1], dcg -> dense3[cx + 1][cy][cz + 1]});
+						index.set(cx, cy, cz, 1);
+						birthday = max({birthtime, dcg -> dense3[cx][cy][cz + 1], dcg -> dense3[cx + 1][cy][cz + 1]});
 					break;
 
 					case 1:
-					index = (1 << 27) | ((cz - 1) << 18) | (cy << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx][cy][cz - 1], dcg -> dense3[cx + 1][cy][cz - 1]});
+						index.set(cx, cy, cz-1, 1);
+						birthday = max({birthtime, dcg -> dense3[cx][cy][cz - 1], dcg -> dense3[cx + 1][cy][cz - 1]});
 					break;
 
 					case 2:
-					index = (cz << 18) | (cy << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx][cy + 1][cz], dcg -> dense3[cx + 1][cy + 1][cz]});
+						index.set(cx, cy, cz, 0);
+						birthday = max({birthtime, dcg -> dense3[cx][cy + 1][cz], dcg -> dense3[cx + 1][cy + 1][cz]});
 					break;
 
 					case 3:
-					index = (cz << 18) | ((cy - 1) << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx][cy - 1][cz], dcg -> dense3[cx + 1][cy - 1][cz]});
+						index.set(cx, cy-1, cz, 0);
+						birthday = max({birthtime, dcg -> dense3[cx][cy - 1][cz], dcg -> dense3[cx + 1][cy - 1][cz]});
 					break;
 				}
 
 				if (birthday != threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 2);
+					nextCoface = BirthdayIndex(birthday, index.getIndex(), 2);
 					return true;
 				}
 			}
@@ -144,28 +145,28 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			for(int i = count; i < 4; ++i){
 				switch(i){
 					case 0:
-					index = (2 << 27) | (cz << 18) | (cy << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx][cy][cz + 1], dcg -> dense3[cx][cy + 1][cz + 1]});
+						index.set(cx, cy, cz, 2);
+						birthday = max({birthtime, dcg -> dense3[cx][cy][cz + 1], dcg -> dense3[cx][cy + 1][cz + 1]});
 					break;
 
 					case 1:
-					index = (2 << 27) | ((cz - 1) << 18) | (cy << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx][cy][cz - 1], dcg -> dense3[cx][cy + 1][cz - 1]});
+						index.set(cx, cy, cz-1, 2);
+						birthday = max({birthtime, dcg -> dense3[cx][cy][cz - 1], dcg -> dense3[cx][cy + 1][cz - 1]});
 					break;
 
 					case 2:
-					index = (cz << 18) | (cy << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx + 1][cy][cz], dcg -> dense3[cx + 1][cy + 1][cz]});
+						index.set(cx, cy, cz, 0);
+						birthday = max({birthtime, dcg -> dense3[cx + 1][cy][cz], dcg -> dense3[cx + 1][cy + 1][cz]});
 					break;
 
 					case 3:
-					index = (cz << 18) | (cy << 9) | (cx - 1);
-					birthday = max({birthtime, dcg -> dense3[cx - 1][cy][cz], dcg -> dense3[cx - 1][cy + 1][cz]});
+						index.set(cx-1, cy, cz, 0);
+						birthday = max({birthtime, dcg -> dense3[cx - 1][cy][cz], dcg -> dense3[cx - 1][cy + 1][cz]});
 					break;
 				}
 				if (birthday != threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 2);
+					nextCoface = BirthdayIndex(birthday, index.getIndex(), 2);
 					return true;
 				}
 			}
@@ -175,28 +176,28 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			for(int i = count; i < 4; ++i){
 				switch(i){
 					case 0:
-					index = (2 << 27) | (cz << 18) | (cy << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx][cy + 1][cz], dcg -> dense3[cx][cy + 1][cz + 1]});
+						index.set(cx, cy, cz, 2);
+						birthday = max({birthtime, dcg -> dense3[cx][cy + 1][cz], dcg -> dense3[cx][cy + 1][cz + 1]});
 					break;
 
 					case 1:
-					index = (2 << 27) | (cz << 18) | ((cy - 1) << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx][cy - 1][cz], dcg -> dense3[cx][cy - 1][cz + 1]});
+						index.set(cx, cy-1, cz, 2);
+						birthday = max({birthtime, dcg -> dense3[cx][cy - 1][cz], dcg -> dense3[cx][cy - 1][cz + 1]});
 					break;
 
 					case 2:
-					index = (1 << 27) | (cz << 18) | (cy << 9) | cx;
-					birthday = max({birthtime, dcg -> dense3[cx + 1][cy][cz], dcg -> dense3[cx + 1][cy][cz + 1]});
+						index.set(cx, cy, cz, 1);
+						birthday = max({birthtime, dcg -> dense3[cx + 1][cy][cz], dcg -> dense3[cx + 1][cy][cz + 1]});
 					break;
 
 					case 3:
-					index = (1 << 27) | (cz << 18) | (cy << 9) | (cx - 1);
-					birthday = max({birthtime, dcg -> dense3[cx - 1][cy][cz], dcg -> dense3[cx - 1][cy][cz + 1]});
+						index.set(cx-1, cy, cz, 1);
+						birthday = max({birthtime, dcg -> dense3[cx - 1][cy][cz], dcg -> dense3[cx - 1][cy][cz + 1]});
 					break;
 				}
 				if (birthday != threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 2);
+					nextCoface = BirthdayIndex(birthday, index.getIndex(), 2);
 					return true;
 				}
 			}
@@ -210,21 +211,21 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			for(int i = count; i < 2; ++i){
 				switch(i){
 				case 0: // upper
-				index = (cz << 18) | (cy << 9) | cx;
-				birthday = max({birthtime, dcg -> dense3[cx][cy][cz + 1], dcg -> dense3[cx + 1][cy][cz + 1], 
+					index.set(cx, cy, cz, 0);
+					birthday = max({birthtime, dcg -> dense3[cx][cy][cz + 1], dcg -> dense3[cx + 1][cy][cz + 1],
 					dcg -> dense3[cx][cy + 1][cz + 1],dcg -> dense3[cx + 1][cy + 1][cz + 1]});
 				break;
 
 				case 1: // lower
-				index = ((cz - 1) << 18) | (cy << 9) | cx;
-				birthday = max({birthtime, dcg -> dense3[cx][cy][cz - 1], dcg -> dense3[cx + 1][cy][cz - 1], 
+					index.set(cx, cy, cz-1, 0);
+					birthday = max({birthtime, dcg -> dense3[cx][cy][cz - 1], dcg -> dense3[cx + 1][cy][cz - 1],
 					dcg -> dense3[cx][cy + 1][cz - 1],dcg -> dense3[cx + 1][cy + 1][cz - 1]});
 				break;
 
 				}
 				if (birthday != threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 3);
+					nextCoface = BirthdayIndex(birthday, index.getIndex(), 3);
 					return true;
 				}
 			}
@@ -234,21 +235,21 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			for(int i = count; i < 2; ++i){
 				switch(i){
 				case 0: // left
-				index = (cz << 18) | (cy << 9) | cx;
-				birthday = max({birthtime, dcg -> dense3[cx][cy + 1][cz], dcg -> dense3[cx + 1][cy + 1][cz], 
+					index.set(cx, cy, cz, 0);
+					birthday = max({birthtime, dcg -> dense3[cx][cy + 1][cz], dcg -> dense3[cx + 1][cy + 1][cz],
 					dcg -> dense3[cx][cy + 1][cz + 1],dcg -> dense3[cx + 1][cy + 1][cz + 1]});
 				break;
 
 				case 1: //right
-				index = (cz << 18) | ((cy - 1) << 9) | cx;
-				birthday = max({birthtime, dcg -> dense3[cx][cy - 1][cz], dcg -> dense3[cx + 1][cy - 1][cz], 
+					index.set(cx, cy-1, cz, 0);
+					birthday = max({birthtime, dcg -> dense3[cx][cy - 1][cz], dcg -> dense3[cx + 1][cy - 1][cz],
 					dcg -> dense3[cx][cy - 1][cz + 1],dcg -> dense3[cx + 1][cy - 1][cz + 1]});
 				break;
 
 				}
 				if (birthday != threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 3);
+					nextCoface = BirthdayIndex(birthday, index.getIndex(), 3);
 					return true;
 				}
 			}
@@ -258,21 +259,21 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			for(int i = count; i < 2; ++i){
 				switch(i){
 				case 0: // left
-				index = (cz << 18) | (cy << 9) | cx;
-				birthday = max({birthtime, dcg -> dense3[cx + 1][cy][cz], dcg -> dense3[cx + 1][cy + 1][cz], 
+					index.set(cx, cy, cz, 0);
+					birthday = max({birthtime, dcg -> dense3[cx + 1][cy][cz], dcg -> dense3[cx + 1][cy + 1][cz],
 					dcg -> dense3[cx + 1][cy][cz + 1],dcg -> dense3[cx + 1][cy + 1][cz + 1]});
 				break;
 
 				case 1: //right
-				index = (cz << 18) | (cy << 9) | (cx - 1);
-				birthday = max({birthtime, dcg -> dense3[cx - 1][cy][cz], dcg -> dense3[cx - 1][cy + 1][cz], 
+					index.set(cx-1, cy, cz, 0);
+					birthday = max({birthtime, dcg -> dense3[cx - 1][cy][cz], dcg -> dense3[cx - 1][cy + 1][cz],
 					dcg -> dense3[cx - 1][cy][cz + 1],dcg -> dense3[cx - 1][cy + 1][cz + 1]});
 				break;
 
 				}
 				if (birthday != threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 3);
+					nextCoface = BirthdayIndex(birthday, index.getIndex(), 3);
 					return true;
 				}
 			}

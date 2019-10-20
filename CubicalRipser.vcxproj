@@ -120,10 +120,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="birthday_index.cpp" />
-    <ClCompile Include="coeff.cpp" />
+    <ClCompile Include="array_index.cpp" />
     <ClCompile Include="columns_to_reduce.cpp" />
     <ClCompile Include="compute_pairs.cpp" />
-    <ClCompile Include="cubicalripser_3dim.cpp" />
+    <ClCompile Include="cubicalripser.cpp" />
     <ClCompile Include="dense_cubical_grids.cpp" />
     <ClCompile Include="joint_pairs.cpp" />
     <ClCompile Include="simplex_coboundary_enumerator.cpp" />
@@ -133,7 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="birthday_index.h" />
-    <ClInclude Include="coeff.h" />
+    <ClInclude Include="array_index.h" />
     <ClInclude Include="columns_to_reduce.h" />
     <ClInclude Include="compute_pairs.h" />
     <ClInclude Include="dense_cubical_grids.h" />

@@ -29,15 +29,34 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "write_pairs.h"
+#include <iostream>
+#include "array_index.h"
 
-WritePairs::WritePairs(int64_t _dim, double _birth, double _death, int64_t _birth_x,int64_t _birth_y,int64_t _birth_z){
+WritePairs::WritePairs(int64_t _dim, double _birth, double _death, int64_t _birth_x,int64_t _birth_y,int64_t _birth_z, bool print){
 	dim = _dim;
 	birth = _birth;
 	death = _death;
 	birth_x = _birth_x;
 	birth_y = _birth_y;
 	birth_z = _birth_z;
+	if (print == true) {
+		std::cout << "[" << birth << "," << death << ")" << " birth loc (" << birth_x << "," << birth_y << "," << birth_z << ")" << std::endl;
+	}
 }
+
+WritePairs::WritePairs(int64_t _dim, double _birth, double _death, long idx, bool print) {
+	dim = _dim;
+	birth = _birth;
+	death = _death;
+	ArrayIndex index(idx);
+	birth_x = index.cx;
+	birth_y = index.cy;
+	birth_z = index.cz;
+	if (print == true) {
+		std::cout << "[" << birth << "," << death << ")" << " birth loc (" << birth_x << "," << birth_y << "," << birth_z << ")" << std::endl;
+	}
+}
+
 
 int64_t WritePairs::getDimension(){
 	return dim;

@@ -57,7 +57,7 @@ void print_usage_and_exit(int exit_code) {
 	      << endl
 	      << "  --help           print this screen" << endl
 	      << "  --threshold <t>  compute cubical complexes up to birth time <t>" << endl
-	      << "  --maxdim <t>  compute persistent homology up to dimension <t>" << endl
+	      << "  --maxdim <t>     compute persistent homology up to dimension <t>" << endl
 	      << "  --method         method to compute the persistent homology of the cubical complexes. Options are" << endl
 	      << "                     link_find      (calculating the 0-dim PH, use 'link_find' algorithm; default)" << endl
 	      << "                     compute_pairs  (calculating the 0-dim PH, use 'compute_pairs' algorithm)" << endl
@@ -132,7 +132,9 @@ int main(int argc, char** argv){
 	
 	DenseCubicalGrids* dcg = new DenseCubicalGrids(filename, threshold, format);
 	ColumnsToReduce* ctr = new ColumnsToReduce(dcg);
-	
+
+	maxdim = std::min(maxdim, dcg->dim);
+
 	switch(method){
 		case LINKFIND:
 		{

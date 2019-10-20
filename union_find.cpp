@@ -36,11 +36,11 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-UnionFind::UnionFind(int moi, DenseCubicalGrids* _dcg) : parent(moi), birthtime(moi), time_max(moi) {
+UnionFind::UnionFind(long moi, DenseCubicalGrids* _dcg) : parent(moi), birthtime(moi), time_max(moi) {
 	dcg = _dcg;
 	max_of_index = moi;
 
-	for(int i = 0; i < moi; ++i){
+	for(long i = 0; i < moi; ++i){
 		parent[i] = i;
 		birthtime[i] = dcg -> getBirthday(i, 0);
 		time_max[i] = dcg -> getBirthday(i, 0);
@@ -48,8 +48,8 @@ UnionFind::UnionFind(int moi, DenseCubicalGrids* _dcg) : parent(moi), birthtime(
 }
 
 // find the root of a node x (specified by the index)
-int UnionFind::find(int x){
-	int y = x, z = parent[y];
+int UnionFind::find(long x){
+	long y = x, z = parent[y];
 	while (z != y) {
 		y = z;
 		z = parent[y];
@@ -65,7 +65,7 @@ int UnionFind::find(int x){
 }
 
 // merge nodes x and y (they should be root nodes); older will be the new parent
-void UnionFind::link(int x, int y){
+void UnionFind::link(long x, long y){
 	if (x == y) return;
 	if (birthtime[x] >= birthtime[y]){
 		parent[x] = y; 

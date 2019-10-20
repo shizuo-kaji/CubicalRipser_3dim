@@ -23,13 +23,15 @@ To build the software:
 
 To see the command-line options:
 
-    % ./CR3
+    % ./cubicalripser
 
 Example:
 
-    % ./CR3 --print --location --maxdim 2 --output out.csv dat/3dimsample1.txt
+    % ./cubicalripser --print --location --maxdim 2 --output out.csv demo/input.npy
 
 ## Input file format
+The maximum input size is 510 x 510 x 510. This can be changed by editing MAX_SIZE in array_index.h.
+- 3D Numpy array (recommended). The filename should end with ".npy". DType must be float64. See the Jupyter Notebook example.
 - Text file. The filename should end with ".txt"
 ```
 3
@@ -41,5 +43,4 @@ val[2,1,1]
 ...
 val[max_x,max_y,max_z]
 ```
-- Numpy array (3D). The filename should end with ".npy"
 - [DIPHA binary format](https://github.com/DIPHA/dipha#file-formats) 

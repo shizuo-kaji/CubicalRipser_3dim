@@ -18,16 +18,10 @@
     <ClCompile Include="birthday_index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="coeff.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="columns_to_reduce.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="compute_pairs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cubicalripser_3dim.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dense_cubical_grids.cpp">
@@ -48,12 +42,15 @@
     <ClCompile Include="write_pairs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cubicalripser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="array_index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="birthday_index.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="coeff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="columns_to_reduce.h">
@@ -81,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="npy.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="array_index.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

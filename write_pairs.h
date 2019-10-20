@@ -40,7 +40,8 @@ public:
 	int64_t birth_y;
 	int64_t birth_z;
 
-	WritePairs(int64_t _dim, double _birth, double _death, int64_t _birth_x=-1,int64_t _birth_y=-1,int64_t _birth_z=-1);
+	WritePairs(int64_t _dim, double _birth, double _death, int64_t _birth_x=-1,int64_t _birth_y=-1,int64_t _birth_z=-1, bool print = false);
+	WritePairs(int64_t _dim, double _birth, double _death, long index, bool print=false);
 
 	int64_t getDimension();
 	double getBirth();

@@ -37,9 +37,9 @@ public:
 
 	vector<BirthdayIndex> columns_to_reduce;
 	int dim;
-	int max_of_index;
+	long max_of_index;
 
 	ColumnsToReduce(DenseCubicalGrids* _dcg); 
 
-	int size(); 
+	long size(); 
 };

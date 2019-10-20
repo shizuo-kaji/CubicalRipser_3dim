@@ -1,9 +1,9 @@
 CC = c++
 #CC = cl     # for windows
 CFLAGS = -O3 -std=c++11 -march=native
-TARGET = CR3
-SRCS = cubicalripser_3dim.cpp dense_cubical_grids.cpp coeff.cpp vertices.cpp birthday_index.cpp columns_to_reduce.cpp simplex_coboundary_enumerator.cpp write_pairs.cpp union_find.cpp joint_pairs.cpp compute_pairs.cpp
-OBJS = cubicalripser_3dim.o dense_cubical_grids.o coeff.o vertices.o birthday_index.o columns_to_reduce.o simplex_coboundary_enumerator.o write_pairs.o union_find.o joint_pairs.o compute_pairs.o
+TARGET = cubicalripser
+SRCS = cubicalripser.cpp dense_cubical_grids.cpp array_index.cpp vertices.cpp birthday_index.cpp columns_to_reduce.cpp simplex_coboundary_enumerator.cpp write_pairs.cpp union_find.cpp joint_pairs.cpp compute_pairs.cpp
+OBJS = cubicalripser.o dense_cubical_grids.o array_index.o vertices.o birthday_index.o columns_to_reduce.o simplex_coboundary_enumerator.o write_pairs.o union_find.o joint_pairs.o compute_pairs.o
 
 .PHONY: all
 all: $(TARGET)
@@ -18,9 +18,9 @@ clean:
 $(TARGET): $(OBJS) $(SRCS)
 	$(CC) -o $@ $(OBJS)
 
-cubicalripser_3dim.o: cubicalripser_3dim.cpp
+cubicalripser_3dim.o: cubicalripser.cpp
 dense_cubical_grids.o: dense_cubical_grids.cpp dense_cubical_grids.h
-coeff.o: coeff.cpp coeff.h
+array_index.o: array_index.cpp array_index.h
 vertices.o: vertices.cpp vertices.h
 birthday_index.o: birthday_index.cpp birthday_index.h
 columns_to_reduce.o: columns_to_reduce.cpp columns_to_reduce.h

@@ -34,13 +34,13 @@ using namespace std;
 
 class UnionFind{
 public:
-	int max_of_index;
+	long max_of_index;
 	vector<int> parent;
 	vector<double> birthtime;
 	vector<double> time_max;
 	DenseCubicalGrids* dcg;
 
-	UnionFind(int moi, DenseCubicalGrids* _dcg); 
-	int find(int x); 
-	void link(int x, int y);
+	UnionFind(long moi, DenseCubicalGrids* _dcg); 
+	int find(long x); 
+	void link(long x, long y);
 };

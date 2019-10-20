@@ -35,8 +35,8 @@ using namespace std;
 
 class JointPairs{
 
-	int n; // the number of cubes
-	int ctr_moi;
+//	long n; // the number of cubes
+	long ctr_moi;
 	int ax, ay, az;
 	DenseCubicalGrids* dcg;
 	ColumnsToReduce* ctr;

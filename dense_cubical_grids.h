@@ -32,22 +32,25 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "vertices.h"
 
+// TODO: use "boost/multi_array.hpp"
+
+
 using namespace std;
 
 enum file_format { DIPHA, PERSEUS, NUMPY };
 
-class DenseCubicalGrids { // file_read
+class DenseCubicalGrids {
 public:
 	double threshold;
 	int dim;
 	int ax, ay, az;
-	double dense3[512][512][512];
+	double dense3[MAX_SIZE][MAX_SIZE][MAX_SIZE];
 	file_format format;
 
 	DenseCubicalGrids(const std::string& filename, double _threshold, file_format _format);
 
-	double getBirthday(int index, int dim);
+	double getBirthday(long ind, int dim);
 
-	void GetSimplexVertices(int index, int dim, Vertices* v);
+	void GetSimplexVertices(long index, int dim, Vertices* v);
 
 };

@@ -28,12 +28,12 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "coeff.h"
+#include "array_index.h"
 
 class Vertices
 {
 public:	
-	Coeff** vertex;
+	ArrayIndex** vertex;
 	int dim; 
 	int ox, oy, oz;
 	int type;
@@ -41,5 +41,6 @@ public:
 	Vertices();
 
 	void setVertices(int _dim, int _ox, int _oy, int _oz, int _om);
+	void setVertices(int _dim, long idx);
 
 };

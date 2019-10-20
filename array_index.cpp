@@ -1,4 +1,4 @@
-/* coeff.h
+/* array_index.cpp
 
 Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
 
@@ -27,19 +27,29 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-class Coeff
-{
-public:
-	int cx, cy, cz, cm;
+#include "array_index.h"
 
-	Coeff();
+ArrayIndex::ArrayIndex(int _x,int _y,int _z,int _m){
+	cx = _x;
+	cy = _y;
+	cz = _z;
+	cm = _m;
+}
 
-	void setXYZ(int _cx, int _cy, int _cz);
+ArrayIndex::ArrayIndex(long index) {
+	cx = index % MAX_SIZE;
+	cy = (index / MAX_SIZE) % MAX_SIZE;
+	cz = (index / MAX_SIZE / MAX_SIZE) % MAX_SIZE;
+	cm = (index / MAX_SIZE / MAX_SIZE / MAX_SIZE) % MAX_SIZE;
+}
 
-	void setXYZM(int _cx, int _cy, int _cz, int _cm);
+void ArrayIndex::set(int _cx, int _cy, int _cz, int _cm){
+	cx = _cx;
+	cy = _cy;
+	cz = _cz;
+	cm = _cm;
+}
 
-	void setIndex(int index);
-
-	int getIndex();
-
-};
+long ArrayIndex::getIndex(){
+	return cx + cy * MAX_SIZE + cz * MAX_SIZE*MAX_SIZE + cm * MAX_SIZE*MAX_SIZE*MAX_SIZE;
+}

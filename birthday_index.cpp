@@ -30,6 +30,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include "birthday_index.h"
+#include "array_index.h"
 
 using namespace std;
 
@@ -39,11 +40,19 @@ BirthdayIndex::BirthdayIndex(){
 	dim = 1;
 }
 
-BirthdayIndex::BirthdayIndex(double _b, int _i, int _d){
+BirthdayIndex::BirthdayIndex(double _b, long _index, int _d){
 	birthday = _b;
-	index = _i;
+	index = _index;
 	dim = _d;
 }
+
+BirthdayIndex::BirthdayIndex(double _b, int x, int y, int z, int m, int _d) {
+	birthday = _b;
+	ArrayIndex id(x,y,z,m);
+	index = id.getIndex();
+	dim = _d;
+}
+
 
 BirthdayIndex::BirthdayIndex(const BirthdayIndex& b){
 	birthday = b.birthday;
@@ -71,15 +80,6 @@ int BirthdayIndex::getDimension(){
 
 void BirthdayIndex::print(){
 	std::cout << "(dob:" << birthday << "," << index << ")" << std::endl;
-}
-
-void BirthdayIndex::VertexPrint(){
-	int px = index & 0x01ff;
-	int py = (index >> 9) & 0x01ff;
-	int pz = (index >> 18) & 0x01ff;
-	int pm = (index >> 27) & 0xff;
-	
-	cout << "birthday : (m, z, y, x) = " << birthday << " : (" << pm << ", " << pz << ", " << py << ", " << px << ")" << endl; 
 }
 	
 bool BirthdayIndexComparator::operator()(const BirthdayIndex& o1, const BirthdayIndex& o2) const{
