@@ -1,14 +1,12 @@
-# CubicalRipser_3dim : Persistent homology for 3D voxel data
+# CubicalRipser : Persistent homology for 2D image and 3D voxel data
 
 copyright by Takeki Sudo and Kazushi Ahara, Meiji University, 2018
 
 modified by Shizuo Kaji, Kyushu University, 2019
 
 ## Description
-CubicalRipser depends heavily on [Ripser](http://ripser.org), software for calculating Vietoris-Rips 
-persistent homology by Ulrich Bauer, 2015-2016.  
-CubicalRipser is an adaptation for a filtered cubical complex.
-In 2 and 3 dimensional case, we believe that CubicalRipser is much faster than DIPHA.
+CubicalRipser is an adaptation of [Ripser](http://ripser.org) by Ulrich Bauer for a filtered cubical complex.
+For 2 and 3 dimensional cubical complexes, we believe CubicalRipser is currently the fastest program for computing persistent homology.
 
 ## License
 CubicalRipser is free software: you can redistribute it and/or modify it under
@@ -27,11 +25,13 @@ To see the command-line options:
 
 Example:
 
-    % ./cubicalripser --print --location --maxdim 2 --output out.csv demo/input.npy
+    % ./cubicalripser --print --location --maxdim 2 --output out.csv demo/3dimsample.txt
 
 ## Input file format
+CubicalRipser takes three types of input files: NUMPY, TEXT, DIPHA.
 The maximum input size is 510 x 510 x 510. This can be changed by editing MAX_SIZE in array_index.h.
-- 3D Numpy array (recommended). The filename should end with ".npy". DType must be float64. See the Jupyter Notebook example.
+
+- 2D or 3D Numpy array (recommended). The filename should end with ".npy". DType must be float64. See the Jupyter Notebook example.
 - Text file. The filename should end with ".txt"
 ```
 3
