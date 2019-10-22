@@ -1,24 +1,8 @@
 /* compute_pairs.cpp
 
-Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
-
 This file is part of CubicalRipser_3dim.
-
-CubicalRipser: C++ system for computation of Cubical persistence pairs
 Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
-CubicalRipser is free software: you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation, either version 3 of the License, or (at your option)
-any later version.
-
-CubicalRipser is deeply depending on 'Ripser', software for Vietoris-Rips 
-persitence pairs by Ulrich Bauer, 2015-2016.  We appreciate Ulrich very much.
-We rearrange his codes of Ripser and add some new ideas for optimization on it 
-and modify it for calculation of a Cubical filtration.
-
-This part of CubicalRiper is a calculator of cubical persistence pairs for 
-3 dimensional pixel data. The input data format conforms to that of DIPHA.
- See more descriptions in README.
+Modified by Shizuo Kaji
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
@@ -40,18 +24,15 @@ using namespace std;
 
 #include "birthday_index.h"
 #include "dense_cubical_grids.h"
-#include "columns_to_reduce.h"
 #include "simplex_coboundary_enumerator.h"
 #include "union_find.h"
 #include "write_pairs.h"
 #include "joint_pairs.h"
 #include "compute_pairs.h"
-#include "array_index.h"
 	
-ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vector<WritePairs> &_wp, const bool _print){
+ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print){
 	dcg = _dcg;
-	ctr = _ctr;
-	dim = _ctr -> dim;
+	dim = 1; //  default method is LINK_FIND, where we skip dim=0
 	wp = &_wp;
 	print = _print;
 
@@ -60,14 +41,14 @@ ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vecto
 	az = _dcg -> az;
 }
 
-void ComputePairs::compute_pairs_main(){
+void ComputePairs::compute_pairs_main(vector<BirthdayIndex>& ctr){
 	if(print == true){
 		cout << "persistence intervals in dim " << dim << ":" << endl;
 	}
 	
 	pivot_column_index = hash_map<int, int>();
 	vector<BirthdayIndex> coface_entries;
-	auto ctl_size = ctr -> columns_to_reduce.size();
+	auto ctl_size = ctr.size();
 	SimplexCoboundaryEnumerator cofaces;
 	unordered_map<int, priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>> recorded_wc;
 
@@ -75,7 +56,7 @@ void ComputePairs::compute_pairs_main(){
 	recorded_wc.reserve(ctl_size);
 		
 	for(int i = 0; i < ctl_size; ++i){ 
-		auto column_to_reduce = ctr -> columns_to_reduce[i]; 
+		auto column_to_reduce = ctr[i]; 
 		priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator> 
 		working_coboundary;
 		double birth = column_to_reduce.getBirthday();
@@ -87,11 +68,11 @@ void ComputePairs::compute_pairs_main(){
 		bool goto_found_persistence_pair = false;
 
 		do {
-			auto simplex = ctr -> columns_to_reduce[j]; // get CTR[i] 
+			auto simplex = ctr[j];
 			coface_entries.clear();
 			cofaces.setSimplexCoboundaryEnumerator(simplex, dcg);// make coface data
 
-			while (cofaces.hasNextCoface() && !goto_found_persistence_pair) { // repeat there remains a coface
+			while (cofaces.hasNextCoface() && !goto_found_persistence_pair) { // repeat while there remains a coface
 				BirthdayIndex coface = cofaces.getNextCoface();
 				coface_entries.push_back(coface);
 				if (might_be_apparent_pair && (simplex.getBirthday() == coface.getBirthday())) { // If bt is the same, go thru
@@ -129,19 +110,26 @@ void ComputePairs::compute_pairs_main(){
 					} else { // If the pivot is new, 
 						// I record this wc into recorded_wc, and 
 						recorded_wc.insert(make_pair(i, working_coboundary));
-						// I output PP as Writepairs
 						double death = pivot.getBirthday();
-						outputPP(dim, birth, death, idx);
+						if (birth != death) {
+							vector<int> loc(dcg->getXYZM(idx));
+							wp->push_back(WritePairs(dim, birth, death, loc[0], loc[1], loc[2], print));
+						}
 						pivot_column_index.insert(make_pair(pivot.getIndex(), i));
 						break;
 					}
-				} else { // If wc is empty, I output a PP as [birth,) 
-					outputPP(-1, birth, dcg -> threshold, idx);
+				} else { // If wc is empty
+					if (birth != dcg->threshold) {
+						vector<int> loc(dcg->getXYZM(idx));
+						wp->push_back(WritePairs(0, birth, dcg->threshold, loc[0], loc[1], loc[2], print));
+					}
 					break;
 				}
-			} else { // (B) I have a new pivot and output PP as Writepairs 
+			} else { // (B) I have a new pivot
 				double death = pivot.getBirthday();
-				outputPP(dim, birth, death, idx);
+				if (birth != death) {
+					wp->push_back(WritePairs(dim, birth, death, idx, print));
+				}
 				pivot_column_index.insert(make_pair(pivot.getIndex(), i));
 				break;
 			}			
@@ -150,11 +138,6 @@ void ComputePairs::compute_pairs_main(){
 	}
 }
 
-void ComputePairs::outputPP(int _dim, double _birth, double _death, long idx){
-	if(_birth != _death){
-		wp -> push_back(WritePairs(_dim, _birth, _death, idx, print));
-	}
-}
 
 BirthdayIndex ComputePairs::pop_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
 	column){
@@ -186,38 +169,33 @@ BirthdayIndex ComputePairs::get_pivot(priority_queue<BirthdayIndex, vector<Birth
 	return result;
 }
 
-void ComputePairs::assemble_columns_to_reduce() {
-	++dim;
-	ctr -> dim = dim;
-
-	if (dim == 1) { 
-		ctr -> columns_to_reduce.clear();
-		for(int z = 1; z <= az; ++z){
-			for (int y = 1; y <= ay; ++y) {
-				for (int x = 1; x <= ax; ++x) {
-					for (int m = 0; m < 3; ++m) { // the number of type
-						long index = x + y * MAX_SIZE + z * MAX_SIZE*MAX_SIZE + m * MAX_SIZE*MAX_SIZE*MAX_SIZE;
-						if (pivot_column_index.find(index) == pivot_column_index.end()) {
-							double birthday = dcg -> getBirthday(index, 1);
-							if (birthday != dcg -> threshold) {
-								ctr -> columns_to_reduce.push_back(BirthdayIndex(birthday, index, 1));
-							}
-						}
+void ComputePairs::assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _dim) {
+	dim = _dim;
+	ctr.clear();
+	double birthday;
+	long ind;
+	if (dim == 0) {
+		for (int z = az - 1; z >= 0; --z) {
+			for (int y = ay - 1; y >= 0; --y) {
+				for (int x = ax - 1; x >= 0; --x) {
+					birthday = dcg->get(x, y, z);
+					if (birthday < dcg->threshold) {
+						ind = dcg->getIndex(x, y, z, 0);
+						ctr.push_back(BirthdayIndex(birthday, ind, 0));
 					}
 				}
 			}
 		}
-	} else if(dim == 2){ 
-		ctr -> columns_to_reduce.clear();
-		for(int z = 1; z <= az; ++z){
-			for (int y = 1; y <= ay; ++y) {
-				for (int x = 1; x <= ax; ++x) {
-					for (int m = 0; m < 3; ++m) { // the number of type
-						long index = x + y * MAX_SIZE + z * MAX_SIZE*MAX_SIZE + m * MAX_SIZE*MAX_SIZE*MAX_SIZE;
-						if (pivot_column_index.find(index) == pivot_column_index.end()) {
-							double birthday = dcg -> getBirthday(index, 2);
-							if (birthday != dcg -> threshold) {
-								ctr -> columns_to_reduce.push_back(BirthdayIndex(birthday, index, 2));
+	}else{ 
+		for(int z = 0; z < az; ++z){
+			for (int y = 0; y < ay; ++y) {
+				for (int x = 0; x < ax; ++x) {
+					for (int m = 0; m < 3; ++m) {
+						ind = dcg->getIndex(x,y,z,m);
+						if (pivot_column_index.find(ind) == pivot_column_index.end()) {
+							birthday = dcg -> getBirthday(x,y,z,m, dim);
+							if (birthday < dcg -> threshold) {
+								ctr.push_back(BirthdayIndex(birthday, ind, dim));
 							}
 						}
 					}
@@ -225,5 +203,5 @@ void ComputePairs::assemble_columns_to_reduce() {
 			}
 		}
 	}
-	sort(ctr -> columns_to_reduce.begin(), ctr -> columns_to_reduce.end(), BirthdayIndexComparator());
+	sort(ctr.begin(), ctr.end(), BirthdayIndexComparator());
 }

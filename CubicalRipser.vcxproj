@@ -116,32 +116,28 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="birthday_index.cpp" />
-    <ClCompile Include="array_index.cpp" />
-    <ClCompile Include="columns_to_reduce.cpp" />
     <ClCompile Include="compute_pairs.cpp" />
     <ClCompile Include="cubicalripser.cpp" />
     <ClCompile Include="dense_cubical_grids.cpp" />
     <ClCompile Include="joint_pairs.cpp" />
     <ClCompile Include="simplex_coboundary_enumerator.cpp" />
     <ClCompile Include="union_find.cpp" />
-    <ClCompile Include="vertices.cpp" />
     <ClCompile Include="write_pairs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="birthday_index.h" />
-    <ClInclude Include="array_index.h" />
-    <ClInclude Include="columns_to_reduce.h" />
     <ClInclude Include="compute_pairs.h" />
     <ClInclude Include="dense_cubical_grids.h" />
     <ClInclude Include="joint_pairs.h" />
     <ClInclude Include="npy.hpp" />
     <ClInclude Include="simplex_coboundary_enumerator.h" />
     <ClInclude Include="union_find.h" />
-    <ClInclude Include="vertices.h" />
     <ClInclude Include="write_pairs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

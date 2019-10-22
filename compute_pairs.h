@@ -1,24 +1,8 @@
 /* compute_pairs.h
 
+This file is part of CubicalRipser
 Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
-
-This file is part of CubicalRipser_3dim.
-
-CubicalRipser: C++ system for computation of Cubical persistence pairs
-Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
-CubicalRipser is free software: you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation, either version 3 of the License, or (at your option)
-any later version.
-
-CubicalRipser is deeply depending on 'Ripser', software for Vietoris-Rips 
-persitence pairs by Ulrich Bauer, 2015-2016.  We appreciate Ulrich very much.
-We rearrange his codes of Ripser and add some new ideas for optimization on it 
-and modify it for calculation of a Cubical filtration.
-
-This part of CubicalRiper is a calculator of cubical persistence pairs for 
-3 dimensional pixel data. The input data format conforms to that of DIPHA.
- See more descriptions in README.
+Modified by Shizuo Kaji
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
@@ -39,18 +23,15 @@ class ComputePairs
 {
 public:
 	DenseCubicalGrids* dcg;
-	ColumnsToReduce* ctr;
 	hash_map<int, int> pivot_column_index;
 	int ax, ay, az;
 	int dim;
 	vector<WritePairs> *wp;
 	bool print;
 
-	ComputePairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vector<WritePairs> &_wp, const bool _print);
+	ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print);
 
-	void compute_pairs_main();
-
-	void outputPP(int _dim, double _birth, double _death, long idx);
+	void compute_pairs_main(vector<BirthdayIndex>& ctr);
 
 	BirthdayIndex pop_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
 		column);
@@ -58,5 +39,5 @@ public:
 	BirthdayIndex get_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
 		column);
 
-	void assemble_columns_to_reduce();
+	void assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _dim);
 };

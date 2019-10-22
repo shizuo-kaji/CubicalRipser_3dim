@@ -29,9 +29,8 @@ Example:
 
 ## Input file format
 CubicalRipser takes three types of input files: NUMPY, TEXT, DIPHA.
-The maximum input size is 510 x 510 x 510. This can be changed by editing MAX_SIZE in array_index.h.
 
-- 2D or 3D Numpy array (recommended). The filename should end with ".npy". DType must be float64. See the Jupyter Notebook example.
+- 2D or 3D Numpy array (recommended). The filename should end with ".npy". DType must be float64. see the Jupyter Notebook example found under the demo directory.
 - Text file. The filename should end with ".txt"
 ```
 3
@@ -44,3 +43,14 @@ val[2,1,1]
 val[max_x,max_y,max_z]
 ```
 - [DIPHA binary format](https://github.com/DIPHA/dipha#file-formats) 
+
+
+## Difference with the original version
+I added the following functionality:
+- input/output numpy array file (.npy): see the Jupyter Notebook example found under the demo directory.
+- output birth location
+- no limitation on the input size
+
+In addition, I have cleaned up the codes, but there is still a room for optimisation.
+
+The volume data is accessed via an accessor (in DenseCubicalGrids), which made the program 10% slower than the original.

@@ -1,24 +1,8 @@
 /* joint_pairs.cpp
 
+This file is part of CubicalRipser
 Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
-
-This file is part of CubicalRipser_3dim.
-
-CubicalRipser: C++ system for computation of Cubical persistence pairs
-Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
-CubicalRipser is free software: you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation, either version 3 of the License, or (at your option)
-any later version.
-
-CubicalRipser is deeply depending on 'Ripser', software for Vietoris-Rips 
-persitence pairs by Ulrich Bauer, 2015-2016.  We appreciate Ulrich very much.
-We rearrange his codes of Ripser and add some new ideas for optimization on it 
-and modify it for calculation of a Cubical filtration.
-
-This part of CubicalRiper is a calculator of cubical persistence pairs for 
-3 dimensional pixel data. The input data format conforms to that of DIPHA.
- See more descriptions in README.
+Modified by Shizuo Kaji
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
@@ -35,85 +19,93 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "birthday_index.h"
 #include "dense_cubical_grids.h"
-#include "columns_to_reduce.h"
 #include "simplex_coboundary_enumerator.h"
 #include "union_find.h"
 #include "write_pairs.h"
 #include "joint_pairs.h"
-#include "array_index.h"
 
 using namespace std;
 
-JointPairs::JointPairs(DenseCubicalGrids* _dcg, ColumnsToReduce* _ctr, vector<WritePairs> &_wp, const bool _print){
+JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print){
 	dcg = _dcg;
-	ax = dcg -> ax;
-	ay = dcg -> ay;
-	az = dcg -> az;
-	ctr = _ctr; // ctr is "0-dim"simplex list.
-	ctr_moi = ctr -> max_of_index;
-//	n = ctr -> columns_to_reduce.size();
 	print = _print;
-
 	wp = &_wp;
-	vtx = new Vertices();
 
-	for(int x = 1; x <= ax; ++x){
-		for(int y = 1; y <= ay; ++y){
-			for(int z = 1; z <= az; ++z){
+	for(int x = 0; x < dcg->ax; ++x){
+		for(int y = 0; y < dcg->ay; ++y){
+			for(int z = 0; z < dcg->az; ++z){
 				for(int m = 0; m < 3; ++m){
-					long index = x + y * MAX_SIZE + z * MAX_SIZE*MAX_SIZE + m * MAX_SIZE*MAX_SIZE*MAX_SIZE;
-					double birthday = dcg -> getBirthday(index, 1);
+					double birthday = dcg -> getBirthday(x,y,z,m, 1);
 					if(birthday < dcg -> threshold){
+						long index = dcg->getIndex(x, y, z, m);
 						dim1_simplex_list.push_back(BirthdayIndex(birthday, index, 1));
 					}
 				}
 			}
 		}
 	}
-	sort(dim1_simplex_list.rbegin(), dim1_simplex_list.rend(), BirthdayIndexComparator());
+	std::sort(dim1_simplex_list.rbegin(), dim1_simplex_list.rend(), BirthdayIndexComparator());
 }
 
-void JointPairs::joint_pairs_main(){
-	UnionFind dset(ctr_moi, dcg);
+void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
+	UnionFind dset(dcg);
+	ctr.clear();
 	long u,v=0;
-	ctr -> columns_to_reduce.clear();
-	ctr -> dim = 1;
 	double min_birth = dcg -> threshold;
+	long min_idx,midx;
 
 	if(print == true){
 		cout << "persistence intervals in dim " << 0 << ":" << endl;
 	}
 	
 	for(auto e : dim1_simplex_list){
-		dcg -> GetSimplexVertices(e.getIndex(), 1, vtx);
-		u = dset.find(vtx -> vertex[0] -> getIndex());
-		v = dset.find(vtx -> vertex[1] -> getIndex());
-			
-		if(min_birth >= min(dset.birthtime[u], dset.birthtime[v])){
-			min_birth = min(dset.birthtime[u], dset.birthtime[v]);
+		vector<int> loc(dcg->getXYZM(e.index));
+		switch(loc[3]){
+			case 0:
+				u = dset.find(dcg->getIndex(loc[0],loc[1],loc[2]));
+				v = dset.find(dcg->getIndex(loc[0]+1, loc[1], loc[2]));
+				break;
+			case 1:
+				u = dset.find(dcg->getIndex(loc[0], loc[1], loc[2]));
+				v = dset.find(dcg->getIndex(loc[0], loc[1]+1, loc[2]));
+			break;
+			case 2:
+				u = dset.find(dcg->getIndex(loc[0], loc[1], loc[2]));
+				v = dset.find(dcg->getIndex(loc[0], loc[1], loc[2]+1));
+				break;
 		}
-
+			
 		if(u != v){
-			double birth;
+			double birth,mbirth;
 			int idx;
 			if(dset.birthtime[u] >= dset.birthtime[v]){
-				birth = dset.birthtime[u]; 
+				birth = dset.birthtime[u];
+				mbirth = dset.birthtime[v];
+				midx = v;
 				idx = u; // the one who dies to make a cycle
 			}else{
 				birth = dset.birthtime[v]; 
+				mbirth = dset.birthtime[u];
 				idx = v; // the one who dies to make a cycle
+				midx = u;
+			}
+			if (mbirth < min_birth) {
+				min_birth = mbirth;
+				min_idx = midx;
 			}
 			double death = e.getBirthday();
 			dset.link(u, v);
 			if(birth != death){
-				wp -> push_back(WritePairs(0, birth, death, idx, print));
+				vector<int> loc(dcg->getXYZM(idx));
+				wp -> push_back(WritePairs(0, birth, death, loc[0], loc[1], loc[2], print));
 			}
 		} else { // If two values have same "parent", these are potential edges which make a 2-simplex.
-			ctr -> columns_to_reduce.push_back(e);
+			ctr.push_back(e);
 		}
 	}
 
 	// the based point component
-	wp -> push_back(WritePairs(-1, min_birth, dcg -> threshold,u,print));
-	sort(ctr -> columns_to_reduce.begin(), ctr -> columns_to_reduce.end(), BirthdayIndexComparator());
+	vector<int> loc(dcg->getXYZM(min_idx));
+	wp -> push_back(WritePairs(0, min_birth, dcg -> threshold, loc[0],loc[1],loc[2],print));
+	std::sort(ctr.begin(), ctr.end(), BirthdayIndexComparator());
 }
