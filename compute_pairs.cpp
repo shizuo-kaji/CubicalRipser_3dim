@@ -175,9 +175,9 @@ void ComputePairs::assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _d
 	double birthday;
 	long ind;
 	if (dim == 0) {
-		for (int z = az - 1; z >= 0; --z) {
-			for (int y = ay - 1; y >= 0; --y) {
-				for (int x = ax - 1; x >= 0; --x) {
+		for (int z = 0; z < az ; ++z) {
+			for (int y = 0; y < ay; ++y) {
+				for (int x = 0; x < ax; ++x) {
 					birthday = dcg->get(x, y, z);
 					if (birthday < dcg->threshold) {
 						ind = dcg->getIndex(x, y, z, 0);

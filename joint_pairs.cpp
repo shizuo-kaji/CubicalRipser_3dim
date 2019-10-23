@@ -26,39 +26,39 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print){
+JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<BirthdayIndex>& ctr, vector<WritePairs> &_wp, const bool _print){
 	dcg = _dcg;
 	print = _print;
 	wp = &_wp;
+	ctr.clear();
 
-	for(int x = 0; x < dcg->ax; ++x){
-		for(int y = 0; y < dcg->ay; ++y){
-			for(int z = 0; z < dcg->az; ++z){
-				for(int m = 0; m < 3; ++m){
+	for(int x = dcg->ax - 1; x >= 0; --x){
+		for(int y = dcg->ay - 1; y >= 0; --y){
+			for(int z = dcg->az - 1; z >= 0; --z){
+				for(int m = 2; m >= 0 ; --m){
 					double birthday = dcg -> getBirthday(x,y,z,m, 1);
 					if(birthday < dcg -> threshold){
 						long index = dcg->getIndex(x, y, z, m);
-						dim1_simplex_list.push_back(BirthdayIndex(birthday, index, 1));
+						ctr.push_back(BirthdayIndex(birthday, index, 1));
 					}
 				}
 			}
 		}
 	}
-	std::sort(dim1_simplex_list.rbegin(), dim1_simplex_list.rend(), BirthdayIndexComparator());
+	std::sort(ctr.rbegin(), ctr.rend(), BirthdayIndexComparator());
 }
 
 void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
 	UnionFind dset(dcg);
-	ctr.clear();
 	long u,v=0;
 	double min_birth = dcg -> threshold;
-	long min_idx,midx;
+	long min_idx;
 
 	if(print == true){
 		cout << "persistence intervals in dim " << 0 << ":" << endl;
 	}
 	
-	for(auto e : dim1_simplex_list){
+	for(auto &e : ctr){
 		vector<int> loc(dcg->getXYZM(e.index));
 		switch(loc[3]){
 			case 0:
@@ -76,22 +76,22 @@ void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
 		}
 			
 		if(u != v){
-			double birth,mbirth;
+			double birth;
 			int idx;
 			if(dset.birthtime[u] >= dset.birthtime[v]){
 				birth = dset.birthtime[u];
-				mbirth = dset.birthtime[v];
-				midx = v;
 				idx = u; // the one who dies to make a cycle
+				if (dset.birthtime[v] < min_birth) {
+					min_birth = dset.birthtime[v];
+					min_idx = v;
+				}
 			}else{
 				birth = dset.birthtime[v]; 
-				mbirth = dset.birthtime[u];
 				idx = v; // the one who dies to make a cycle
-				midx = u;
-			}
-			if (mbirth < min_birth) {
-				min_birth = mbirth;
-				min_idx = midx;
+				if (dset.birthtime[u] < min_birth) {
+					min_birth = dset.birthtime[u];
+					min_idx = u;
+				}
 			}
 			double death = e.getBirthday();
 			dset.link(u, v);
@@ -99,13 +99,17 @@ void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
 				vector<int> loc(dcg->getXYZM(idx));
 				wp -> push_back(WritePairs(0, birth, death, loc[0], loc[1], loc[2], print));
 			}
-		} else { // If two values have same "parent", these are potential edges which make a 2-simplex.
-			ctr.push_back(e);
+			// If two values have same parent, these are potential edges which make a 2-simplex. Otherwise, remove.
+	        e.dim = -2;
 		}
 	}
-
 	// the based point component
 	vector<int> loc(dcg->getXYZM(min_idx));
 	wp -> push_back(WritePairs(0, min_birth, dcg -> threshold, loc[0],loc[1],loc[2],print));
+//	cout << ctr.size() << endl;
+	auto new_end = std::remove_if(ctr.begin(), ctr.end(),
+                              [](const BirthdayIndex& e){ return e.dim == -2; });
+	ctr.erase(new_end, ctr.end());
+//	cout << ctr.size() << endl;
 	std::sort(ctr.begin(), ctr.end(), BirthdayIndexComparator());
 }

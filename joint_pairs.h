@@ -19,13 +19,11 @@ using namespace std;
 
 class JointPairs{
 
-	long ctr_moi;
 	DenseCubicalGrids* dcg;
 	vector<WritePairs> *wp;
 	bool print;
-	vector<BirthdayIndex> dim1_simplex_list;
 
 public:
-	JointPairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print);
+	JointPairs(DenseCubicalGrids* _dcg, vector<BirthdayIndex>& ctr, vector<WritePairs> &_wp, const bool _print);
 	void joint_pairs_main( vector<BirthdayIndex>& ctr );
 };

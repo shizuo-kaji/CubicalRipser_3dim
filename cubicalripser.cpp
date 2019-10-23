@@ -48,7 +48,7 @@ void print_usage_and_exit(int exit_code) {
 	      << "                     compute_pairs  (calculating the 0-dim PH, use 'compute_pairs' algorithm)" << endl
 	      << "  --output         name of file that will contain the persistence diagram " << endl
 	      << "  --print          print persistence pairs on your console" << endl
-	      << "  --location          output birth location (currently, only for dim 0)" << endl
+	      << "  --location          output birth location" << endl
 	      << endl;
 
 	exit(exit_code);
@@ -119,19 +119,19 @@ int main(int argc, char** argv){
 	DenseCubicalGrids* dcg = new DenseCubicalGrids(filename, threshold, format);
 	vector<BirthdayIndex> ctr;
 
-	maxdim = std::min(maxdim, dcg->dim);
+	maxdim = std::min(maxdim, dcg->dim - 1);
 
 	// compute PH
+	ComputePairs* cp = new ComputePairs(dcg, writepairs, print);
 	switch(method){
 		case LINKFIND:
 		{
-			JointPairs* jp = new JointPairs(dcg, writepairs, print);
+			JointPairs* jp = new JointPairs(dcg, ctr, writepairs, print);
 			jp -> joint_pairs_main(ctr); // dim0
-			ComputePairs* cp = new ComputePairs(dcg, writepairs, print);
 			if(maxdim>0){
 				cp -> compute_pairs_main(ctr); // dim1
-				cp -> assemble_columns_to_reduce(ctr,2);
 				if(maxdim>1){			
+					cp -> assemble_columns_to_reduce(ctr,2);
 					cp -> compute_pairs_main(ctr); // dim2
 				}
 			}
@@ -140,7 +140,6 @@ int main(int argc, char** argv){
 		
 		case COMPUTEPAIRS:
 		{
-			ComputePairs* cp = new ComputePairs(dcg, writepairs, print);
 			cp -> assemble_columns_to_reduce(ctr, 0);
 			cp -> compute_pairs_main(ctr); // dim0
 			if(maxdim>0){

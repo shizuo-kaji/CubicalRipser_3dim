@@ -28,13 +28,11 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 	format = _format;
 
 	// read file
+	cout << filename << endl;
 	switch(format){
 		case DIPHA:
 		{
-			ifstream reading_file; 
-
 			ifstream fin( filename, ios::in | ios::binary );
-			cout << filename << endl;
 
 			int64_t d;
 			fin.read( ( char * ) &d, sizeof( int64_t ) ); // magic number
@@ -117,7 +115,6 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 		}
 		case NUMPY:
 		{
-			cout << filename << endl;
 			vector<unsigned long> shape;
 			npy::LoadArrayFromNumpy(filename.c_str(), shape, dense3);
 			if(shape.size() > 3){
@@ -138,8 +135,6 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 		}
 	}
 }
-
-
 
 double DenseCubicalGrids::getBirthday(int cx, int cy, int cz, int cm, int dim) {
 	switch (dim) {
@@ -175,6 +170,7 @@ double DenseCubicalGrids::getBirthday(int cx, int cy, int cz, int cm, int dim) {
 	return threshold; // dim > 3
 }
 
+// conversion from id to coordinates and type
 vector<int> DenseCubicalGrids::getXYZM(long index) {
 	vector<int> loc(4);   // (x,y,z,m)
 	loc[0] = index % ax;
@@ -184,6 +180,7 @@ vector<int> DenseCubicalGrids::getXYZM(long index) {
 	return(loc);
 }
 
+// unique id for each simplex (unique only within a single dimension)
 long  DenseCubicalGrids::getIndex(int x, int y, int z, int cm) {
 	return(x + y * ax + z * ax*ay + cm * ax*ay*az);
 }

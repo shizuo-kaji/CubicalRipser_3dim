@@ -36,7 +36,7 @@ void SimplexCoboundaryEnumerator::setSimplexCoboundaryEnumerator(BirthdayIndex _
 
 
 bool SimplexCoboundaryEnumerator::hasNextCoface() {
-	double birthday = 0;
+	double birthday;
 	vector<int> loc(dcg->getXYZM(simplex.index));
 	int cx = loc[0];
 	int cy = loc[1];
