@@ -17,14 +17,11 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-template <class Key, class T> class hash_map : public std::unordered_map<Key, T> {};
-
 class ComputePairs
 {
 public:
 	DenseCubicalGrids* dcg;
-	hash_map<int, int> pivot_column_index;
-	int ax, ay, az;
+	unordered_map<int, int> pivot_column_index;
 	int dim;
 	vector<WritePairs> *wp;
 	bool print;

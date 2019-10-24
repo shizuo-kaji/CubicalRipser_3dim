@@ -21,19 +21,17 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-SimplexCoboundaryEnumerator::SimplexCoboundaryEnumerator(){
+SimplexCoboundaryEnumerator::SimplexCoboundaryEnumerator(DenseCubicalGrids* _dcg){
 	nextCoface = BirthdayIndex(0, -1, 1);
+	dcg = _dcg;
+	threshold = _dcg -> threshold;
 }
 	
-
-void SimplexCoboundaryEnumerator::setSimplexCoboundaryEnumerator(BirthdayIndex _s, DenseCubicalGrids* _dcg) {
+void SimplexCoboundaryEnumerator::setSimplexCoboundaryEnumerator(BirthdayIndex& _s) {
 	simplex = _s;
-	dcg = _dcg;
 	birthtime = simplex.birthday;	
-	threshold = _dcg -> threshold;
 	count = 0;
 }
-
 
 bool SimplexCoboundaryEnumerator::hasNextCoface() {
 	double birthday;

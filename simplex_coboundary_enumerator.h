@@ -22,9 +22,9 @@ public:
 	BirthdayIndex nextCoface;
 	double threshold;
 
-	SimplexCoboundaryEnumerator();
+	SimplexCoboundaryEnumerator(DenseCubicalGrids* _dcg);
 
-	void setSimplexCoboundaryEnumerator(BirthdayIndex _s, DenseCubicalGrids* _dcg); 
+	void setSimplexCoboundaryEnumerator(BirthdayIndex& _s); 
 
 	bool hasNextCoface(); 
 
