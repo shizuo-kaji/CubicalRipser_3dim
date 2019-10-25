@@ -14,19 +14,16 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class SimplexCoboundaryEnumerator
 {
-public:
-	DenseCubicalGrids* dcg;
-	double birthtime;
+private:
 	int count;
+	DenseCubicalGrids* dcg;
+public:
 	BirthdayIndex simplex;
 	BirthdayIndex nextCoface;
-	double threshold;
 
 	SimplexCoboundaryEnumerator(DenseCubicalGrids* _dcg);
 
 	void setSimplexCoboundaryEnumerator(BirthdayIndex& _s); 
 
 	bool hasNextCoface(); 
-
-	BirthdayIndex getNextCoface();
 };

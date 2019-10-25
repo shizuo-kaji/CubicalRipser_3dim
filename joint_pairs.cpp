@@ -58,20 +58,19 @@ void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
 		cout << "persistence intervals in dim " << 0 << ":" << endl;
 	}
 	
-	for(auto &e : ctr){
-		vector<int> loc(dcg->getXYZM(e.index));
-		switch(loc[3]){
+	for(auto &e : ctr){ 
+		// we have to modify here when indexing scheme is changed
+		long ind = e.index % dcg->axyz;
+		u = dset.find(ind);
+		switch(e.index / dcg->axyz){
 			case 0:
-				u = dset.find(dcg->getIndex(loc[0],loc[1],loc[2]));
-				v = dset.find(dcg->getIndex(loc[0]+1, loc[1], loc[2]));
+				v = dset.find(ind+1);
 				break;
 			case 1:
-				u = dset.find(dcg->getIndex(loc[0], loc[1], loc[2]));
-				v = dset.find(dcg->getIndex(loc[0], loc[1]+1, loc[2]));
-			break;
+				v = dset.find(ind+(dcg->ax));
+				break;
 			case 2:
-				u = dset.find(dcg->getIndex(loc[0], loc[1], loc[2]));
-				v = dset.find(dcg->getIndex(loc[0], loc[1], loc[2]+1));
+				v = dset.find(ind+(dcg->axy));
 				break;
 		}
 			
@@ -93,7 +92,7 @@ void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
 					min_idx = u;
 				}
 			}
-			double death = e.getBirthday();
+			double death = e.birthday;
 			dset.link(u, v);
 			if(birth != death){
 				vector<int> loc(dcg->getXYZM(idx));

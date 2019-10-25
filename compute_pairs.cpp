@@ -53,39 +53,45 @@ void ComputePairs::compute_pairs_main(vector<BirthdayIndex>& ctr){
 		
 	for(int i = 0; i < ctl_size; ++i){ 
 		priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator> working_coboundary;
-		double birth = ctr[i].getBirthday();
-		long idx = ctr[i].getIndex();
+		double birth = ctr[i].birthday;
+		long idx = ctr[i].index;
 
 		int j = i;
 		BirthdayIndex pivot(0, -1, 0);
 		bool might_be_apparent_pair = true;
-		bool goto_found_persistence_pair = false;
+		bool found_persistence_pair = false;
 
 		do {
 			coface_entries.clear();
 			cofaces.setSimplexCoboundaryEnumerator(ctr[j]);
 
-			while (cofaces.hasNextCoface() && !goto_found_persistence_pair) { // repeat while there remains a coface
-				BirthdayIndex coface = cofaces.getNextCoface();
-				coface_entries.push_back(coface);
-				if (might_be_apparent_pair && (ctr[j].getBirthday() == coface.getBirthday())) { 
-					if (pivot_column_index.find(coface.getIndex()) == pivot_column_index.end()) { // If coface is not in pivot list
-						pivot.copyBirthdayIndex(coface); // I have a new pivot
-						goto_found_persistence_pair = true; // goto (B)
+			while (cofaces.hasNextCoface() && !found_persistence_pair) { // repeat while there remains a coface
+				coface_entries.push_back(cofaces.nextCoface);
+				if (might_be_apparent_pair && (ctr[j].birthday == cofaces.nextCoface.birthday)) { 
+					if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
+						pivot.copyBirthdayIndex(cofaces.nextCoface); // I have a new pivot
+						found_persistence_pair = true;
 					} else { // If pivot list contains this coface,
-						might_be_apparent_pair = false; // goto (A)
+						might_be_apparent_pair = false;
 					}
 				}
 			}
 
-			if (!goto_found_persistence_pair) { // (A) If pivot list contains this coface,
+			if (found_persistence_pair) { 
+				double death = pivot.birthday;
+				if (birth != death) {
+					vector<int> loc(dcg->getXYZM(idx));
+					wp->push_back(WritePairs(dim, birth, death, loc[0], loc[1], loc[2], print));
+				}
+				pivot_column_index.insert(make_pair(pivot.index, i));
+				break;
+			}else{
 				auto findWc = recorded_wc.find(j); 
 
 				if(findWc != recorded_wc.end()){ // If the pivot is old,
 					auto wc = findWc -> second;
-					while(!wc.empty()){ // push the data of the old pivot's wc
-						auto e = wc.top(); // TODO: use list of pointers to avoid (de)construction
-						working_coboundary.push(e);
+					while(!wc.empty()){ // push the old pivot's wc
+						working_coboundary.push(wc.top());
 						wc.pop();
 					}
 				} else { // If the pivot is new,
@@ -95,20 +101,19 @@ void ComputePairs::compute_pairs_main(vector<BirthdayIndex>& ctr){
 				}
 				pivot = get_pivot(working_coboundary); // get a pivot from wc
 
-				if (pivot.getIndex() != -1) { // When I have a pivot, ...
-					auto pair = pivot_column_index.find(pivot.getIndex());
+				if (pivot.index != -1) { // When I have a pivot, ...
+					auto pair = pivot_column_index.find(pivot.index);
 					if (pair != pivot_column_index.end()) {	// If the pivot already exists, go on the loop 
 						j = pair -> second;
 						continue;
-					} else { // If the pivot is new, 
-						// record this wc into recorded_wc, and 
+					} else { // If the pivot is new
 						recorded_wc.insert(make_pair(i, working_coboundary));
-						double death = pivot.getBirthday();
+						double death = pivot.birthday;
 						if (birth != death) {
 							vector<int> loc(dcg->getXYZM(idx));
 							wp->push_back(WritePairs(dim, birth, death, loc[0], loc[1], loc[2], print));
 						}
-						pivot_column_index.insert(make_pair(pivot.getIndex(), i));
+						pivot_column_index.insert(make_pair(pivot.index, i));
 						break;
 					}
 				} else { // If wc is empty
@@ -118,14 +123,6 @@ void ComputePairs::compute_pairs_main(vector<BirthdayIndex>& ctr){
 					}
 					break;
 				}
-			} else { // (B) I have a new pivot
-				double death = pivot.getBirthday();
-				if (birth != death) {
-					vector<int> loc(dcg->getXYZM(idx));
-					wp->push_back(WritePairs(dim, birth, death, loc[0], loc[1], loc[2], print));
-				}
-				pivot_column_index.insert(make_pair(pivot.getIndex(), i));
-				break;
 			}			
 
 		} while (true);
@@ -141,7 +138,7 @@ BirthdayIndex ComputePairs::pop_pivot(priority_queue<BirthdayIndex, vector<Birth
 		auto pivot = column.top();
 		column.pop();
 
-		while (!column.empty() && column.top().index == pivot.getIndex()) {
+		while (!column.empty() && column.top().index == pivot.index) {
 			column.pop();
 			if (column.empty())
 				return BirthdayIndex(0, -1, 0);
@@ -157,7 +154,7 @@ BirthdayIndex ComputePairs::pop_pivot(priority_queue<BirthdayIndex, vector<Birth
 BirthdayIndex ComputePairs::get_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
 	column) {
 	BirthdayIndex result = pop_pivot(column);
-	if (result.getIndex() != -1) {
+	if (result.index != -1) {
 		column.push(result);
 	}
 	return result;

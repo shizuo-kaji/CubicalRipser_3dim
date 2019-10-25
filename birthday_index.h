@@ -26,13 +26,7 @@ public:
 
 	BirthdayIndex(const BirthdayIndex& b);
 
-	void copyBirthdayIndex(BirthdayIndex v);
-
-	double getBirthday();
-
-	long getIndex();
-
-	int getDimension();
+	void copyBirthdayIndex(const BirthdayIndex& v);
 
 	void print();
 };

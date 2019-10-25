@@ -22,10 +22,22 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, file_format _format)  {
+double ***alloc3d(int x, int y, int z) {
+	double ***dense3 = (double***)malloc(x * sizeof(double**));
+	dense3[0] = (double**)malloc(y * z * sizeof(double*));
+	dense3[0][0] = (double*)malloc(x*y*z * sizeof(double));
+	for (int i = 0; i < x ; i++) {
+		dense3[i] = dense3[0] + i * x;
+		for (int j = 0; j < y; j++) dense3[i][j] = dense3[0][0] + i * y*z + j * z;
+	}
+	if (dense3 == NULL) {
+		cerr << "not enough memory!" << endl;
+	}
+	return dense3;
+}
+DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, file_format format)  {
 
 	threshold = _threshold;
-	format = _format;
 
 	// read file
 	cout << filename << endl;
@@ -53,19 +65,24 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			}else {
 				az = 1;
 			}
-			dense3.resize(ax*ay*az);
+			dense3 = alloc3d(ax, ay, az);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			double dou;
-			for(int z = 0; z < az; ++z){
-				for (int y = 0; y < ay; ++y) {
-					for (int x = 0; x < ax; ++x) {
-						if (!fin.eof()) {
-							fin.read((char *)&dou, sizeof(double));
-							set(x, y, z, dou);
+			for (int z = 0; z < az + 2; ++z) {
+				for (int y = 0; y < ay + 2; ++y) {
+					for (int x = 0; x < ax + 2; ++x) {
+						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
+							if (!fin.eof()) {
+								fin.read((char *)&dou, sizeof(double));
+								dense3[x][y][z] = dou;
+							}
+							else {
+								cerr << "file endof error " << endl;
+							}
 						}
 						else {
-							cerr << "file endof error " << endl;
+							dense3[x][y][z] = threshold;
 						}
 					}
 				}
@@ -93,30 +110,38 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			}else {
 				az = 1;
 			}
-			dense3.resize(ax*ay*az);
+			dense3 = alloc3d(ax, ay, az);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
-			for(int z = 0; z < az; ++z){
-				for (int y = 0; y <ay; ++y) { 
-					for (int x = 0; x < ax; ++x) {
-						if (!reading_file.eof()) {
-							getline(reading_file, reading_line_buffer);
-							double dou = atof(reading_line_buffer.c_str());
-							if (dou == -1) {
-								set(x, y, z, threshold);
-							}else{
-								set(x,y,z, dou); 
-							} 
-						} 
+			for (int z = 0; z < az + 2; ++z) {
+				for (int y = 0; y < ay + 2; ++y) {
+					for (int x = 0; x < ax + 2; ++x) {
+						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
+							if (!reading_file.eof()) {
+								getline(reading_file, reading_line_buffer);
+								double dou = atof(reading_line_buffer.c_str());
+								if (dou == -1) {
+									dense3[x][y][z] = threshold;
+								}
+								else {
+									dense3[x][y][z] = dou;
+								}
+							}
+						}
+						else {
+							dense3[x][y][z] = threshold;
+						}
 					} 
 				}
 			}
+			reading_file.close();
 			break;
 		}
 		case NUMPY:
 		{
 			vector<unsigned long> shape;
-			npy::LoadArrayFromNumpy(filename.c_str(), shape, dense3);
+			vector<double> data;
+			npy::LoadArrayFromNumpy(filename.c_str(), shape, data);
 			if(shape.size() > 3){
 				cerr << "Input array should be 2 or 3 dimensional " << endl;
 				exit(-1);
@@ -131,9 +156,26 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 				az = 1;
 			}
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
+			int i = 0;
+			for (int x = 0; x < ax + 2; ++x) {
+				for (int y = 0; y <ay + 2; ++y) {
+					for (int z = 0; z < az + 2; ++z) {
+						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
+							dense3[x][y][z] = data[i++];
+						}
+						else { // fill the boundary with the threashold value
+							dense3[x][y][z] = threshold;
+						}
+					}
+				}
+			}
 			break;
 		}
 	}
+	
+	axy = ax * ay;
+	ayz = ay * az;
+	axyz = ax * ay * az;
 }
 
 double DenseCubicalGrids::getBirthday(int cx, int cy, int cz, int cm, int dim) {
@@ -175,15 +217,7 @@ vector<int> DenseCubicalGrids::getXYZM(long index) {
 	vector<int> loc(4);   // (x,y,z,m)
 	loc[0] = index % ax;
 	loc[1] = (index / ax) % ay;
-	loc[2] = (index / ax / ay) % az;
-	loc[3] = (index / ax / ay / az);
+	loc[2] = (index / axy) % az;
+	loc[3] = (index / axyz);
 	return(loc);
-}
-
-// unique id for each simplex (unique only within a single dimension)
-long  DenseCubicalGrids::getIndex(int x, int y, int z, int cm) {
-	return(x + y * ax + z * ax*ay + cm * ax*ay*az);
-}
-
-DenseCubicalGrids::~DenseCubicalGrids() {
 }

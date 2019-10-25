@@ -17,14 +17,15 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-class ComputePairs
-{
-public:
-	DenseCubicalGrids* dcg;
+class ComputePairs{
+private:
+	DenseCubicalGrids * dcg;
 	unordered_map<int, int> pivot_column_index;
 	int dim;
 	vector<WritePairs> *wp;
 	bool print;
+
+public:
 
 	ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print);
 

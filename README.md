@@ -48,9 +48,7 @@ val[max_x,max_y,max_z]
 ## Difference with the original version
 I added the following functionality:
 - input/output numpy array file (.npy): see the Jupyter Notebook example found under the demo directory.
-- output birth location
 - no limitation on the input size
-
-In addition, I have cleaned up the codes, but there is still a room for optimisation.
-
-The volume data is accessed via an accessor (in DenseCubicalGrids), which made the program 10% slower than the original.
+- cleaned up/optimised codes
+- output birth location
+- bug fixes (including memory leaks)

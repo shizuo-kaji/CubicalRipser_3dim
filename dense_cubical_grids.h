@@ -21,32 +21,26 @@ using namespace std;
 enum file_format { DIPHA, PERSEUS, NUMPY };
 
 class DenseCubicalGrids {
-private:
-	vector<double> dense3;
 
 public:
+	double*** dense3;
 	double threshold;
 	int dim;
 	int ax, ay, az;
-	file_format format;
+	long axy, axyz, ayz;
 
-	DenseCubicalGrids(const std::string& filename, double _threshold, file_format _format);
-	~DenseCubicalGrids();
+	DenseCubicalGrids(const std::string& filename, double _threshold, file_format format);
 
 	double getBirthday(int x, int y, int z, int cm, int dim);
 	vector<int> getXYZM(long index);
-	long getIndex(int x, int y, int z, int cm=0);
-	void set(int x, int y, int z, double val) {
-		dense3[x*ay*az + y * az + z] = val;
+
+	// unique id for each simplex (unique only within a single dimension)
+	long getIndex(int x, int y, int z, int cm=0){
+		return(x + y * ax + z * axy + cm * axyz);
 	}
+
 	double get(int x, int y, int z) {
-		//assert(-1 <= x && x <= ax && -1 <= y && y <= ay && -1 <= z && z <= az);
-		if (x == -1 || y == -1 || z == -1 || x == ax || y == ay || z == az) {
-			return(threshold);
-		}
-		else {
-			return(dense3[x*ay*az + y * az + z]);
-		}
+			return(dense3[x+1][y+1][z+1]);
 	}
 
 };

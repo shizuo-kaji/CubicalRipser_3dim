@@ -17,14 +17,12 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 class UnionFind{
-public:
-	long n;
+private:
 	vector<int> parent;
-	vector<double> birthtime;
 	vector<double> time_max;
-	DenseCubicalGrids* dcg;
-
-	UnionFind(DenseCubicalGrids* _dcg); 
+public:
+	vector<double> birthtime;
+	UnionFind(DenseCubicalGrids* _dcg);
 	long find(long x); 
 	void link(long x, long y);
 };

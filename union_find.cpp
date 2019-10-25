@@ -21,8 +21,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
-	dcg = _dcg;
-	n = _dcg->ax * _dcg->ay * _dcg->az;
+	long n = _dcg->ax * _dcg->ay * _dcg->az;
 	parent.resize(n);
 	birthtime.resize(n);
 	time_max.resize(n);
@@ -30,8 +29,8 @@ UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
 	for(long i = 0; i < n; ++i){
 		parent[i] = i;
 		vector<int> loc(_dcg->getXYZM(i));
-		birthtime[i] = dcg->getBirthday(loc[0], loc[1], loc[2], loc[3], 0);
-		time_max[i] = dcg ->getBirthday(loc[0], loc[1], loc[2], loc[3], 0);
+		birthtime[i] = _dcg->getBirthday(loc[0], loc[1], loc[2], 0, 0);
+		time_max[i] = birthtime[i];
 	}
 }
 

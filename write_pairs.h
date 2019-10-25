@@ -24,6 +24,6 @@ public:
 	int birth_y;
 	int birth_z;
 
-	WritePairs(int _dim, double _birth, double _death, int _birth_x=-1,int _birth_y=-1,int _birth_z=-1, bool print = false);
+	WritePairs(int _dim, double _birth, double _death, int _birth_x,int _birth_y,int _birth_z, bool print = false);
 	
 };

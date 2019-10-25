@@ -35,22 +35,10 @@ BirthdayIndex::BirthdayIndex(const BirthdayIndex& b){
 	dim = b.dim;
 }
 
-void BirthdayIndex::copyBirthdayIndex(BirthdayIndex v){
+void BirthdayIndex::copyBirthdayIndex(const BirthdayIndex& v){
 	birthday = v.birthday;
 	index = v.index;
 	dim = v.dim;
-}
-
-double BirthdayIndex::getBirthday(){
-	return birthday;
-}
-
-long BirthdayIndex::getIndex(){
-	return index;
-}
-
-int BirthdayIndex::getDimension(){
-	return dim;
 }
 
 void BirthdayIndex::print(){
@@ -73,7 +61,6 @@ bool BirthdayIndexComparator::operator()(const BirthdayIndex& o1, const Birthday
 	}
 }
 
- 	
 bool BirthdayIndexInverseComparator::operator()(const BirthdayIndex& o1, const BirthdayIndex& o2) const{
 	if(o1.birthday == o2.birthday){
 		if(o1.index < o2.index){
