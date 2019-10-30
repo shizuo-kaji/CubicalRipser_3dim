@@ -31,11 +31,15 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<BirthdayIndex>& ctr, vect
 	print = _print;
 	wp = &_wp;
 	ctr.clear();
-
-	for(int x = dcg->ax - 1; x >= 0; --x){
-		for(int y = dcg->ay - 1; y >= 0; --y){
-			for(int z = dcg->az - 1; z >= 0; --z){
-				for(int m = 2; m >= 0 ; --m){
+	// the order of loop matters for performance!
+//	for (int m = 0; m < 3; ++m) {
+//		for (int z = 0; z < dcg->az; ++z) {
+//			for (int y = 0; y < dcg->ay; ++y) {
+//				for(int x = 0; x < dcg->ax ; ++x){
+	for (int m = 2; m >= 0; --m) {
+		for (int z = dcg->az - 1; z >= 0; --z) {
+			for (int y = dcg->ay - 1; y >= 0; --y) {
+				for (int x = dcg->ax - 1; x >= 0; --x) {
 					double birthday = dcg -> getBirthday(x,y,z,m, 1);
 					if(birthday < dcg -> threshold){
 						long index = dcg->getIndex(x, y, z, m);
@@ -45,7 +49,8 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<BirthdayIndex>& ctr, vect
 			}
 		}
 	}
-	std::sort(ctr.rbegin(), ctr.rend(), BirthdayIndexComparator());
+//	std::sort(ctr.rbegin(), ctr.rend(), BirthdayIndexComparator());
+	std::sort(ctr.begin(), ctr.end(), BirthdayIndexInverseComparator());
 }
 
 void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
@@ -62,15 +67,15 @@ void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
 		// we have to modify here when indexing scheme is changed
 		long ind = e.index % dcg->axyz;
 		u = dset.find(ind);
-		switch(e.index / dcg->axyz){
+		switch(e.index / dcg->axyz){ //type
 			case 0:
-				v = dset.find(ind+1);
+				v = dset.find(ind+1); // x+1
 				break;
 			case 1:
-				v = dset.find(ind+(dcg->ax));
+				v = dset.find(ind+(dcg->ax)); // y+1
 				break;
 			case 2:
-				v = dset.find(ind+(dcg->axy));
+				v = dset.find(ind+(dcg->axy)); // z+1
 				break;
 		}
 			

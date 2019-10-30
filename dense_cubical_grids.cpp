@@ -23,17 +23,17 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 double ***alloc3d(int x, int y, int z) {
-	double ***dense3 = (double***)malloc(x * sizeof(double**));
-	dense3[0] = (double**)malloc(y * z * sizeof(double*));
-	dense3[0][0] = (double*)malloc(x*y*z * sizeof(double));
+	double ***d = (double***)malloc(x * sizeof(double**));
+	d[0] = (double**)malloc(x * y * sizeof(double*));
+	d[0][0] = (double*)malloc(x*y*z * sizeof(double));
 	for (int i = 0; i < x ; i++) {
-		dense3[i] = dense3[0] + i * x;
-		for (int j = 0; j < y; j++) dense3[i][j] = dense3[0][0] + i * y*z + j * z;
+		d[i] = d[0] + i * y;
+		for (int j = 0; j < y; j++) d[i][j] = d[0][0] + i * y*z + j * z;
 	}
-	if (dense3 == NULL) {
+	if (d == NULL) {
 		cerr << "not enough memory!" << endl;
 	}
-	return dense3;
+	return d;
 }
 DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, file_format format)  {
 
@@ -65,7 +65,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			}else {
 				az = 1;
 			}
-			dense3 = alloc3d(ax, ay, az);
+			dense3 = alloc3d(ax+2, ay+2, az+2);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			double dou;
@@ -110,7 +110,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			}else {
 				az = 1;
 			}
-			dense3 = alloc3d(ax, ay, az);
+			dense3 = alloc3d(ax+2, ay+2, az+2);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			for (int z = 0; z < az + 2; ++z) {
@@ -156,6 +156,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 				az = 1;
 			}
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
+			dense3 = alloc3d(ax + 2, ay + 2, az + 2);
 			int i = 0;
 			for (int x = 0; x < ax + 2; ++x) {
 				for (int y = 0; y <ay + 2; ++y) {
@@ -179,35 +180,36 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 }
 
 double DenseCubicalGrids::getBirthday(int cx, int cy, int cz, int cm, int dim) {
+	// beware of the shift due to the boundary
 	switch (dim) {
 		case 0:
-			return get(cx,cy,cz);
+			return dense3[cx+1][cy+1][cz+1];
 		case 1:
 			switch (cm) {
 			case 0:
-				return max(get(cx,cy,cz), get(cx+1, cy, cz));
+				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 1][cz + 1]);
 			case 1:
-				return max(get(cx,cy,cz), get(cx, cy+1, cz));
+				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 2][cz + 1]);
 			case 2:
-				return max(get(cx,cy,cz), get(cx, cy, cz+1));
+				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 1][cz + 2]);
 			}
 		case 2:
 			switch (cm) {
 			case 0: // x - y (fix z)
-				return max({ get(cx,cy,cz), get(cx+1,cy,cz),
-					get(cx+1,cy+1,cz), get(cx,cy+1,cz) });
+				return max({ dense3[cx+1][cy+1][cz+1], dense3[cx+2][cy+1][cz+1],
+					dense3[cx+2][cy+2][cz+1], dense3[cx+1][cy+2][cz+1] });
 			case 1: // z - x (fix y)
-				return max({ get(cx,cy,cz), get(cx,cy,cz+1),
-					get(cx+1,cy,cz+1), get(cx+1,cy,cz) });
+				return max({ dense3[cx+1][cy+1][cz+1], dense3[cx+1][cy+1][cz+2],
+					dense3[cx+2][cy+1][cz+2], dense3[cx+2][cy+1][cz+1] });
 			case 2: // y - z (fix x)
-				return max({ get(cx,cy,cz), get(cx,cy+1,cz),
-					get(cx,cy+1,cz+1), get(cx,cy,cz+1) });
+				return max({ dense3[cx+1][cy+1][cz+1], dense3[cx+1][cy+2][cz+1],
+					dense3[cx+1][cy+2][cz+2], dense3[cx+1][cy+1][cz+2] });
 			}
 		case 3:
-			return max({ get(cx,cy,cz), get(cx+1,cy,cz),
-				get(cx+1,cy+1,cz), get(cx,cy+1,cz),
-				get(cx,cy,cz+1), get(cx+1,cy,cz+1),
-				get(cx+1,cy+1,cz+1), get(cx,cy+1,cz+1) });
+			return max({ dense3[cx+1][cy+1][cz+1], dense3[cx+2][cy+1][cz+1],
+				dense3[cx+2][cy+2][cz+1], dense3[cx+1][cy+2][cz+1],
+				dense3[cx+1][cy+1][cz+2], dense3[cx+2][cy+1][cz+2],
+				dense3[cx+2][cy+2][cz+2], dense3[cx+1][cy+2][cz+2] });
 		}
 	return threshold; // dim > 3
 }
@@ -220,4 +222,10 @@ vector<int> DenseCubicalGrids::getXYZM(long index) {
 	loc[2] = (index / axy) % az;
 	loc[3] = (index / axyz);
 	return(loc);
+}
+
+DenseCubicalGrids::~DenseCubicalGrids(){
+	free(dense3[0][0]);
+	free(dense3[0]);
+	free(dense3);
 }

@@ -19,9 +19,9 @@ WritePairs::WritePairs(int _dim, double _birth, double _death, int _birth_x,int 
 	dim = _dim;
 	birth = _birth;
 	death = _death;
-	birth_x = _birth_x-1;  // -1 is to account for the shift due to the boundary
-	birth_y = _birth_y-1;
-	birth_z = _birth_z-1;
+	birth_x = _birth_x; 
+	birth_y = _birth_y;
+	birth_z = _birth_z;
 	if (print == true) {
 		std::cout << "[" << birth << "," << death << ")" << " birth loc (" << birth_x << "," << birth_y << "," << birth_z << ")" << std::endl;
 	}

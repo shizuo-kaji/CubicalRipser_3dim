@@ -21,16 +21,16 @@ using namespace std;
 enum file_format { DIPHA, PERSEUS, NUMPY };
 
 class DenseCubicalGrids {
-
 public:
-	double*** dense3;
 	double threshold;
 	int dim;
 	int ax, ay, az;
 	long axy, axyz, ayz;
+	double*** dense3;
 
 	DenseCubicalGrids(const std::string& filename, double _threshold, file_format format);
-
+	~DenseCubicalGrids();
+	
 	double getBirthday(int x, int y, int z, int cm, int dim);
 	vector<int> getXYZM(long index);
 
@@ -38,9 +38,4 @@ public:
 	long getIndex(int x, int y, int z, int cm=0){
 		return(x + y * ax + z * axy + cm * axyz);
 	}
-
-	double get(int x, int y, int z) {
-			return(dense3[x+1][y+1][z+1]);
-	}
-
 };

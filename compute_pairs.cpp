@@ -169,7 +169,7 @@ void ComputePairs::assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _d
 		for (int z = 0; z < dcg->az ; ++z) {
 			for (int y = 0; y < dcg->ay; ++y) {
 				for (int x = 0; x < dcg->ax; ++x) {
-					birthday = dcg->get(x, y, z);
+					birthday = dcg->getBirthday(x,y,z,0,0);
 					if (birthday < dcg->threshold) {
 						ind = dcg->getIndex(x, y, z, 0);
 						ctr.push_back(BirthdayIndex(birthday, ind, 0));
@@ -178,10 +178,10 @@ void ComputePairs::assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _d
 			}
 		}
 	}else{ 
-		for(int z = 0; z < dcg->az; ++z){
-			for (int y = 0; y < dcg->ay; ++y) {
-				for (int x = 0; x < dcg->ax; ++x) {
-					for (int m = 0; m < 3; ++m) {
+		for (int m = 0; m < 3; ++m) {
+			for(int z = 0; z < dcg->az; ++z){
+				for (int y = 0; y < dcg->ay; ++y) {
+					for (int x = 0; x < dcg->ax; ++x) {
 						ind = dcg->getIndex(x,y,z,m);
 						if (pivot_column_index.find(ind) == pivot_column_index.end()) {
 							birthday = dcg -> getBirthday(x,y,z,m, dim);

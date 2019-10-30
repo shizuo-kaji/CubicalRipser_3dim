@@ -33,49 +33,50 @@ void SimplexCoboundaryEnumerator::setSimplexCoboundaryEnumerator(BirthdayIndex& 
 
 bool SimplexCoboundaryEnumerator::hasNextCoface() {
 	double birthday;
-	vector<int> loc(dcg->getXYZM(simplex.index));
-	int cx = loc[0];
-	int cy = loc[1];
-	int cz = loc[2];
-	int cm = loc[3];
+	int cx = simplex.index % dcg->ax;
+	int cy = (simplex.index / dcg->ax) % dcg->ay;
+	int cz = (simplex.index / dcg->axy) % dcg->az;
+	int cm = (simplex.index / dcg->axyz);
 	long index;
+	// note the shift for the boundary
 	switch (simplex.dim) {
 		case 0: // dim0
 		for (int i = count; i < 6; ++i) {
 			switch (i){
-				case 0:
-					index = dcg->getIndex(cx, cy, cz, 2);
-					birthday = max(simplex.birthday, dcg->get(cx,cy,cz + 1));
+			case 0:
+				index= dcg->getIndex(cx, cy, cz, 2);
+				birthday = max(simplex.birthday, dcg->dense3[cx+1][cy+1][cz+2]);
 				break;
 
-				case 1:
-					index = dcg->getIndex(cx, cy, cz-1, 2);
-					birthday = max(simplex.birthday, dcg->get(cx, cy, cz - 1));
+			case 1:
+				index= dcg->getIndex(cx, cy, cz - 1, 2);
+				birthday = max(simplex.birthday, dcg->dense3[cx+1][cy+1][cz]);
 				break;
 
-				case 2:
-					index = dcg->getIndex(cx, cy, cz, 1);
-					birthday = max(simplex.birthday, dcg->get(cx, cy+1, cz));
+			case 2:
+				index= dcg->getIndex(cx, cy, cz, 1);
+				birthday = max(simplex.birthday, dcg->dense3[cx+1][cy + 2][cz+1]);
 				break;
 
-				case 3:
-					index = dcg->getIndex(cx, cy-1, cz, 1);
-					birthday = max(simplex.birthday, dcg->get(cx, cy-1, cz));
+			case 3:
+				index= dcg->getIndex(cx, cy - 1, cz, 1);
+				birthday = max(simplex.birthday, dcg->dense3[cx+1][cy][cz+1]);
 				break;
 
-				case 4:
-					index = dcg->getIndex(cx, cy, cz, 0);
-					birthday = max(simplex.birthday, dcg->get(cx+1, cy, cz));
+			case 4:
+				index= dcg->getIndex(cx, cy, cz, 0);
+				birthday = max(simplex.birthday, dcg->dense3[cx + 2][cy+1][cz+1]);
 				break;
 
-				case 5:
-					index = dcg->getIndex(cx-1, cy, cz, 0);
-					birthday = max(simplex.birthday, dcg->get(cx - 1, cy, cz));
+			case 5:
+				index= dcg->getIndex(cx - 1, cy, cz, 0);
+				birthday = max(simplex.birthday, dcg->dense3[cx][cy+1][cz+1]);
 				break;
 			}
+
 			if (birthday != dcg->threshold) {
 				count = i + 1;
-				nextCoface = BirthdayIndex(birthday, index, 1);
+				nextCoface = BirthdayIndex(birthday, index, simplex.dim + 1);
 				return true;
 			}
 		}
@@ -86,30 +87,30 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			case 0: // dim1 type0 (x-axis -> )
 			for(int i = count; i < 4; ++i){
 				switch(i){
-					case 0:
-						index = dcg->getIndex(cx, cy, cz, 1);
-						birthday = max({ simplex.birthday, dcg->get(cx, cy, cz + 1), dcg->get(cx + 1, cy, cz + 1) });
+				case 0:
+					index= dcg->getIndex(cx, cy, cz, 1);
+					birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy+1][cz + 2], dcg->dense3[cx + 2][cy+1][cz + 2] });
 					break;
 
-					case 1:
-						index = dcg->getIndex(cx, cy, cz-1, 1);
-						birthday = max({ simplex.birthday, dcg->get(cx, cy, cz - 1), dcg->get(cx + 1, cy, cz - 1) });
+				case 1:
+					index= dcg->getIndex(cx, cy, cz - 1, 1);
+					birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy+1][cz], dcg->dense3[cx + 2][cy+1][cz] });
 					break;
 
-					case 2:
-						index = dcg->getIndex(cx, cy, cz, 0);
-						birthday = max({ simplex.birthday, dcg->get(cx, cy + 1, cz), dcg->get(cx + 1, cy + 1, cz) });
+				case 2:
+					index= dcg->getIndex(cx, cy, cz, 0);
+					birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy + 2][cz+1], dcg->dense3[cx + 2][cy + 2][cz+1] });
 					break;
 
-					case 3:
-						index = dcg->getIndex(cx, cy-1, cz, 0);
-						birthday = max({ simplex.birthday, dcg->get(cx, cy - 1, cz), dcg->get(cx + 1, cy - 1, cz) });
+				case 3:
+					index= dcg->getIndex(cx, cy - 1, cz, 0);
+					birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy][cz+1], dcg->dense3[cx + 2][cy][cz+1] });
 					break;
 				}
 
 				if (birthday != dcg->threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 2);
+					nextCoface = BirthdayIndex(birthday, index, simplex.dim + 1);
 					return true;
 				}
 			}
@@ -118,29 +119,30 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			case 1: // dim1 type1 (y-axis -> )
 			for(int i = count; i < 4; ++i){
 				switch(i){
-					case 0:
-						index = dcg->getIndex(cx, cy, cz, 2);
-						birthday = max({ simplex.birthday, dcg->get(cx, cy, cz + 1), dcg->get(cx, cy + 1, cz + 1) });
+				case 0:
+					index= dcg->getIndex(cx, cy, cz, 2);
+					birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy+1][cz + 2], dcg->dense3[cx+1][cy + 2][cz + 2] });
 					break;
 
-					case 1:
-						index = dcg->getIndex(cx, cy, cz-1, 2);
-						birthday = max({ simplex.birthday, dcg->get(cx, cy, cz - 1), dcg->get(cx, cy + 1, cz - 1) });
+				case 1:
+					index= dcg->getIndex(cx, cy, cz - 1, 2);
+					birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy+1][cz], dcg->dense3[cx+1][cy + 2][cz] });
 					break;
 
-					case 2:
-						index = dcg->getIndex(cx, cy, cz, 0);
-						birthday = max({ simplex.birthday, dcg->get(cx + 1, cy, cz), dcg->get(cx + 1, cy + 1, cz) });
+				case 2:
+					index= dcg->getIndex(cx, cy, cz, 0);
+					birthday = max({ simplex.birthday, dcg->dense3[cx + 2][cy+1][cz+1], dcg->dense3[cx + 2][cy + 2][cz+1] });
 					break;
 
-					case 3:
-						index = dcg->getIndex(cx-1, cy, cz, 0);
-						birthday = max({ simplex.birthday, dcg->get(cx - 1, cy, cz), dcg->get(cx - 1, cy + 1, cz) });
+				case 3:
+					index= dcg->getIndex(cx - 1, cy, cz, 0);
+					birthday = max({ simplex.birthday, dcg->dense3[cx][cy+1][cz+1], dcg->dense3[cx][cy + 2][cz+1] });
 					break;
 				}
+
 				if (birthday != dcg->threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 2);
+					nextCoface = BirthdayIndex(birthday, index, simplex.dim + 1);
 					return true;
 				}
 			}
@@ -150,28 +152,29 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			for(int i = count; i < 4; ++i){
 				switch(i){
 					case 0:
-						index = dcg->getIndex(cx, cy, cz, 2);
-						birthday = max({ simplex.birthday, dcg->get(cx, cy + 1, cz), dcg->get(cx, cy + 1, cz + 1) });
-					break;
+						index= dcg->getIndex(cx, cy, cz, 2);
+						birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy + 2][cz+1], dcg->dense3[cx+1][cy + 2][cz + 2] });
+						break;
 
 					case 1:
-						index = dcg->getIndex(cx, cy-1, cz, 2);
-						birthday = max({ simplex.birthday, dcg->get(cx, cy - 1, cz), dcg->get(cx, cy - 1, cz + 1) });
-					break;
+						index= dcg->getIndex(cx, cy - 1, cz, 2);
+						birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy][cz+1], dcg->dense3[cx+1][cy][cz + 2] });
+						break;
 
 					case 2:
-						index = dcg->getIndex(cx, cy, cz, 1);
-						birthday = max({ simplex.birthday, dcg->get(cx + 1, cy, cz), dcg->get(cx + 1, cy, cz + 1) });
-					break;
+						index= dcg->getIndex(cx, cy, cz, 1);
+						birthday = max({ simplex.birthday, dcg->dense3[cx + 2][cy+1][cz+1], dcg->dense3[cx + 2][cy+1][cz + 2] });
+						break;
 
 					case 3:
-						index = dcg->getIndex(cx-1, cy, cz, 1);
-						birthday = max({ simplex.birthday, dcg->get(cx - 1, cy, cz), dcg->get(cx - 1, cy, cz + 1) });
-					break;
+						index= dcg->getIndex(cx - 1, cy, cz, 1);
+						birthday = max({ simplex.birthday, dcg->dense3[cx][cy+1][cz+1], dcg->dense3[cx][cy+1][cz + 2] });
+						break;
 				}
+
 				if (birthday != dcg->threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 2);
+					nextCoface = BirthdayIndex(birthday, index, simplex.dim + 1);
 					return true;
 				}
 			}
@@ -184,22 +187,22 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			case 0: // dim2 type0 (fix z)
 			for(int i = count; i < 2; ++i){
 				switch(i){
-				case 0: // upper
-					index = dcg->getIndex(cx, cy, cz, 0);
-					birthday = max({ simplex.birthday, dcg->get(cx, cy, cz + 1), dcg->get(cx + 1, cy, cz + 1),
-						dcg->get(cx, cy+1, cz + 1), dcg->get(cx + 1, cy+1, cz + 1) });
-				break;
+					case 0: // upper
+						index= dcg->getIndex(cx, cy, cz, 0);
+						birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy+1][cz + 2], dcg->dense3[cx + 2][cy+1][cz + 2],
+							dcg->dense3[cx+1][cy + 2][cz + 2],dcg->dense3[cx + 2][cy + 2][cz + 2] });
+						break;
 
-				case 1: // lower
-					index = dcg->getIndex(cx, cy, cz-1, 0);
-					birthday = max({ simplex.birthday, dcg->get(cx, cy, cz - 1), dcg->get(cx + 1, cy, cz - 1),
-						dcg->get(cx, cy + 1, cz - 1), dcg->get(cx + 1, cy + 1, cz - 1) });
-				break;
-
+					case 1: // lower
+						index= dcg->getIndex(cx, cy, cz - 1, 0);
+						birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy+1][cz], dcg->dense3[cx + 2][cy+1][cz],
+							dcg->dense3[cx+1][cy + 2][cz],dcg->dense3[cx + 2][cy + 2][cz] });
+						break;
 				}
+
 				if (birthday != dcg->threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 3);
+					nextCoface = BirthdayIndex(birthday, index, simplex.dim+1);
 					return true;
 				}
 			}
@@ -208,22 +211,22 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			case 1: // dim2 type1 (fix y)
 			for(int i = count; i < 2; ++i){
 				switch(i){
-				case 0: // left
-					index = dcg->getIndex(cx, cy, cz, 0);
-					birthday = max({ simplex.birthday, dcg->get(cx, cy+1, cz), dcg->get(cx + 1, cy+1, cz),
-						dcg->get(cx, cy + 1, cz + 1), dcg->get(cx + 1, cy + 1, cz + 1) });
-				break;
+					case 0: // left
+						index= dcg->getIndex(cx, cy, cz, 0);
+						birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy + 2][cz+1], dcg->dense3[cx + 2][cy + 2][cz+1],
+							dcg->dense3[cx+1][cy + 2][cz + 2],dcg->dense3[cx + 2][cy + 2][cz + 2] });
+						break;
 
-				case 1: //right
-					index = dcg->getIndex(cx, cy-1, cz, 0);
-					birthday = max({ simplex.birthday, dcg->get(cx, cy-1, cz), dcg->get(cx + 1, cy-1, cz),
-						dcg->get(cx, cy - 1, cz + 1), dcg->get(cx + 1, cy - 1, cz + 1) });
-				break;
-
+					case 1: //right
+						index= dcg->getIndex(cx, cy - 1, cz, 0);
+						birthday = max({ simplex.birthday, dcg->dense3[cx+1][cy][cz+1], dcg->dense3[cx + 2][cy][cz+1],
+							dcg->dense3[cx+1][cy][cz + 2],dcg->dense3[cx + 2][cy][cz + 2] });
+						break;
 				}
+
 				if (birthday != dcg->threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 3);
+					nextCoface = BirthdayIndex(birthday, index, simplex.dim+1);
 					return true;
 				}
 			}
@@ -233,21 +236,21 @@ bool SimplexCoboundaryEnumerator::hasNextCoface() {
 			for(int i = count; i < 2; ++i){
 				switch(i){
 				case 0: // left
-					index = dcg->getIndex(cx, cy, cz, 0);
-					birthday = max({ simplex.birthday, dcg->get(cx+1, cy, cz), dcg->get(cx + 1, cy+1, cz),
-						dcg->get(cx+1, cy, cz + 1), dcg->get(cx + 1, cy + 1, cz + 1) });
-				break;
+					index= dcg->getIndex(cx, cy, cz, 0);
+					birthday = max({ simplex.birthday, dcg->dense3[cx + 2][cy+1][cz+1], dcg->dense3[cx + 2][cy + 2][cz+1],
+						dcg->dense3[cx + 2][cy+1][cz + 2],dcg->dense3[cx + 2][cy +2][cz + 2] });
+					break;
 
 				case 1: //right
-					index = dcg->getIndex(cx-1, cy, cz, 0);
-					birthday = max({ simplex.birthday, dcg->get(cx-1, cy, cz), dcg->get(cx - 1, cy+1, cz),
-						dcg->get(cx-1, cy, cz + 1), dcg->get(cx - 1, cy + 1, cz + 1) });
-				break;
-
+					index= dcg->getIndex(cx - 1, cy, cz, 0);
+					birthday = max({ simplex.birthday, dcg->dense3[cx][cy+1][cz+1], dcg->dense3[cx][cy + 2][cz+1],
+						dcg->dense3[cx][cy+1][cz + 2],dcg->dense3[cx][cy + 2][cz + 2] });
+					break;
 				}
+
 				if (birthday != dcg->threshold) {
 					count = i + 1;
-					nextCoface = BirthdayIndex(birthday, index, 3);
+					nextCoface = BirthdayIndex(birthday, index, simplex.dim+1);
 					return true;
 				}
 			}
