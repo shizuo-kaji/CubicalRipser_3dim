@@ -19,6 +19,8 @@ To build the software:
 
     % make
 
+NOTE: We recommend gcc. For some reasons, Apple Clang deteriorates performance drastically.
+
 To see the command-line options:
 
     % ./cubicalripser
