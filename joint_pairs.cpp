@@ -57,7 +57,7 @@ void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
 	UnionFind dset(dcg);
 	long u,v=0;
 	double min_birth = dcg -> threshold;
-	long min_idx;
+	long min_idx=0;
 
 	if(print == true){
 		cout << "persistence intervals in dim " << 0 << ":" << endl;
@@ -81,7 +81,7 @@ void JointPairs::joint_pairs_main(vector<BirthdayIndex>& ctr){
 			
 		if(u != v){
 			double birth;
-			int idx;
+			long idx;
 			if(dset.birthtime[u] >= dset.birthtime[v]){
 				birth = dset.birthtime[u];
 				idx = u; // the one who dies to make a cycle

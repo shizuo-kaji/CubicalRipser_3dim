@@ -63,7 +63,7 @@ bool BirthdayIndexComparator::operator()(const BirthdayIndex& o1, const Birthday
 
 bool BirthdayIndexInverseComparator::operator()(const BirthdayIndex& o1, const BirthdayIndex& o2) const{
 	if(o1.birthday == o2.birthday){
-		if(o1.index < o2.index){
+		if(o1.index <= o2.index){
 			return false;
 		} else {
 			return true;

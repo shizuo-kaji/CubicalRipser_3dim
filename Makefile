@@ -1,5 +1,5 @@
-CC = g++-9
-#CC = c++
+#CC = g++-9
+CC = c++
 #CC = cl     # for windows
 CFLAGS = -O3 -std=c++11 -march=native
 TARGET = cubicalripser

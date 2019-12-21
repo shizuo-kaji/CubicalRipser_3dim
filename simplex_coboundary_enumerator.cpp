@@ -32,12 +32,12 @@ void SimplexCoboundaryEnumerator::setSimplexCoboundaryEnumerator(BirthdayIndex& 
 }
 
 bool SimplexCoboundaryEnumerator::hasNextCoface() {
-	double birthday;
+	double birthday=0;
 	int cx = simplex.index % dcg->ax;
 	int cy = (simplex.index / dcg->ax) % dcg->ay;
 	int cz = (simplex.index / dcg->axy) % dcg->az;
 	int cm = (simplex.index / dcg->axyz);
-	long index;
+	long index=0;
 	// note the shift for the boundary
 	switch (simplex.dim) {
 		case 0: // dim0

@@ -18,7 +18,7 @@ using namespace std;
 
 class UnionFind{
 private:
-	vector<int> parent;
+	vector<long> parent;
 	vector<double> time_max;
 public:
 	vector<double> birthtime;
