@@ -23,6 +23,6 @@ private:
 	vector<WritePairs> *wp;
 	bool print;
 public:
-	JointPairs(DenseCubicalGrids* _dcg, vector<BirthdayIndex>& ctr, vector<WritePairs> &_wp, const bool _print);
-	void joint_pairs_main( vector<BirthdayIndex>& ctr );
+	JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WritePairs> &_wp, const bool _print);
+	void joint_pairs_main( vector<Cube>& ctr );
 };

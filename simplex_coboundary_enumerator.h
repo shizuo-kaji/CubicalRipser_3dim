@@ -11,19 +11,19 @@ You should have received a copy of the GNU Lesser General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 class SimplexCoboundaryEnumerator
 {
 private:
 	int count;
+    int dim;
 	DenseCubicalGrids* dcg;
 public:
-	BirthdayIndex simplex;
-	BirthdayIndex nextCoface;
+	Cube simplex;
+	Cube nextCoface;
 
-	SimplexCoboundaryEnumerator(DenseCubicalGrids* _dcg);
+	SimplexCoboundaryEnumerator(DenseCubicalGrids* _dcg, int dim);
 
-	void setSimplexCoboundaryEnumerator(BirthdayIndex& _s); 
+	void setSimplexCoboundaryEnumerator(Cube& _s); 
 
 	bool hasNextCoface(); 
 };

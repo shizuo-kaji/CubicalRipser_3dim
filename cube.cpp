@@ -13,39 +13,36 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <iostream>
-#include "birthday_index.h"
+#include "cube.h"
 
 using namespace std;
 
-BirthdayIndex::BirthdayIndex(){
+Cube::Cube(){
 	birthday = 0;
 	index = -1;
-	dim = 1;
 }
 
-BirthdayIndex::BirthdayIndex(double _b, long _index, int _d){
+Cube::Cube(double _b, long _index){
 	birthday = _b;
 	index = _index;
-	dim = _d;
 }
 
-BirthdayIndex::BirthdayIndex(const BirthdayIndex& b){
+Cube::Cube(const Cube& b){
 	birthday = b.birthday;
 	index = b.index;
-	dim = b.dim;
 }
 
-void BirthdayIndex::copyBirthdayIndex(const BirthdayIndex& v){
+void Cube::copyCube(const Cube& v){
 	birthday = v.birthday;
 	index = v.index;
-	dim = v.dim;
 }
 
-void BirthdayIndex::print(){
+void Cube::print(){
 	std::cout << "(dob:" << birthday << "," << index << ")" << std::endl;
 }
-	
-bool BirthdayIndexComparator::operator()(const BirthdayIndex& o1, const BirthdayIndex& o2) const{
+
+// true when b1>b2 (tie break i1<i2)
+bool CubeComparator::operator()(const Cube& o1, const Cube& o2) const{
 	if(o1.birthday == o2.birthday){
 		if(o1.index < o2.index){
 			return true;
@@ -61,12 +58,13 @@ bool BirthdayIndexComparator::operator()(const BirthdayIndex& o1, const Birthday
 	}
 }
 
-bool BirthdayIndexInverseComparator::operator()(const BirthdayIndex& o1, const BirthdayIndex& o2) const{
+// true when b1<b2 (tie break i1<i2, same as above)
+bool CubeInverseComparator::operator()(const Cube& o1, const Cube& o2) const{
 	if(o1.birthday == o2.birthday){
-		if(o1.index <= o2.index){
-			return false;
-		} else {
+		if(o1.index > o2.index){
 			return true;
+		} else {
+			return false;
 		}
 	} else {
 		if(o1.birthday > o2.birthday){
@@ -76,4 +74,3 @@ bool BirthdayIndexInverseComparator::operator()(const BirthdayIndex& o1, const B
 		}
 	}
 }
-	

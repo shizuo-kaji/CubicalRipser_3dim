@@ -12,31 +12,30 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-class BirthdayIndex
+class Cube
 {
 	
 public:
 	double birthday;
 	long index;
-	int dim;
 
-	BirthdayIndex();
+	Cube();
 		
-	BirthdayIndex(double _b, long _index, int _d);
+	Cube(double _b, long _index);
 
-	BirthdayIndex(const BirthdayIndex& b);
+	Cube(const Cube& b);
 
-	void copyBirthdayIndex(const BirthdayIndex& v);
+	void copyCube(const Cube& v);
 
 	void print();
 };
 
-struct BirthdayIndexComparator
+struct CubeComparator
 {
-	bool operator()(const BirthdayIndex& o1, const BirthdayIndex& o2) const; 
+	bool operator()(const Cube& o1, const Cube& o2) const;
 };
 
-struct BirthdayIndexInverseComparator
+struct CubeInverseComparator
 {
-	bool operator()(const BirthdayIndex& o1, const BirthdayIndex& o2) const;	
+	bool operator()(const Cube& o1, const Cube& o2) const;
 };

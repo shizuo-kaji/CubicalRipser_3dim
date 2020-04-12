@@ -14,7 +14,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <algorithm>
-#include "birthday_index.h"
+#include "cube.h"
 #include "dense_cubical_grids.h"
 #include "union_find.h"
 
@@ -28,8 +28,7 @@ UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
 
 	for(long i = 0; i < n; ++i){
 		parent[i] = i;
-		vector<int> loc(_dcg->getXYZM(i));
-		birthtime[i] = _dcg->getBirthday(loc[0], loc[1], loc[2], 0, 0);
+		birthtime[i] = _dcg->getBirthday(i, 0);
 		time_max[i] = birthtime[i];
 	}
 }

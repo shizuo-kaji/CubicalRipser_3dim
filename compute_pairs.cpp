@@ -22,7 +22,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-#include "birthday_index.h"
+#include "cube.h"
 #include "dense_cubical_grids.h"
 #include "simplex_coboundary_enumerator.h"
 #include "union_find.h"
@@ -37,27 +37,27 @@ ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, con
 	print = _print;
 }
 
-void ComputePairs::compute_pairs_main(vector<BirthdayIndex>& ctr){
+void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 	if(print == true){
 		cout << "persistence intervals in dim " << dim << ":" << endl;
 	}
 	
 	pivot_column_index = std::unordered_map<int, int>();
-	vector<BirthdayIndex> coface_entries;
+	vector<Cube> coface_entries;
 	auto ctl_size = ctr.size();
-	SimplexCoboundaryEnumerator cofaces(dcg);
-	unordered_map<int, priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>> recorded_wc;
+	SimplexCoboundaryEnumerator cofaces(dcg,dim);
+	unordered_map<int, priority_queue<Cube, vector<Cube>, CubeComparator>> recorded_wc;
 
 	pivot_column_index.reserve(ctl_size);
 	recorded_wc.reserve(ctl_size);
 		
 	for(int i = 0; i < ctl_size; ++i){ 
-		priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator> working_coboundary;
+		priority_queue<Cube, vector<Cube>, CubeComparator> working_coboundary;
 		double birth = ctr[i].birthday;
 		long idx = ctr[i].index;
 
 		int j = i;
-		BirthdayIndex pivot(0, -1, 0);
+		Cube pivot(0, -1);
 		bool might_be_apparent_pair = true;
 		bool found_persistence_pair = false;
 
@@ -69,7 +69,7 @@ void ComputePairs::compute_pairs_main(vector<BirthdayIndex>& ctr){
 				coface_entries.push_back(cofaces.nextCoface);
 				if (might_be_apparent_pair && (ctr[j].birthday == cofaces.nextCoface.birthday)) { 
 					if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
-						pivot.copyBirthdayIndex(cofaces.nextCoface); // I have a new pivot
+						pivot.copyCube(cofaces.nextCoface); // I have a new pivot
 						found_persistence_pair = true;
 					} else { // If pivot list contains this coface,
 						might_be_apparent_pair = false;
@@ -130,10 +130,10 @@ void ComputePairs::compute_pairs_main(vector<BirthdayIndex>& ctr){
 }
 
 
-BirthdayIndex ComputePairs::pop_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
+Cube ComputePairs::pop_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
 	column){
 	if (column.empty()) {
-		return BirthdayIndex(0, -1, 0);
+		return Cube(0, -1);
 	} else {
 		auto pivot = column.top();
 		column.pop();
@@ -141,7 +141,7 @@ BirthdayIndex ComputePairs::pop_pivot(priority_queue<BirthdayIndex, vector<Birth
 		while (!column.empty() && column.top().index == pivot.index) {
 			column.pop();
 			if (column.empty())
-				return BirthdayIndex(0, -1, 0);
+				return Cube(0, -1);
 			else {
 				pivot = column.top();
 				column.pop();
@@ -151,16 +151,16 @@ BirthdayIndex ComputePairs::pop_pivot(priority_queue<BirthdayIndex, vector<Birth
 	}
 }
 
-BirthdayIndex ComputePairs::get_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
+Cube ComputePairs::get_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
 	column) {
-	BirthdayIndex result = pop_pivot(column);
+	Cube result = pop_pivot(column);
 	if (result.index != -1) {
 		column.push(result);
 	}
 	return result;
 }
 
-void ComputePairs::assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _dim) {
+void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, int _dim) {
 	dim = _dim;
 	ctr.clear();
 	double birthday;
@@ -172,7 +172,7 @@ void ComputePairs::assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _d
 					birthday = dcg->getBirthday(x,y,z,0,0);
 					if (birthday < dcg->threshold) {
 						ind = dcg->getIndex(x, y, z, 0);
-						ctr.push_back(BirthdayIndex(birthday, ind, 0));
+						ctr.push_back(Cube(birthday, ind));
 					}
 				}
 			}
@@ -186,7 +186,7 @@ void ComputePairs::assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _d
 						if (pivot_column_index.find(ind) == pivot_column_index.end()) {
 							birthday = dcg -> getBirthday(x,y,z,m, dim);
 							if (birthday < dcg -> threshold) {
-								ctr.push_back(BirthdayIndex(birthday, ind, dim));
+								ctr.push_back(Cube(birthday, ind));
 							}
 						}
 					}
@@ -194,5 +194,5 @@ void ComputePairs::assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _d
 			}
 		}
 	}
-	sort(ctr.begin(), ctr.end(), BirthdayIndexComparator());
+	sort(ctr.begin(), ctr.end(), CubeComparator());
 }

@@ -19,10 +19,11 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <string>
 #include <cstdint>
+#include <cfloat>
 
 using namespace std;
 
-#include "birthday_index.h"
+#include "cube.h"
 #include "dense_cubical_grids.h"
 #include "simplex_coboundary_enumerator.h"
 #include "union_find.h"
@@ -54,17 +55,17 @@ void print_usage_and_exit(int exit_code) {
 	exit(exit_code);
 }
 
-
+/////////////////////////////////////////////
 int main(int argc, char** argv){
 
 	string filename = "";
 	string output_filename = "output.csv"; //default output filename
 	file_format format;
 	calculation_method method = LINKFIND;
-	double threshold = 99999;
+	double threshold = DBL_MAX;
 	int maxdim = 2;  // compute PH up to this dimension
-	bool print = false;
-	bool location = false;
+	bool print = false; // flag for printing to std
+	bool location = false; // flag for saving location
 
 	// command-line argument parsing
 	for (int i = 1; i < argc; ++i) {
@@ -117,22 +118,29 @@ int main(int argc, char** argv){
 	writepairs.clear();
 	
 	DenseCubicalGrids* dcg = new DenseCubicalGrids(filename, threshold, format);
-	vector<BirthdayIndex> ctr;
+	vector<Cube> ctr;
 
 	maxdim = std::min(maxdim, dcg->dim - 1);
 
 	// compute PH
 	ComputePairs* cp = new ComputePairs(dcg, writepairs, print);
+    vector<int> betti(0);
 	switch(method){
 		case LINKFIND:
 		{
 			JointPairs* jp = new JointPairs(dcg, ctr, writepairs, print);
 			jp -> joint_pairs_main(ctr); // dim0
+            betti.push_back(writepairs.size());
+            cout << "the number of pairs in dim 0: " << betti[0] << endl;
 			if(maxdim>0){
 				cp -> compute_pairs_main(ctr); // dim1
-				if(maxdim>1){			
+                betti.push_back(writepairs.size() - betti[0]);
+                cout << "the number of pairs in dim 1: " << betti[1] << endl;
+				if(maxdim>1){
 					cp -> assemble_columns_to_reduce(ctr,2);
 					cp -> compute_pairs_main(ctr); // dim2
+                    betti.push_back(writepairs.size() - betti[0] - betti[1]);
+                    cout << "the number of pairs in dim 2: " << betti[2] << endl;
 				}
 			}
 		break;
@@ -140,7 +148,7 @@ int main(int argc, char** argv){
 		
 		case COMPUTEPAIRS:
 		{
-			cp -> assemble_columns_to_reduce(ctr, 0);
+			cp -> assemble_columns_to_reduce(ctr,0);
 			cp -> compute_pairs_main(ctr); // dim0
 			if(maxdim>0){
 				cp -> assemble_columns_to_reduce(ctr,1);
@@ -157,7 +165,7 @@ int main(int argc, char** argv){
 	// write to file
 	ofstream writing_file;
 	int64_t p = writepairs.size();
-	cout << "the number of pairs : " << p << endl;
+	cout << "the number of total pairs : " << p << endl;
 	if(output_filename.find(".csv")!= std::string::npos){
 		writing_file.open(output_filename, ios::out);
 		if(!writing_file.is_open()){

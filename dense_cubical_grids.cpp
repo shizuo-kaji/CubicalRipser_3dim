@@ -179,6 +179,15 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 	axyz = ax * ay * az;
 }
 
+
+double DenseCubicalGrids::getBirthday(vector<int> &loc, int dim) {
+    return(getBirthday(loc[0],loc[1],loc[2],loc[3],dim));
+}
+double DenseCubicalGrids::getBirthday(long ind, int dim) {
+    vector<int> loc(getXYZM(ind));
+    return(getBirthday(loc[0],loc[1],loc[2],loc[3],dim));
+}
+
 double DenseCubicalGrids::getBirthday(int cx, int cy, int cz, int cm, int dim) {
 	// beware of the shift due to the boundary
 	switch (dim) {
@@ -212,16 +221,6 @@ double DenseCubicalGrids::getBirthday(int cx, int cy, int cz, int cm, int dim) {
 				dense3[cx+2][cy+2][cz+2], dense3[cx+1][cy+2][cz+2] });
 		}
 	return threshold; // dim > 3
-}
-
-// conversion from id to coordinates and type
-vector<int> DenseCubicalGrids::getXYZM(long index) {
-	vector<int> loc(4);   // (x,y,z,m)
-	loc[0] = index % ax;
-	loc[1] = (index / ax) % ay;
-	loc[2] = (index / axy) % az;
-	loc[3] = (index / axyz);
-	return(loc);
 }
 
 DenseCubicalGrids::~DenseCubicalGrids(){

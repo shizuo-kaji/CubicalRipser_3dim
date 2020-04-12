@@ -29,13 +29,14 @@ public:
 
 	ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print);
 
-	void compute_pairs_main(vector<BirthdayIndex>& ctr);
+	void compute_pairs_main(vector<Cube>& ctr);
 
-	BirthdayIndex pop_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
+	Cube pop_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
 		column);
 
-	BirthdayIndex get_pivot(priority_queue<BirthdayIndex, vector<BirthdayIndex>, BirthdayIndexComparator>&
+	Cube get_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
 		column);
 
-	void assemble_columns_to_reduce(vector<BirthdayIndex>& ctr, int _dim);
+	void sort_pix(vector<Cube>& pix);
+	void assemble_columns_to_reduce(vector<Cube>& ctr, int _dim);
 };
