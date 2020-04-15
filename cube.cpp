@@ -11,7 +11,6 @@ You should have received a copy of the GNU Lesser General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <iostream>
 #include "cube.h"
 
@@ -44,33 +43,8 @@ void Cube::print(){
 // true when b1>b2 (tie break i1<i2)
 bool CubeComparator::operator()(const Cube& o1, const Cube& o2) const{
 	if(o1.birthday == o2.birthday){
-		if(o1.index < o2.index){
-			return true;
-		} else {
-			return false;
-		}
+		return(o1.index < o2.index);
 	} else {
-		if(o1.birthday > o2.birthday){
-			return true;
-		} else {
-			return false;
-		}
-	}
-}
-
-// true when b1<b2 (tie break i1<i2, same as above)
-bool CubeInverseComparator::operator()(const Cube& o1, const Cube& o2) const{
-	if(o1.birthday == o2.birthday){
-		if(o1.index > o2.index){
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		if(o1.birthday > o2.birthday){
-			return false;
-		} else {
-			return true;
-		}
+		return(o1.birthday > o2.birthday);
 	}
 }

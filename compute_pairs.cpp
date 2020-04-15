@@ -19,12 +19,13 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <string>
 #include <cstdint>
+#include <time.h>
 
 using namespace std;
 
 #include "cube.h"
 #include "dense_cubical_grids.h"
-#include "simplex_coboundary_enumerator.h"
+#include "coboundary_enumerator.h"
 #include "union_find.h"
 #include "write_pairs.h"
 #include "joint_pairs.h"
@@ -37,7 +38,7 @@ ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, con
 	print = _print;
 }
 
-void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
+void ComputePairs::compute_pairs_main(vector<Cube>& ctr, bool no_cache){
 	if(print == true){
 		cout << "persistence intervals in dim " << dim << ":" << endl;
 	}
@@ -45,7 +46,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 	pivot_column_index = std::unordered_map<int, int>();
 	vector<Cube> coface_entries;
 	auto ctl_size = ctr.size();
-	SimplexCoboundaryEnumerator cofaces(dcg,dim);
+	CoboundaryEnumerator cofaces(dcg,dim);
 	unordered_map<int, priority_queue<Cube, vector<Cube>, CubeComparator>> recorded_wc;
 
 	pivot_column_index.reserve(ctl_size);
@@ -63,7 +64,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 
 		do {
 			coface_entries.clear();
-			cofaces.setSimplexCoboundaryEnumerator(ctr[j]);
+			cofaces.setCoboundaryEnumerator(ctr[j]);
 
 			while (cofaces.hasNextCoface() && !found_persistence_pair) { // repeat while there remains a coface
 				coface_entries.push_back(cofaces.nextCoface);
@@ -83,7 +84,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 					vector<int> loc(dcg->getXYZM(idx));
 					wp->push_back(WritePairs(dim, birth, death, loc[0], loc[1], loc[2], print));
 				}
-				pivot_column_index.insert(make_pair(pivot.index, i));
+				pivot_column_index.emplace(pivot.index, i);
 				break;
 			}else{
 				auto findWc = recorded_wc.find(j); 
@@ -107,19 +108,21 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 						j = pair -> second;
 						continue;
 					} else { // If the pivot is new
-						recorded_wc.insert(make_pair(i, working_coboundary));
+						if(!no_cache){
+							recorded_wc.emplace(i, working_coboundary);
+						}
 						double death = pivot.birthday;
 						if (birth != death) {
 							vector<int> loc(dcg->getXYZM(idx));
 							wp->push_back(WritePairs(dim, birth, death, loc[0], loc[1], loc[2], print));
 						}
-						pivot_column_index.insert(make_pair(pivot.index, i));
+						pivot_column_index.emplace(pivot.index, i);
 						break;
 					}
 				} else { // If wc is empty
 					if (birth != dcg->threshold) {
 						vector<int> loc(dcg->getXYZM(idx));
-						wp->push_back(WritePairs(0, birth, dcg->threshold, loc[0], loc[1], loc[2], print));
+						wp->push_back(WritePairs(dim, birth, dcg->threshold, loc[0], loc[1], loc[2], print));
 					}
 					break;
 				}
@@ -194,5 +197,9 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, int _dim) {
 			}
 		}
 	}
-	sort(ctr.begin(), ctr.end(), CubeComparator());
+    clock_t start = clock();
+    sort(ctr.begin(), ctr.end(), CubeComparator());
+    clock_t end = clock();
+    const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+    cout << "Sorting Time: " <<  time << endl;
 }

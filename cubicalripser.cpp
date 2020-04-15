@@ -25,7 +25,7 @@ using namespace std;
 
 #include "cube.h"
 #include "dense_cubical_grids.h"
-#include "simplex_coboundary_enumerator.h"
+#include "coboundary_enumerator.h"
 #include "union_find.h"
 #include "write_pairs.h"
 #include "joint_pairs.h"
@@ -47,6 +47,7 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --method         method to compute the persistent homology of the cubical complexes. Options are" << endl
 	      << "                     link_find      (calculating the 0-dim PH, use 'link_find' algorithm; default)" << endl
 	      << "                     compute_pairs  (calculating the 0-dim PH, use 'compute_pairs' algorithm)" << endl
+	      << "  --no_cache       do not cache columns  (slower, but requires much less memory)" << endl
 	      << "  --output         name of file that will contain the persistence diagram " << endl
 	      << "  --print          print persistence pairs on your console" << endl
 	      << "  --location          output birth location" << endl
@@ -66,6 +67,7 @@ int main(int argc, char** argv){
 	int maxdim = 2;  // compute PH up to this dimension
 	bool print = false; // flag for printing to std
 	bool location = false; // flag for saving location
+	bool no_cache = false;
 
 	// command-line argument parsing
 	for (int i = 1; i < argc; ++i) {
@@ -90,6 +92,8 @@ int main(int argc, char** argv){
 			}
 		} else if (arg == "--output") {
 			output_filename = string(argv[++i]);
+		} else if (arg == "--no_cache"){
+			no_cache = true;
 		} else if (arg == "--print"){
 			print = true;
 		} else if (arg == "--location"){
@@ -133,12 +137,12 @@ int main(int argc, char** argv){
             betti.push_back(writepairs.size());
             cout << "the number of pairs in dim 0: " << betti[0] << endl;
 			if(maxdim>0){
-				cp -> compute_pairs_main(ctr); // dim1
+				cp -> compute_pairs_main(ctr,no_cache); // dim1
                 betti.push_back(writepairs.size() - betti[0]);
                 cout << "the number of pairs in dim 1: " << betti[1] << endl;
 				if(maxdim>1){
 					cp -> assemble_columns_to_reduce(ctr,2);
-					cp -> compute_pairs_main(ctr); // dim2
+					cp -> compute_pairs_main(ctr,no_cache); // dim2
                     betti.push_back(writepairs.size() - betti[0] - betti[1]);
                     cout << "the number of pairs in dim 2: " << betti[2] << endl;
 				}
@@ -149,13 +153,13 @@ int main(int argc, char** argv){
 		case COMPUTEPAIRS:
 		{
 			cp -> assemble_columns_to_reduce(ctr,0);
-			cp -> compute_pairs_main(ctr); // dim0
+			cp -> compute_pairs_main(ctr,no_cache); // dim0
 			if(maxdim>0){
 				cp -> assemble_columns_to_reduce(ctr,1);
-				cp -> compute_pairs_main(ctr); // dim1
+				cp -> compute_pairs_main(ctr,no_cache); // dim1
 				if(maxdim>1){			
 					cp -> assemble_columns_to_reduce(ctr,2);
-					cp -> compute_pairs_main(ctr); // dim2
+					cp -> compute_pairs_main(ctr,no_cache); // dim2
 				}
 			}
 		break;

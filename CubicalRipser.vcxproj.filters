@@ -24,9 +24,6 @@
     <ClCompile Include="joint_pairs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simplex_coboundary_enumerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="union_find.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,7 +33,10 @@
     <ClCompile Include="cubicalripser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="birthday_index.cpp">
+    <ClCompile Include="coboundary_enumerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,9 +50,6 @@
     <ClInclude Include="joint_pairs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simplex_coboundary_enumerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="union_find.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -62,7 +59,10 @@
     <ClInclude Include="npy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="birthday_index.h">
+    <ClInclude Include="coboundary_enumerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

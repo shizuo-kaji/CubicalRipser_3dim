@@ -19,7 +19,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cube.h"
 #include "dense_cubical_grids.h"
-#include "simplex_coboundary_enumerator.h"
+#include "coboundary_enumerator.h"
 #include "union_find.h"
 #include "write_pairs.h"
 #include "joint_pairs.h"

@@ -14,28 +14,18 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Cube
 {
-	
 public:
 	double birthday;
 	long index;
 
 	Cube();
-		
 	Cube(double _b, long _index);
-
 	Cube(const Cube& b);
-
 	void copyCube(const Cube& v);
-
 	void print();
 };
 
 struct CubeComparator
-{
-	bool operator()(const Cube& o1, const Cube& o2) const;
-};
-
-struct CubeInverseComparator
 {
 	bool operator()(const Cube& o1, const Cube& o2) const;
 };
