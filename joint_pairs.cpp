@@ -34,14 +34,13 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WriteP
 	wp = &_wp;
 	ctr.clear();
 	// the order of loop matters for performance!
-	for (int m = 0; m < 3; ++m) {
-		for (int z = 0; z < dcg->az; ++z) {
-			for (int y = 0; y < dcg->ay; ++y) {
-				for(int x = 0; x < dcg->ax ; ++x){
-					double birthday = dcg -> getBirthday(x,y,z,m, 1);
-					if(birthday < dcg -> threshold){
-						long index = dcg->getIndex(x, y, z, m);
-						ctr.push_back(Cube(birthday, index));
+	for (short m = 0; m < 3; ++m) {
+		for (short z = 0; z < dcg->az; ++z) {
+			for (short y = 0; y < dcg->ay; ++y) {
+				for(short x = 0; x < dcg->ax ; ++x){
+					double birth = dcg -> getBirthday(x,y,z,m, 1);
+					if(birth < dcg -> threshold){
+						ctr.push_back(Cube(birth, x,y,z,m));
 					}
 				}
 			}
@@ -53,67 +52,65 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WriteP
 // compute H_0 by union find
 void JointPairs::joint_pairs_main(vector<Cube>& ctr){
 	UnionFind dset(dcg);
-	long u,v=0;
+	int u,v=0;
 	double min_birth = dcg -> threshold;
-	long min_idx=0;
+	int min_idx=0;
 
 	if(print == true){
 		cout << "persistence intervals in dim " << 0 << ":" << endl;
 	}
 	
     for (auto e = ctr.rbegin(), last = ctr.rend(); e != last; ++e) {
-		// we have to modify here when indexing scheme is changed
+		// indexing scheme for union find is DIFFERENT from that of cubes
 		// identify end points
-		long ind = e->index % dcg->axyz;
-		u = dset.find(ind);
-		switch(e->index / dcg->axyz){ //type
+		int uind = e->x() + (dcg->ax)*e->y() + (dcg->axy)*e->z();
+		u = dset.find(uind);
+		switch(e->m()){ //type
 			case 0:
-				v = dset.find(ind+1); // x+1
+				v = dset.find(uind+1); // x+1
 				break;
 			case 1:
-				v = dset.find(ind+(dcg->ax)); // y+1
+				v = dset.find(uind+(dcg->ax)); // y+1
 				break;
 			case 2:
-				v = dset.find(ind+(dcg->axy)); // z+1
+				v = dset.find(uind+(dcg->axy)); // z+1
 				break;
 		}
 
 		if(u != v){
 			double birth;
-			long idx;
+			int duind;
 			if(dset.birthtime[u] >= dset.birthtime[v]){
 				birth = dset.birthtime[u];
-				idx = u; // the one who dies to make a cycle
+				duind = u; // the one who dies to make a cycle
 				if (dset.birthtime[v] < min_birth) {
 					min_birth = dset.birthtime[v];
 					min_idx = v;
 				}
 			}else{
 				birth = dset.birthtime[v]; 
-				idx = v; // the one who dies to make a cycle
+				duind = v; // the one who dies to make a cycle
 				if (dset.birthtime[u] < min_birth) {
 					min_birth = dset.birthtime[u];
 					min_idx = u;
 				}
 			}
-			double death = e->birthday;
+			double death = e->birth;
 			dset.link(u, v);
 			if(birth != death){
-				vector<int> loc(dcg->getXYZM(idx));
-				wp -> push_back(WritePairs(0, birth, death, loc[0], loc[1], loc[2], print));
+				wp -> push_back(WritePairs(0, birth, death, duind%(dcg->ax), (duind/(dcg->ax))%(dcg->ay), (duind/(dcg->axy))%(dcg->az), print));
 			}
 			// If two values have same parent, these are potential edges which make a 2-simplex. Otherwise, remove.
-	        e->index = -2;
+	        e->index = -1;
 		}
 	}
 	// the base point component
-	vector<int> loc(dcg->getXYZM(min_idx));
-	wp -> push_back(WritePairs(0, min_birth, dcg -> threshold, loc[0],loc[1],loc[2],print));
+	wp -> push_back(WritePairs(0, min_birth, dcg -> threshold, min_idx%(dcg->ax), (min_idx/(dcg->ax))%(dcg->ay), (min_idx/(dcg->axy))%(dcg->az), print));
 //	cout << ctr.size() << endl;
 
 	// remove unnecessary edges
 	auto new_end = std::remove_if(ctr.begin(), ctr.end(),
-                              [](const Cube& e){ return e.index == -2; });
+                              [](const Cube& e){ return e.index == -1; });
 	ctr.erase(new_end, ctr.end());
 //	cout << ctr.size() << endl;
 //	std::sort(ctr.begin(), ctr.end(), CubeComparator());

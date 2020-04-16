@@ -28,7 +28,10 @@ elif ".npy" in args.from_fn:
     with open(args.to_fn,"wb") as fh:
         fh.write(struct.pack("q"*4,8067171840,1,sz,dim))
         fh.write(struct.pack("q"*dim,*dat.shape))
-        fh.write(struct.pack("d"*sz,*dat.transpose((2,1,0)).flatten()))
+        if dim == 3:
+            fh.write(struct.pack("d"*sz,*dat.transpose((2,1,0)).flatten()))
+        elif dim == 2:
+            fh.write(struct.pack("d"*sz,*dat.transpose((1,0)).flatten()))
 
 # %%
 #plt.imshow(df[:,:,0])

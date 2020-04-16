@@ -179,16 +179,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 	axyz = ax * ay * az;
 }
 
-
-double DenseCubicalGrids::getBirthday(vector<int> &loc, int dim) {
-    return(getBirthday(loc[0],loc[1],loc[2],loc[3],dim));
-}
-double DenseCubicalGrids::getBirthday(long ind, int dim) {
-    vector<int> loc(getXYZM(ind));
-    return(getBirthday(loc[0],loc[1],loc[2],loc[3],dim));
-}
-
-double DenseCubicalGrids::getBirthday(int cx, int cy, int cz, int cm, int dim) {
+double DenseCubicalGrids::getBirthday(unsigned short cx, unsigned short cy, unsigned short cz, unsigned short cm, unsigned short dim) {
 	// beware of the shift due to the boundary
 	switch (dim) {
 		case 0:

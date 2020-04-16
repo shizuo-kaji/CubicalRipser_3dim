@@ -17,6 +17,8 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
+typedef priority_queue<Cube, vector<Cube>, CubeComparator> CubeQue;
+
 class ComputePairs{
 private:
 	DenseCubicalGrids * dcg;
@@ -26,17 +28,12 @@ private:
 	bool print;
 
 public:
-
 	ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print);
-
-	void compute_pairs_main(vector<Cube>& ctr, bool no_cache);
-
-	Cube pop_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
-		column);
-
-	Cube get_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
-		column);
-
-	void sort_pix(vector<Cube>& pix);
+	void compute_pairs_main(vector<Cube>& ctr, uint min_cache_size);
 	void assemble_columns_to_reduce(vector<Cube>& ctr, int _dim);
+	void add_cache(int i, CubeQue &wc, unordered_map<int, CubeQue>& recorded_wc);
+	Cube pop_pivot(vector<Cube>& column);
+	Cube get_pivot(vector<Cube>& column);
+	Cube pop_pivot(CubeQue& column);
+	Cube get_pivot(CubeQue& column);
 };

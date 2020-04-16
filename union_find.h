@@ -18,11 +18,11 @@ using namespace std;
 
 class UnionFind{
 private:
-	vector<long> parent;
+	vector<int> parent;
 	vector<double> time_max;
 public:
 	vector<double> birthtime;
 	UnionFind(DenseCubicalGrids* _dcg);
-	long find(long x); 
-	void link(long x, long y);
+	int find(int x); 
+	void link(int x, int y);
 };

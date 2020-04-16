@@ -21,21 +21,27 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
-	long n = _dcg->ax * _dcg->ay * _dcg->az;
+	int n = _dcg->ax * _dcg->ay * _dcg->az;
 	parent.resize(n);
 	birthtime.resize(n);
 	time_max.resize(n);
 
-	for(long i = 0; i < n; ++i){
-		parent[i] = i;
-		birthtime[i] = _dcg->getBirthday(i, 0);
-		time_max[i] = birthtime[i];
+	int i=0;
+	for (short z = 0; z < _dcg->az; ++z) {
+		for (short y = 0; y < _dcg->ay; ++y) {
+			for(short x = 0; x < _dcg->ax ; ++x){
+				parent[i] = i;
+				birthtime[i] = _dcg->getBirthday(x,y,z,0,0);
+				time_max[i] = birthtime[i];
+				i++;
+			}
+		}
 	}
 }
 
 // find the root of a node x (specified by the index)
-long UnionFind::find(long x){
-	long y = x, z = parent[y];
+int UnionFind::find(int x){
+	int y = x, z = parent[y];
 	while (z != y) {
 		y = z;
 		z = parent[y];
@@ -51,7 +57,7 @@ long UnionFind::find(long x){
 }
 
 // merge nodes x and y (they should be root nodes); older will be the new parent
-void UnionFind::link(long x, long y){
+void UnionFind::link(int x, int y){
 	if (x == y) return;
 	if (birthtime[x] >= birthtime[y]){
 		parent[x] = y; 

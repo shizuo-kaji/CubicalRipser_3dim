@@ -17,34 +17,54 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 Cube::Cube(){
-	birthday = 0;
-	index = -1;
+	birth = 0;
+	index = NONE;
 }
 
-Cube::Cube(double _b, long _index){
-	birthday = _b;
-	index = _index;
+Cube::Cube(double _b, unsigned short _x, unsigned short _y, unsigned short _z, unsigned short _m){
+	birth = _b;
+	index = _x | (_y<<10) | (_z<<20) | (_m<<30);
 }
 
-Cube::Cube(const Cube& b){
-	birthday = b.birthday;
-	index = b.index;
-}
-
-void Cube::copyCube(const Cube& v){
-	birthday = v.birthday;
+Cube::Cube(const Cube& v){
+	birth = v.birth;
 	index = v.index;
 }
 
+void Cube::copyCube(const Cube& v){
+	birth = v.birth;
+	index = v.index;
+}
+
+unsigned short Cube::x(){
+	return( (index) & 1023);
+}
+
+unsigned short Cube::y(){
+	return( (index >> 10) & 1023);
+}
+
+unsigned short Cube::z(){
+	return( (index >> 20) & 1023);
+}
+
+unsigned short Cube::m(){
+	return( (index >> 30) & 3);
+}
+
 void Cube::print(){
-	std::cout << "(dob:" << birthday << "," << index << ")" << std::endl;
+	std::cout << birth << "," << index << "," << x() << "," << y() << "," << z() << "," << m() << std::endl;
+}
+
+bool Cube::operator==(const Cube& rhs) const{
+    return(index == rhs.index);
 }
 
 // true when b1>b2 (tie break i1<i2)
 bool CubeComparator::operator()(const Cube& o1, const Cube& o2) const{
-	if(o1.birthday == o2.birthday){
+	if(o1.birth == o2.birth){
 		return(o1.index < o2.index);
 	} else {
-		return(o1.birthday > o2.birthday);
+		return(o1.birth > o2.birth);
 	}
 }

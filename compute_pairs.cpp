@@ -20,6 +20,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <cstdint>
 #include <time.h>
+#include <memory>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, con
 	print = _print;
 }
 
-void ComputePairs::compute_pairs_main(vector<Cube>& ctr, bool no_cache){
+void ComputePairs::compute_pairs_main(vector<Cube>& ctr, uint min_cache_size){
 	if(print == true){
 		cout << "persistence intervals in dim " << dim << ":" << endl;
 	}
@@ -47,18 +48,22 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, bool no_cache){
 	vector<Cube> coface_entries;
 	auto ctl_size = ctr.size();
 	CoboundaryEnumerator cofaces(dcg,dim);
-	unordered_map<int, priority_queue<Cube, vector<Cube>, CubeComparator>> recorded_wc;
+	unordered_map<int, CubeQue > recorded_wc;
+//	unordered_map<int, vector<Cube> > recorded_wc;
 
 	pivot_column_index.reserve(ctl_size);
 	recorded_wc.reserve(ctl_size);
+//	vector<Cube> working_coboundary;
 		
-	for(int i = 0; i < ctl_size; ++i){ 
-		priority_queue<Cube, vector<Cube>, CubeComparator> working_coboundary;
-		double birth = ctr[i].birthday;
-		long idx = ctr[i].index;
+	for(int i = 0; i < ctl_size; ++i){
+		CubeQue working_coboundary;
+//		working_coboundary.clear();
+//        CubeQue* working_coboundary = new CubeQue();
+//		std::shared_ptr<CubeQue> working_coboundary(new CubeQue());
+		double birth = ctr[i].birth;
 
 		int j = i;
-		Cube pivot(0, -1);
+		Cube pivot;
 		bool might_be_apparent_pair = true;
 		bool found_persistence_pair = false;
 
@@ -66,9 +71,10 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, bool no_cache){
 			coface_entries.clear();
 			cofaces.setCoboundaryEnumerator(ctr[j]);
 
-			while (cofaces.hasNextCoface() && !found_persistence_pair) { // repeat while there remains a coface
+			while (cofaces.hasNextCoface() && !found_persistence_pair) {
 				coface_entries.push_back(cofaces.nextCoface);
-				if (might_be_apparent_pair && (ctr[j].birthday == cofaces.nextCoface.birthday)) { 
+//                cout << "cf: " << j << " " << cofaces.nextCoface.index << endl;
+				if (might_be_apparent_pair && (ctr[j].birth == cofaces.nextCoface.birth)) {
 					if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
 						pivot.copyCube(cofaces.nextCoface); // I have a new pivot
 						found_persistence_pair = true;
@@ -79,50 +85,70 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, bool no_cache){
 			}
 
 			if (found_persistence_pair) { 
-				double death = pivot.birthday;
+				double death = pivot.birth;
 				if (birth != death) {
-					vector<int> loc(dcg->getXYZM(idx));
-					wp->push_back(WritePairs(dim, birth, death, loc[0], loc[1], loc[2], print));
+					wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), print));
 				}
+//                cout << pivot.index << ",ap," << i << endl;
 				pivot_column_index.emplace(pivot.index, i);
 				break;
 			}else{
-				auto findWc = recorded_wc.find(j); 
-
-				if(findWc != recorded_wc.end()){ // If the pivot is old,
+				auto findWc = recorded_wc.find(j);
+				if(findWc != recorded_wc.end()){ // If the pivot is cached
 					auto wc = findWc -> second;
 					while(!wc.empty()){ // push the old pivot's wc
 						working_coboundary.push(wc.top());
 						wc.pop();
 					}
-				} else { // If the pivot is new,
+                    // for(auto e:wc){
+                    //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
+                    //     if(idx==working_coboundary.end()){
+                    //         working_coboundary.push_back(e);
+                    //     }else{
+                    //         working_coboundary.erase(idx);
+                    //     }
+                    // }
+//                    working_coboundary.insert(working_coboundary.end(), wc.begin(), wc.end());
+				} else { // If the pivot is not yet cached,
 					for(auto e : coface_entries){
 						working_coboundary.push(e);
 					}
+                    // for(auto e:coface_entries){
+                    //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
+                    //     if(idx==working_coboundary.end()){
+                    //         working_coboundary.push_back(e);
+                    //     }else{
+                    //         working_coboundary.erase(idx);
+                    //     }
+                    // }
+//                    working_coboundary.insert(working_coboundary.end(), coface_entries.begin(), coface_entries.end());
 				}
-				pivot = get_pivot(working_coboundary); // get a pivot from wc
-
-				if (pivot.index != -1) { // When I have a pivot, ...
+//                sort(working_coboundary.begin(),working_coboundary.end(),CubeComparator());
+				pivot = get_pivot(working_coboundary);
+				if (pivot.index != NONE){
+//                if(!working_coboundary.empty()){
+//                    pivot = working_coboundary.back();
 					auto pair = pivot_column_index.find(pivot.index);
-					if (pair != pivot_column_index.end()) {	// If the pivot already exists, go on the loop 
+					if (pair != pivot_column_index.end()) {	// recurse
 						j = pair -> second;
+//                        cout << i << " to " << j << " " << pivot.index << endl;
 						continue;
 					} else { // If the pivot is new
-						if(!no_cache){
-							recorded_wc.emplace(i, working_coboundary);
+                        if(working_coboundary.size() >= min_cache_size){
+							add_cache(i, working_coboundary, recorded_wc);
+//							recorded_wc.emplace(i, working_coboundary);
 						}
-						double death = pivot.birthday;
+						double death = pivot.birth;
 						if (birth != death) {
-							vector<int> loc(dcg->getXYZM(idx));
-							wp->push_back(WritePairs(dim, birth, death, loc[0], loc[1], loc[2], print));
+							wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), print));
 						}
+//                        cout << pivot.index << ",f," << i << endl;
 						pivot_column_index.emplace(pivot.index, i);
 						break;
 					}
-				} else { // If wc is empty
+				} else { // if the column is reduced to zero
 					if (birth != dcg->threshold) {
-						vector<int> loc(dcg->getXYZM(idx));
-						wp->push_back(WritePairs(dim, birth, dcg->threshold, loc[0], loc[1], loc[2], print));
+						wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(), print));
 					}
 					break;
 				}
@@ -132,11 +158,51 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, bool no_cache){
 	}
 }
 
+void ComputePairs::add_cache(int i, CubeQue &wc, unordered_map<int, CubeQue>& recorded_wc){
+	CubeQue clean_wc;
+	while(!wc.empty()){
+		auto c = wc.top();
+		wc.pop();
+		if(!wc.empty() && c.index==wc.top().index){
+			wc.pop();
+		}else{
+			clean_wc.push(c);
+		}
+	}
+	recorded_wc.emplace(i,clean_wc);
+}
 
-Cube ComputePairs::pop_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
-	column){
+// mod 2 operation
+Cube ComputePairs::pop_pivot(vector<Cube>& column){
 	if (column.empty()) {
-		return Cube(0, -1);
+		return Cube();
+	} else {
+		auto pivot = column.back();
+		column.pop_back();
+		while (!column.empty() && column.back().index == pivot.index) {
+			column.pop_back();
+			if (column.empty())
+				return Cube();
+			else {
+				pivot = column.back();
+			column.pop_back();
+			}
+		}
+		return pivot;
+	}
+}
+
+Cube ComputePairs::get_pivot(vector<Cube>& column) {
+	Cube result = pop_pivot(column);
+	if (result.index != NONE) {
+		column.push_back(result);
+	}
+	return result;
+}
+
+Cube ComputePairs::pop_pivot(CubeQue& column){
+	if (column.empty()) {
+		return Cube();
 	} else {
 		auto pivot = column.top();
 		column.pop();
@@ -144,7 +210,7 @@ Cube ComputePairs::pop_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
 		while (!column.empty() && column.top().index == pivot.index) {
 			column.pop();
 			if (column.empty())
-				return Cube(0, -1);
+				return Cube();
 			else {
 				pivot = column.top();
 				column.pop();
@@ -154,8 +220,7 @@ Cube ComputePairs::pop_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
 	}
 }
 
-Cube ComputePairs::get_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
-	column) {
+Cube ComputePairs::get_pivot(CubeQue& column) {
 	Cube result = pop_pivot(column);
 	if (result.index != -1) {
 		column.push(result);
@@ -163,33 +228,32 @@ Cube ComputePairs::get_pivot(priority_queue<Cube, vector<Cube>, CubeComparator>&
 	return result;
 }
 
+
 void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, int _dim) {
 	dim = _dim;
 	ctr.clear();
-	double birthday;
-	long ind;
+	double birth;
 	if (dim == 0) {
-		for (int z = 0; z < dcg->az ; ++z) {
-			for (int y = 0; y < dcg->ay; ++y) {
-				for (int x = 0; x < dcg->ax; ++x) {
-					birthday = dcg->getBirthday(x,y,z,0,0);
-					if (birthday < dcg->threshold) {
-						ind = dcg->getIndex(x, y, z, 0);
-						ctr.push_back(Cube(birthday, ind));
+		for (short z = 0; z < dcg->az ; ++z) {
+			for (short y = 0; y < dcg->ay; ++y) {
+				for (short x = 0; x < dcg->ax; ++x) {
+					birth = dcg->getBirthday(x,y,z,0,0);
+					if (birth < dcg->threshold) {
+						ctr.push_back(Cube(birth, x,y,z,0));
 					}
 				}
 			}
 		}
 	}else{ 
-		for (int m = 0; m < 3; ++m) {
-			for(int z = 0; z < dcg->az; ++z){
-				for (int y = 0; y < dcg->ay; ++y) {
-					for (int x = 0; x < dcg->ax; ++x) {
-						ind = dcg->getIndex(x,y,z,m);
-						if (pivot_column_index.find(ind) == pivot_column_index.end()) {
-							birthday = dcg -> getBirthday(x,y,z,m, dim);
-							if (birthday < dcg -> threshold) {
-								ctr.push_back(Cube(birthday, ind));
+		for (short m = 0; m < 3; ++m) {
+			for(short z = 0; z < dcg->az; ++z){
+				for (short y = 0; y < dcg->ay; ++y) {
+					for (short x = 0; x < dcg->ax; ++x) {
+						birth = dcg -> getBirthday(x,y,z,m, dim);
+						Cube v = Cube(birth,x,y,z,m);
+						if (pivot_column_index.find(v.index) == pivot_column_index.end()) {
+							if (birth < dcg -> threshold) {
+								ctr.push_back(v);
 							}
 						}
 					}
