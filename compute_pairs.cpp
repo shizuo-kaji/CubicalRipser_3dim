@@ -39,7 +39,7 @@ ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, con
 	print = _print;
 }
 
-void ComputePairs::compute_pairs_main(vector<Cube>& ctr, uint min_cache_size){
+void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
 	if(print == true){
 		cout << "persistence intervals in dim " << dim << ":" << endl;
 	}

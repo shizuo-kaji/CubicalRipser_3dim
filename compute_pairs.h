@@ -29,7 +29,7 @@ private:
 
 public:
 	ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print);
-	void compute_pairs_main(vector<Cube>& ctr, uint min_cache_size);
+	void compute_pairs_main(vector<Cube>& ctr, int min_cache_size);
 	void assemble_columns_to_reduce(vector<Cube>& ctr, int _dim);
 	void add_cache(int i, CubeQue &wc, unordered_map<int, CubeQue>& recorded_wc);
 	Cube pop_pivot(vector<Cube>& column);

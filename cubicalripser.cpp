@@ -67,7 +67,7 @@ int main(int argc, char** argv){
 	int maxdim = 2;  // compute PH up to this dimension
 	bool print = false; // flag for printing to std
 	bool location = false; // flag for saving location
-	uint min_cache_size = 0; // num of minimum non-zero entries of a reduced column to be cached
+	int min_cache_size = 0; // num of minimum non-zero entries of a reduced column to be cached
 
 	// command-line argument parsing
 	for (int i = 1; i < argc; ++i) {
