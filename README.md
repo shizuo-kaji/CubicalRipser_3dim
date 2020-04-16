@@ -48,7 +48,7 @@ val[max_x,max_y,max_z]
 ## Difference with the original version
 I added the following functionality:
 - input/output numpy array file (.npy): see the Jupyter Notebook example found under the demo directory.
-- no limitation on the input size
-- cleaned up/optimised codes
+- input size up to 1023 x 1023 x 1022
+- cleaned up/optimised codes (much less memory footprint, much faster for certain data)
+- cache control
 - output birth location
-- bug fixes (including memory leaks)
