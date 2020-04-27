@@ -128,7 +128,7 @@ int main(int argc, char** argv){
 
 	// compute PH
 	ComputePairs* cp = new ComputePairs(dcg, writepairs, print);
-    vector<int> betti(0);
+    vector<unsigned long> betti(0);
 	switch(method){
 		case LINKFIND:
 		{

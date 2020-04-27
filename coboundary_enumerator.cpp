@@ -1,4 +1,4 @@
-/* cube_coboundary_enumerator.cpp
+/* coboundary_enumerator.cpp
 
 This file is part of CubicalRipser
 Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
@@ -34,7 +34,7 @@ void CoboundaryEnumerator::setCoboundaryEnumerator(Cube& _s) {
 
 bool CoboundaryEnumerator::hasNextCoface() {
 	double birth=0;
-	// note the shift for the boundary
+	// note the shift of indices to account for the boundary
 	switch (dim) {
 		case 0: // dim0
 		for (int i = position; i < 6; ++i) {

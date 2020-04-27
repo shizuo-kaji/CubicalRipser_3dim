@@ -20,7 +20,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <cstdint>
 #include <time.h>
-#include <memory>
 
 using namespace std;
 
@@ -49,7 +48,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
 	auto ctl_size = ctr.size();
 	CoboundaryEnumerator cofaces(dcg,dim);
 	unordered_map<int, CubeQue > recorded_wc;
-//	unordered_map<int, vector<Cube> > recorded_wc;
+//	unordered_map<int, vector<Cube> > recorded_wc;   // for some unknown reasons, using vector directly with sorting when needed deteriorates performance.
 
 	pivot_column_index.reserve(ctl_size);
 	recorded_wc.reserve(ctl_size);
@@ -58,8 +57,6 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
 	for(int i = 0; i < ctl_size; ++i){
 		CubeQue working_coboundary;
 //		working_coboundary.clear();
-//        CubeQue* working_coboundary = new CubeQue();
-//		std::shared_ptr<CubeQue> working_coboundary(new CubeQue());
 		double birth = ctr[i].birth;
 
 		int j = i;
@@ -78,7 +75,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
 					if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
 						pivot.copyCube(cofaces.nextCoface); // I have a new pivot
 						found_persistence_pair = true;
-					} else { // If pivot list contains this coface,
+					} else {
 						might_be_apparent_pair = false;
 					}
 				}
@@ -100,6 +97,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
 						working_coboundary.push(wc.top());
 						wc.pop();
 					}
+					/// If we use vector container
                     // for(auto e:wc){
                     //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
                     //     if(idx==working_coboundary.end()){
@@ -108,11 +106,12 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
                     //         working_coboundary.erase(idx);
                     //     }
                     // }
-//                    working_coboundary.insert(working_coboundary.end(), wc.begin(), wc.end());
+                    /// working_coboundary.insert(working_coboundary.end(), wc.begin(), wc.end());
 				} else { // If the pivot is not yet cached,
 					for(auto e : coface_entries){
 						working_coboundary.push(e);
 					}
+					/// If we use vector container
                     // for(auto e:coface_entries){
                     //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
                     //     if(idx==working_coboundary.end()){
@@ -121,9 +120,10 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
                     //         working_coboundary.erase(idx);
                     //     }
                     // }
-//                    working_coboundary.insert(working_coboundary.end(), coface_entries.begin(), coface_entries.end());
+                    /// working_coboundary.insert(working_coboundary.end(), coface_entries.begin(), coface_entries.end());
 				}
-//                sort(working_coboundary.begin(),working_coboundary.end(),CubeComparator());
+				/// If we use vector container
+                // sort(working_coboundary.begin(),working_coboundary.end(),CubeComparator());
 				pivot = get_pivot(working_coboundary);
 				if (pivot.index != NONE){
 //                if(!working_coboundary.empty()){
@@ -158,6 +158,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
 	}
 }
 
+// cache newly found pivot after reducing by mod 2
 void ComputePairs::add_cache(int i, CubeQue &wc, unordered_map<int, CubeQue>& recorded_wc){
 	CubeQue clean_wc;
 	while(!wc.empty()){
@@ -200,6 +201,7 @@ Cube ComputePairs::get_pivot(vector<Cube>& column) {
 	return result;
 }
 
+// the same mod 2 operation for vector
 Cube ComputePairs::pop_pivot(CubeQue& column){
 	if (column.empty()) {
 		return Cube();
@@ -228,7 +230,7 @@ Cube ComputePairs::get_pivot(CubeQue& column) {
 	return result;
 }
 
-
+// enumerate and sort columns for a new dimension
 void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, int _dim) {
 	dim = _dim;
 	ctr.clear();
@@ -237,7 +239,7 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, int _dim) {
 		for (short z = 0; z < dcg->az ; ++z) {
 			for (short y = 0; y < dcg->ay; ++y) {
 				for (short x = 0; x < dcg->ax; ++x) {
-					birth = dcg->getBirthday(x,y,z,0,0);
+					birth = dcg->getBirth(x,y,z,0,0);
 					if (birth < dcg->threshold) {
 						ctr.push_back(Cube(birth, x,y,z,0));
 					}
@@ -249,7 +251,7 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, int _dim) {
 			for(short z = 0; z < dcg->az; ++z){
 				for (short y = 0; y < dcg->ay; ++y) {
 					for (short x = 0; x < dcg->ax; ++x) {
-						birth = dcg -> getBirthday(x,y,z,m, dim);
+						birth = dcg -> getBirth(x,y,z,m, dim);
 						Cube v = Cube(birth,x,y,z,m);
 						if (pivot_column_index.find(v.index) == pivot_column_index.end()) {
 							if (birth < dcg -> threshold) {

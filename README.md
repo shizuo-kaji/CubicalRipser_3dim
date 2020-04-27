@@ -15,7 +15,7 @@ Free Software Foundation, either version 3 of the License, or (at your option)
 any later version.
 
 ## How to use
-To build the software:
+To build the software: (precompiled Windows/Mac binaries are found under win64/mac directories)
 
     % make
 
@@ -26,6 +26,8 @@ To see the command-line options:
 Example:
 
     % ./cubicalripser --print --location --maxdim 2 --output out.csv demo/3dimsample.txt
+
+Look at the Jupyter notebook demo/cubicalripser.ipynb for practical usage.
 
 ## Input file format
 CubicalRipser takes three types of input files: NUMPY, TEXT, DIPHA.

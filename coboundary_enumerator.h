@@ -1,4 +1,4 @@
-/* simplex_coboundary_enumerator.h
+/* coboundary_enumerator.h
 
 This file is part of CubicalRipser
 Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.

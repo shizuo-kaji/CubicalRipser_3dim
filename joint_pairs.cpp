@@ -38,7 +38,7 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WriteP
 		for (short z = 0; z < dcg->az; ++z) {
 			for (short y = 0; y < dcg->ay; ++y) {
 				for(short x = 0; x < dcg->ax ; ++x){
-					double birth = dcg -> getBirthday(x,y,z,m, 1);
+					double birth = dcg -> getBirth(x,y,z,m, 1);
 					if(birth < dcg -> threshold){
 						ctr.push_back(Cube(birth, x,y,z,m));
 					}
@@ -100,8 +100,8 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr){
 			if(birth != death){
 				wp -> push_back(WritePairs(0, birth, death, duind%(dcg->ax), (duind/(dcg->ax))%(dcg->ay), (duind/(dcg->axy))%(dcg->az), print));
 			}
-			// If two values have same parent, these are potential edges which make a 2-simplex. Otherwise, remove.
-	        e->index = -1;
+			// column clearing
+	        e->index = NONE;
 		}
 	}
 	// the base point component
@@ -110,8 +110,8 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr){
 
 	// remove unnecessary edges
 	auto new_end = std::remove_if(ctr.begin(), ctr.end(),
-                              [](const Cube& e){ return e.index == -1; });
+                              [](const Cube& e){ return e.index == NONE; });
 	ctr.erase(new_end, ctr.end());
 //	cout << ctr.size() << endl;
-//	std::sort(ctr.begin(), ctr.end(), CubeComparator());
+//	std::sort(ctr.begin(), ctr.end(), CubeComparator()); // we can skip sorting as it is already sorted
 }

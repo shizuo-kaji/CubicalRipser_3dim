@@ -24,6 +24,16 @@ public:
 	int birth_y;
 	int birth_z;
 
-	WritePairs(int _dim, double _birth, double _death, int _birth_x,int _birth_y,int _birth_z, bool print = false);
-	
+	WritePairs(int _dim, double _birth, double _death, int _birth_x,int _birth_y,int _birth_z, bool print = false){
+        dim = _dim;
+        birth = _birth;
+        death = _death;
+        birth_x = _birth_x;
+        birth_y = _birth_y;
+        birth_z = _birth_z;
+        if (print == true) {
+            std::cout << "[" << birth << "," << death << ")" << " birth loc (" << birth_x << "," << birth_y << "," << birth_z << ")" << std::endl;
+        }
+    }
+
 };

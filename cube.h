@@ -1,4 +1,4 @@
-/* birthday_index.h
+/* cube.h
 
 This file is part of CubicalRipser
 Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
@@ -17,18 +17,26 @@ class Cube
 {
 public:
 	double birth;
-	unsigned index;
-//	short x,y,z,m;
+	uint32_t index;
 
 	Cube();
-	Cube(double _b, unsigned short x, unsigned short y, unsigned short z, unsigned short m);
-	Cube(const Cube&);
+    
+    // change the followings for bigger volume size
+    Cube(double _b, unsigned short _x, unsigned short _y, unsigned short _z, unsigned short _m){
+        birth = _b;
+        index = _x | (_y<<10) | (_z<<20) | (_m<<30);
+    };
+    unsigned short x(){return( (index) & 1023);}
+    unsigned short y(){return( (index >> 10) & 1023);}
+    unsigned short z(){return( (index >> 20) & 1023);}
+    unsigned short m(){return( (index >> 30) & 3);}
+
+    
+    Cube(const Cube&);
 	void copyCube(const Cube&);
 	void print();
-	unsigned short x();
-	unsigned short y();
-	unsigned short z();
-	unsigned short m();
+
+    
 	bool operator==(const Cube& rhs) const;
 };
 

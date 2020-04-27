@@ -31,5 +31,5 @@ public:
 	DenseCubicalGrids(const std::string& filename, double _threshold, file_format format);
 	~DenseCubicalGrids();
 	
-	double getBirthday(unsigned short x, unsigned short y, unsigned short z, unsigned short cm, unsigned short dim);
+	double getBirth(unsigned short x, unsigned short y, unsigned short z, unsigned short cm, unsigned short dim);
 };

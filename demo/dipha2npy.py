@@ -1,3 +1,5 @@
+######
+# DIPHA <=> Numpy Format Converter
 #%%
 import struct
 import numpy as np

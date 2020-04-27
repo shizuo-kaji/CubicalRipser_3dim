@@ -22,6 +22,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
+// allocate 3d array
 double ***alloc3d(int x, int y, int z) {
 	double ***d = (double***)malloc(x * sizeof(double**));
 	d[0] = (double**)malloc(x * y * sizeof(double*));
@@ -35,6 +36,8 @@ double ***alloc3d(int x, int y, int z) {
 	}
 	return d;
 }
+
+// read from file
 DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, file_format format)  {
 
 	threshold = _threshold;
@@ -179,7 +182,8 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 	axyz = ax * ay * az;
 }
 
-double DenseCubicalGrids::getBirthday(unsigned short cx, unsigned short cy, unsigned short cz, unsigned short cm, unsigned short dim) {
+// return filtlation value for a cube
+double DenseCubicalGrids::getBirth(unsigned short cx, unsigned short cy, unsigned short cz, unsigned short cm, unsigned short dim) {
 	// beware of the shift due to the boundary
 	switch (dim) {
 		case 0:
