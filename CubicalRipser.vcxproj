@@ -128,8 +128,6 @@
     <ClCompile Include="cubicalripser.cpp" />
     <ClCompile Include="dense_cubical_grids.cpp" />
     <ClCompile Include="joint_pairs.cpp" />
-    <ClCompile Include="union_find.cpp" />
-    <ClCompile Include="write_pairs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="coboundary_enumerator.h" />

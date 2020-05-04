@@ -26,7 +26,6 @@ using namespace std;
 #include "cube.h"
 #include "dense_cubical_grids.h"
 #include "coboundary_enumerator.h"
-#include "union_find.h"
 #include "write_pairs.h"
 #include "joint_pairs.h"
 #include "compute_pairs.h"
@@ -64,7 +63,7 @@ int main(int argc, char** argv){
 	file_format format;
 	calculation_method method = LINKFIND;
 	double threshold = DBL_MAX;
-	int maxdim = 2;  // compute PH up to this dimension
+	uint8_t maxdim = 2;  // compute PH up to this dimension
 	bool print = false; // flag for printing to std
 	bool location = false; // flag for saving location
 	int min_cache_size = 0; // num of minimum non-zero entries of a reduced column to be cached
@@ -124,11 +123,11 @@ int main(int argc, char** argv){
 	DenseCubicalGrids* dcg = new DenseCubicalGrids(filename, threshold, format);
 	vector<Cube> ctr;
 
-	maxdim = std::min(maxdim, dcg->dim - 1);
+	maxdim = std::min<uint8_t>(maxdim, dcg->dim - 1);
 
 	// compute PH
 	ComputePairs* cp = new ComputePairs(dcg, writepairs, print);
-    vector<unsigned long> betti(0);
+    vector<uint32_t> betti(0);
 	switch(method){
 		case LINKFIND:
 		{

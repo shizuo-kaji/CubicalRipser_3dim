@@ -21,7 +21,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-CoboundaryEnumerator::CoboundaryEnumerator(DenseCubicalGrids* _dcg, int _dim){
+CoboundaryEnumerator::CoboundaryEnumerator(DenseCubicalGrids* _dcg, uint8_t _dim){
 	nextCoface = Cube();
 	dcg = _dcg;
     dim = _dim;
@@ -37,7 +37,7 @@ bool CoboundaryEnumerator::hasNextCoface() {
 	// note the shift of indices to account for the boundary
 	switch (dim) {
 		case 0: // dim0
-		for (int i = position; i < 6; ++i) {
+		for (uint8_t i = position; i < 6; ++i) {
 			switch (i){
 			case 0:
 				birth = max(cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z()+2]);
@@ -80,7 +80,7 @@ bool CoboundaryEnumerator::hasNextCoface() {
 		case 1: // dim1
 		switch (cube.m()) {
 			case 0: // dim1 type0 (x-axis -> )
-			for(int i = position; i < 4; ++i){
+			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 				case 0:
 					birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z() + 2], dcg->dense3[cube.x() + 2][cube.y()+1][cube.z() + 2] });
@@ -111,7 +111,7 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			return false;
 
 			case 1: // dim1 type1 (y-axis -> )
-			for(int i = position; i < 4; ++i){
+			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 				case 0:
 					birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z() + 2], dcg->dense3[cube.x()+1][cube.y() + 2][cube.z() + 2] });
@@ -142,7 +142,7 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			return false;
 
 			case 2: // dim1 type2 (z-axis -> )
-			for(int i = position; i < 4; ++i){
+			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 					case 0:
 						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y() + 2][cube.z()+1], dcg->dense3[cube.x()+1][cube.y() + 2][cube.z() + 2] });
@@ -177,7 +177,7 @@ bool CoboundaryEnumerator::hasNextCoface() {
 		case 2: // dim2
 		switch (cube.m()) {
 			case 0: // dim2 type0 (fix z)
-			for(int i = position; i < 2; ++i){
+			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 					case 0: // upper
 						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z() + 2], dcg->dense3[cube.x() + 2][cube.y()+1][cube.z() + 2],
@@ -200,7 +200,7 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			return false;
 
 			case 1: // dim2 type1 (fix y)
-			for(int i = position; i < 2; ++i){
+			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 					case 0: // left
 						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y() + 2][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z()+1],
@@ -223,7 +223,7 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			return false;
 
 			case 2: // dim2 type2 (fix x)
-			for(int i = position; i < 2; ++i){
+			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 				case 0: // left
 					birth = max({ cube.birth, dcg->dense3[cube.x() + 2][cube.y()+1][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z()+1],

@@ -17,14 +17,14 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 class WritePairs
 {
 public:
-	int dim;
+	uint8_t dim;
 	double birth;
 	double death;
-	int birth_x;
-	int birth_y;
-	int birth_z;
+	uint32_t birth_x;
+	uint32_t birth_y;
+	uint32_t birth_z;
 
-	WritePairs(int _dim, double _birth, double _death, int _birth_x,int _birth_y,int _birth_z, bool print = false){
+	WritePairs(uint8_t _dim, double _birth, double _death, uint32_t _birth_x,uint32_t _birth_y,uint32_t _birth_z, bool print = false){
         dim = _dim;
         birth = _birth;
         death = _death;

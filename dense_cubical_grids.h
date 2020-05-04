@@ -23,13 +23,13 @@ enum file_format { DIPHA, PERSEUS, NUMPY };
 class DenseCubicalGrids {
 public:
 	double threshold;
-	unsigned short dim;
-	unsigned short ax, ay, az;
-    int axy, axyz, ayz;
+	uint8_t dim;
+	uint32_t ax, ay, az;
+    uint32_t axy, axyz, ayz;
 	double*** dense3;
 
 	DenseCubicalGrids(const std::string& filename, double _threshold, file_format format);
 	~DenseCubicalGrids();
 	
-	double getBirth(unsigned short x, unsigned short y, unsigned short z, unsigned short cm, unsigned short dim);
+	double getBirth(uint32_t x, uint32_t y, uint32_t z, uint8_t cm, uint8_t dim);
 };

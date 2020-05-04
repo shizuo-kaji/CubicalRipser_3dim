@@ -34,10 +34,10 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WriteP
 	wp = &_wp;
 	ctr.clear();
 	// the order of loop matters for performance!
-	for (short m = 0; m < 3; ++m) {
-		for (short z = 0; z < dcg->az; ++z) {
-			for (short y = 0; y < dcg->ay; ++y) {
-				for(short x = 0; x < dcg->ax ; ++x){
+	for (uint8_t m = 0; m < 3; ++m) {
+		for (uint32_t z = 0; z < dcg->az; ++z) {
+			for (uint32_t y = 0; y < dcg->ay; ++y) {
+				for(uint32_t x = 0; x < dcg->ax ; ++x){
 					double birth = dcg -> getBirth(x,y,z,m, 1);
 					if(birth < dcg -> threshold){
 						ctr.push_back(Cube(birth, x,y,z,m));
@@ -52,9 +52,9 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WriteP
 // compute H_0 by union find
 void JointPairs::joint_pairs_main(vector<Cube>& ctr){
 	UnionFind dset(dcg);
-	int u,v=0;
+	uint64_t u,v=0;
 	double min_birth = dcg -> threshold;
-	int min_idx=0;
+	uint64_t min_idx=0;
 
 	if(print == true){
 		cout << "persistence intervals in dim " << 0 << ":" << endl;
@@ -63,7 +63,7 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr){
     for (auto e = ctr.rbegin(), last = ctr.rend(); e != last; ++e) {
 		// indexing scheme for union find is DIFFERENT from that of cubes
 		// identify end points
-		int uind = e->x() + (dcg->ax)*e->y() + (dcg->axy)*e->z();
+		uint64_t uind = e->x() + (dcg->ax)*e->y() + (dcg->axy)*e->z();
 		u = dset.find(uind);
 		switch(e->m()){ //type
 			case 0:

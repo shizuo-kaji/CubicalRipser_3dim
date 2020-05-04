@@ -11,26 +11,26 @@ You should have received a copy of the GNU Lesser General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define NONE 0xffff
+#pragma once
+#define NONE 0xffffffffffffffff
 
 class Cube
 {
 public:
 	double birth;
-	uint32_t index;
+	uint64_t index;
 
 	Cube();
     
     // change the followings for bigger volume size
-    Cube(double _b, unsigned short _x, unsigned short _y, unsigned short _z, unsigned short _m){
+    Cube(double _b, uint32_t _x, uint32_t _y, uint32_t _z, uint8_t _m){
         birth = _b;
-        index = _x | (_y<<10) | (_z<<20) | (_m<<30);
+        index = (uint64_t)_x | ((uint64_t)_y<<20) | ((uint64_t)_z<<40) | ((uint64_t)_m<<60);
     };
-    unsigned short x(){return( (index) & 1023);}
-    unsigned short y(){return( (index >> 10) & 1023);}
-    unsigned short z(){return( (index >> 20) & 1023);}
-    unsigned short m(){return( (index >> 30) & 3);}
-
+    uint32_t x(){return( (index) & 0xfffff);}
+    uint32_t y(){return( (index >> 20) & 0xfffff);}
+    uint32_t z(){return( (index >> 40) & 0xfffff);}
+    uint8_t m(){return( (index >> 60) & 0xf);}
     
     Cube(const Cube&);
 	void copyCube(const Cube&);

@@ -13,16 +13,65 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <vector>
+#include "dense_cubical_grids.h"
 
 using namespace std;
 
 class UnionFind{
 private:
-	vector<int> parent;
+	vector<uint64_t> parent;
 	vector<double> time_max;
 public:
 	vector<double> birthtime;
 	UnionFind(DenseCubicalGrids* _dcg);
-	int find(int x); 
-	void link(int x, int y);
+	uint64_t find(uint64_t x); 
+	void link(uint64_t x, uint64_t y);
 };
+
+UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
+	uint64_t n = _dcg->ax * _dcg->ay * _dcg->az;
+	parent.resize(n);
+	birthtime.resize(n);
+	time_max.resize(n);
+
+	uint64_t i=0;
+	for (uint32_t z = 0; z < _dcg->az; ++z) {
+		for (uint32_t y = 0; y < _dcg->ay; ++y) {
+			for(uint32_t x = 0; x < _dcg->ax ; ++x){
+				parent[i] = i;
+				birthtime[i] = _dcg->getBirth(x,y,z,0,0);
+				time_max[i] = birthtime[i];
+				i++;
+			}
+		}
+	}
+}
+
+// find the root of a node x (specified by the index)
+uint64_t UnionFind::find(uint64_t x){
+	uint64_t y = x, z = parent[y];
+	while (z != y) {
+		y = z;
+		z = parent[y];
+	}
+	// reassign parents to the found root z
+	y = parent[x];
+	while (z != y) {
+		parent[x] = z;
+		x = y;
+		y = parent[x];
+	}
+	return z;
+}
+
+// merge nodes x and y (they should be root nodes); older will be the new parent
+void UnionFind::link(uint64_t x, uint64_t y){
+	if (x == y) return;
+	if (birthtime[x] >= birthtime[y]){
+		parent[x] = y; 
+		time_max[y] = std::max(time_max[x], time_max[y]);
+	} else if(birthtime[x] < birthtime[y]) {
+		parent[y] = x;
+		time_max[x] = std::max(time_max[x], time_max[y]);
+	}
+}

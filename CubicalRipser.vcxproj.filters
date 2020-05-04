@@ -24,12 +24,6 @@
     <ClCompile Include="joint_pairs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="union_find.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="write_pairs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cubicalripser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

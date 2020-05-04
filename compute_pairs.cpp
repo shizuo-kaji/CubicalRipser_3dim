@@ -26,9 +26,7 @@ using namespace std;
 #include "cube.h"
 #include "dense_cubical_grids.h"
 #include "coboundary_enumerator.h"
-#include "union_find.h"
 #include "write_pairs.h"
-#include "joint_pairs.h"
 #include "compute_pairs.h"
 	
 ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print){
@@ -43,23 +41,23 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
 		cout << "persistence intervals in dim " << dim << ":" << endl;
 	}
 	
-	pivot_column_index = std::unordered_map<int, int>();
+	pivot_column_index = std::unordered_map<uint64_t, uint32_t>();
 	vector<Cube> coface_entries;
 	auto ctl_size = ctr.size();
 	CoboundaryEnumerator cofaces(dcg,dim);
-	unordered_map<int, CubeQue > recorded_wc;
+	unordered_map<uint32_t, CubeQue > recorded_wc;
 //	unordered_map<int, vector<Cube> > recorded_wc;   // for some unknown reasons, using vector directly with sorting when needed deteriorates performance.
 
 	pivot_column_index.reserve(ctl_size);
 	recorded_wc.reserve(ctl_size);
 //	vector<Cube> working_coboundary;
 		
-	for(int i = 0; i < ctl_size; ++i){
+	for(uint32_t i = 0; i < ctl_size; ++i){
 		CubeQue working_coboundary;
 //		working_coboundary.clear();
 		double birth = ctr[i].birth;
 
-		int j = i;
+		auto j = i;
 		Cube pivot;
 		bool might_be_apparent_pair = true;
 		bool found_persistence_pair = false;
@@ -159,7 +157,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
 }
 
 // cache newly found pivot after reducing by mod 2
-void ComputePairs::add_cache(int i, CubeQue &wc, unordered_map<int, CubeQue>& recorded_wc){
+void ComputePairs::add_cache(uint32_t i, CubeQue &wc, unordered_map<uint32_t, CubeQue>& recorded_wc){
 	CubeQue clean_wc;
 	while(!wc.empty()){
 		auto c = wc.top();
@@ -231,14 +229,14 @@ Cube ComputePairs::get_pivot(CubeQue& column) {
 }
 
 // enumerate and sort columns for a new dimension
-void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, int _dim) {
+void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
 	dim = _dim;
 	ctr.clear();
 	double birth;
 	if (dim == 0) {
-		for (short z = 0; z < dcg->az ; ++z) {
-			for (short y = 0; y < dcg->ay; ++y) {
-				for (short x = 0; x < dcg->ax; ++x) {
+		for (uint32_t z = 0; z < dcg->az ; ++z) {
+			for (uint32_t y = 0; y < dcg->ay; ++y) {
+				for (uint32_t x = 0; x < dcg->ax; ++x) {
 					birth = dcg->getBirth(x,y,z,0,0);
 					if (birth < dcg->threshold) {
 						ctr.push_back(Cube(birth, x,y,z,0));
@@ -247,10 +245,10 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, int _dim) {
 			}
 		}
 	}else{ 
-		for (short m = 0; m < 3; ++m) {
-			for(short z = 0; z < dcg->az; ++z){
-				for (short y = 0; y < dcg->ay; ++y) {
-					for (short x = 0; x < dcg->ax; ++x) {
+		for (uint8_t m = 0; m < 3; ++m) {
+			for(uint32_t z = 0; z < dcg->az; ++z){
+				for (uint32_t y = 0; y < dcg->ay; ++y) {
+					for (uint32_t x = 0; x < dcg->ax; ++x) {
 						birth = dcg -> getBirth(x,y,z,m, dim);
 						Cube v = Cube(birth,x,y,z,m);
 						if (pivot_column_index.find(v.index) == pivot_column_index.end()) {

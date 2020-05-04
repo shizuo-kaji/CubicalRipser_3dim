@@ -23,13 +23,13 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 // allocate 3d array
-double ***alloc3d(int x, int y, int z) {
+double ***alloc3d(uint32_t x, uint32_t y, uint32_t z) {
 	double ***d = (double***)malloc(x * sizeof(double**));
 	d[0] = (double**)malloc(x * y * sizeof(double*));
 	d[0][0] = (double*)malloc(x*y*z * sizeof(double));
-	for (int i = 0; i < x ; i++) {
+	for (uint32_t i = 0; i < x ; i++) {
 		d[i] = d[0] + i * y;
-		for (int j = 0; j < y; j++) d[i][j] = d[0][0] + i * y*z + j * z;
+		for (uint32_t j = 0; j < y; j++) d[i][j] = d[0][0] + i * y*z + j * z;
 	}
 	if (d == NULL) {
 		cerr << "not enough memory!" << endl;
@@ -72,9 +72,9 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			double dou;
-			for (int z = 0; z < az + 2; ++z) {
-				for (int y = 0; y < ay + 2; ++y) {
-					for (int x = 0; x < ax + 2; ++x) {
+			for (uint32_t z = 0; z < az + 2; ++z) {
+				for (uint32_t y = 0; y < ay + 2; ++y) {
+					for (uint32_t x = 0; x < ax + 2; ++x) {
 						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
 							if (!fin.eof()) {
 								fin.read((char *)&dou, sizeof(double));
@@ -116,9 +116,9 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			dense3 = alloc3d(ax+2, ay+2, az+2);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
-			for (int z = 0; z < az + 2; ++z) {
-				for (int y = 0; y < ay + 2; ++y) {
-					for (int x = 0; x < ax + 2; ++x) {
+			for (uint32_t z = 0; z < az + 2; ++z) {
+				for (uint32_t y = 0; y < ay + 2; ++y) {
+					for (uint32_t x = 0; x < ax + 2; ++x) {
 						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
 							if (!reading_file.eof()) {
 								getline(reading_file, reading_line_buffer);
@@ -160,10 +160,10 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 			}
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 			dense3 = alloc3d(ax + 2, ay + 2, az + 2);
-			int i = 0;
-			for (int x = 0; x < ax + 2; ++x) {
-				for (int y = 0; y <ay + 2; ++y) {
-					for (int z = 0; z < az + 2; ++z) {
+			uint64_t i = 0;
+			for (uint32_t x = 0; x < ax + 2; ++x) {
+				for (uint32_t y = 0; y <ay + 2; ++y) {
+					for (uint32_t z = 0; z < az + 2; ++z) {
 						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
 							dense3[x][y][z] = data[i++];
 						}
@@ -183,7 +183,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 }
 
 // return filtlation value for a cube
-double DenseCubicalGrids::getBirth(unsigned short cx, unsigned short cy, unsigned short cz, unsigned short cm, unsigned short dim) {
+double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint8_t cm, uint8_t dim) {
 	// beware of the shift due to the boundary
 	switch (dim) {
 		case 0:

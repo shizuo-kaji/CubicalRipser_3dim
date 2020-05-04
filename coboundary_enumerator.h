@@ -14,14 +14,14 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 class CoboundaryEnumerator
 {
 private:
-	int position;
-    int dim;
+	uint8_t position;
+    uint8_t dim;
 	DenseCubicalGrids* dcg;
 public:
 	Cube cube;
 	Cube nextCoface;
 
-	CoboundaryEnumerator(DenseCubicalGrids* _dcg, int dim);
+	CoboundaryEnumerator(DenseCubicalGrids* _dcg, uint8_t dim);
 
 	void setCoboundaryEnumerator(Cube& _s); 
 
