@@ -13,6 +13,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <algorithm>
+#include <initializer_list>
 #include <vector>
 
 #include "cube.h"
@@ -35,38 +36,41 @@ void CoboundaryEnumerator::setCoboundaryEnumerator(Cube& _s) {
 bool CoboundaryEnumerator::hasNextCoface() {
 	double birth=0;
 	// note the shift of indices to account for the boundary
+	auto cx = cube.x();
+	auto cy = cube.y();
+	auto cz = cube.z();
 	switch (dim) {
 		case 0: // dim0
 		for (uint8_t i = position; i < 6; ++i) {
 			switch (i){
 			case 0:
-				birth = max(cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z()+2]);
-				nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 2);
+				birth = max(cube.birth, dcg->dense3[cx+1][cy+1][cz+2]);
+				nextCoface = Cube(birth, cx, cy, cz, 2);
 				break;
 
 			case 1:
-				birth = max(cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z()]);
-				nextCoface = Cube(birth, cube.x(), cube.y(), cube.z() - 1, 2);
+				birth = max(cube.birth, dcg->dense3[cx+1][cy+1][cz]);
+				nextCoface = Cube(birth, cx, cy, cz - 1, 2);
 				break;
 
 			case 2:
-				birth = max(cube.birth, dcg->dense3[cube.x()+1][cube.y() + 2][cube.z()+1]);
-				nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 1);
+				birth = max(cube.birth, dcg->dense3[cx+1][cy + 2][cz+1]);
+				nextCoface = Cube(birth, cx, cy, cz, 1);
 				break;
 
 			case 3:
-				birth = max(cube.birth, dcg->dense3[cube.x()+1][cube.y()][cube.z()+1]);
-				nextCoface = Cube(birth, cube.x(), cube.y() - 1, cube.z(), 1);
+				birth = max(cube.birth, dcg->dense3[cx+1][cy][cz+1]);
+				nextCoface = Cube(birth, cx, cy - 1, cz, 1);
 				break;
 
 			case 4:
-				birth = max(cube.birth, dcg->dense3[cube.x() + 2][cube.y()+1][cube.z()+1]);
-				nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 0);
+				birth = max(cube.birth, dcg->dense3[cx + 2][cy+1][cz+1]);
+				nextCoface = Cube(birth, cx, cy, cz, 0);
 				break;
 
 			case 5:
-				birth = max(cube.birth, dcg->dense3[cube.x()][cube.y()+1][cube.z()+1]);
-				nextCoface = Cube(birth, cube.x() - 1, cube.y(), cube.z(), 0);
+				birth = max(cube.birth, dcg->dense3[cx][cy+1][cz+1]);
+				nextCoface = Cube(birth, cx - 1, cy, cz, 0);
 				break;
 			}
 
@@ -83,23 +87,23 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 				case 0:
-					birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z() + 2], dcg->dense3[cube.x() + 2][cube.y()+1][cube.z() + 2] });
-					nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 1);
+					birth = max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz + 2]), dcg->dense3[cx + 2][cy+1][cz + 2]);
+					nextCoface = Cube(birth, cx, cy, cz, 1);
 					break;
 
 				case 1:
-					birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z()], dcg->dense3[cube.x() + 2][cube.y()+1][cube.z()] });
-					nextCoface = Cube(birth, cube.x(), cube.y(), cube.z() - 1, 1);
+					birth = max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz]), dcg->dense3[cx + 2][cy+1][cz]);
+					nextCoface = Cube(birth, cx, cy, cz - 1, 1);
 					break;
 
 				case 2:
-					birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y() + 2][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z()+1] });
-					nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 0);
+					birth = max(max(cube.birth, dcg->dense3[cx+1][cy + 2][cz+1]), dcg->dense3[cx + 2][cy + 2][cz+1]);
+					nextCoface = Cube(birth, cx, cy, cz, 0);
 					break;
 
 				case 3:
-					birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y()][cube.z()+1] });
-					nextCoface = Cube(birth, cube.x(), cube.y() - 1, cube.z(), 0);
+					birth = max(max(cube.birth, dcg->dense3[cx+1][cy][cz+1]), dcg->dense3[cx + 2][cy][cz+1]);
+					nextCoface = Cube(birth, cx, cy - 1, cz, 0);
 					break;
 				}
 
@@ -114,23 +118,23 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 				case 0:
-					birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z() + 2], dcg->dense3[cube.x()+1][cube.y() + 2][cube.z() + 2] });
-					nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 2);
+					birth = max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz + 2]), dcg->dense3[cx+1][cy + 2][cz + 2]);
+					nextCoface = Cube(birth, cx, cy, cz, 2);
 					break;
 
 				case 1:
-					birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z()], dcg->dense3[cube.x()+1][cube.y() + 2][cube.z()] });
-					nextCoface = Cube(birth, cube.x(), cube.y(), cube.z() - 1, 2);
+					birth = max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz]), dcg->dense3[cx+1][cy + 2][cz]);
+					nextCoface = Cube(birth, cx, cy, cz - 1, 2);
 					break;
 
 				case 2:
-					birth = max({ cube.birth, dcg->dense3[cube.x() + 2][cube.y()+1][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z()+1] });
-					nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 0);
+					birth = max(max(cube.birth, dcg->dense3[cx + 2][cy+1][cz+1]), dcg->dense3[cx + 2][cy + 2][cz+1]);
+					nextCoface = Cube(birth, cx, cy, cz, 0);
 					break;
 
 				case 3:
-					birth = max({ cube.birth, dcg->dense3[cube.x()][cube.y()+1][cube.z()+1], dcg->dense3[cube.x()][cube.y() + 2][cube.z()+1] });
-					nextCoface = Cube(birth, cube.x() - 1, cube.y(), cube.z(), 0);
+					birth = max(max(cube.birth, dcg->dense3[cx][cy+1][cz+1]), dcg->dense3[cx][cy + 2][cz+1]);
+					nextCoface = Cube(birth, cx - 1, cy, cz, 0);
 					break;
 				}
 
@@ -145,23 +149,23 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 					case 0:
-						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y() + 2][cube.z()+1], dcg->dense3[cube.x()+1][cube.y() + 2][cube.z() + 2] });
-						nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 2);
+						birth = max(max(cube.birth, dcg->dense3[cx+1][cy + 2][cz+1]), dcg->dense3[cx+1][cy + 2][cz + 2]);
+						nextCoface = Cube(birth, cx, cy, cz, 2);
 						break;
 
 					case 1:
-						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()][cube.z()+1], dcg->dense3[cube.x()+1][cube.y()][cube.z() + 2] });
-						nextCoface = Cube(birth, cube.x(), cube.y() - 1, cube.z(), 2);
+						birth = max(max(cube.birth, dcg->dense3[cx+1][cy][cz+1]), dcg->dense3[cx+1][cy][cz + 2]);
+						nextCoface = Cube(birth, cx, cy - 1, cz, 2);
 						break;
 
 					case 2:
-						birth = max({ cube.birth, dcg->dense3[cube.x() + 2][cube.y()+1][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y()+1][cube.z() + 2] });
-						nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 1);
+						birth = max(max(cube.birth, dcg->dense3[cx + 2][cy+1][cz+1]), dcg->dense3[cx + 2][cy+1][cz + 2]);
+						nextCoface = Cube(birth, cx, cy, cz, 1);
 						break;
 
 					case 3:
-						birth = max({ cube.birth, dcg->dense3[cube.x()][cube.y()+1][cube.z()+1], dcg->dense3[cube.x()][cube.y()+1][cube.z() + 2] });
-						nextCoface = Cube(birth, cube.x() - 1, cube.y(), cube.z(), 1);
+						birth = max(max(cube.birth, dcg->dense3[cx][cy+1][cz+1]), dcg->dense3[cx][cy+1][cz + 2]);
+						nextCoface = Cube(birth, cx - 1, cy, cz, 1);
 						break;
 				}
 
@@ -180,15 +184,15 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 					case 0: // upper
-						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z() + 2], dcg->dense3[cube.x() + 2][cube.y()+1][cube.z() + 2],
-							dcg->dense3[cube.x()+1][cube.y() + 2][cube.z() + 2],dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z() + 2] });
-						nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 0);
+						birth = max(max(max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz + 2]), dcg->dense3[cx + 2][cy+1][cz + 2]),
+							dcg->dense3[cx+1][cy + 2][cz + 2]),dcg->dense3[cx + 2][cy + 2][cz + 2]);
+						nextCoface = Cube(birth, cx, cy, cz, 0);
 						break;
 
 					case 1: // lower
-						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()+1][cube.z()], dcg->dense3[cube.x() + 2][cube.y()+1][cube.z()],
-							dcg->dense3[cube.x()+1][cube.y() + 2][cube.z()],dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z()] });
-						nextCoface = Cube(birth, cube.x(), cube.y(), cube.z() - 1, 0);
+						birth = max(max(max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz]), dcg->dense3[cx + 2][cy+1][cz]),
+							dcg->dense3[cx+1][cy + 2][cz]),dcg->dense3[cx + 2][cy + 2][cz]);
+						nextCoface = Cube(birth, cx, cy, cz - 1, 0);
 						break;
 				}
 
@@ -203,15 +207,15 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 					case 0: // left
-						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y() + 2][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z()+1],
-							dcg->dense3[cube.x()+1][cube.y() + 2][cube.z() + 2],dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z() + 2] });
-						nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 0);
+						birth = max(max(max(max(cube.birth, dcg->dense3[cx+1][cy + 2][cz+1]), dcg->dense3[cx + 2][cy + 2][cz+1]),
+							dcg->dense3[cx+1][cy + 2][cz + 2]),dcg->dense3[cx + 2][cy + 2][cz + 2]);
+						nextCoface = Cube(birth, cx, cy, cz, 0);
 						break;
 
 					case 1: //right
-						birth = max({ cube.birth, dcg->dense3[cube.x()+1][cube.y()][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y()][cube.z()+1],
-							dcg->dense3[cube.x()+1][cube.y()][cube.z() + 2],dcg->dense3[cube.x() + 2][cube.y()][cube.z() + 2] });
-						nextCoface = Cube(birth, cube.x(), cube.y() - 1, cube.z(), 0);
+						birth = max(max(max(max(cube.birth, dcg->dense3[cx+1][cy][cz+1]), dcg->dense3[cx + 2][cy][cz+1]),
+							dcg->dense3[cx+1][cy][cz + 2]),dcg->dense3[cx + 2][cy][cz + 2]);
+						nextCoface = Cube(birth, cx, cy - 1, cz, 0);
 						break;
 				}
 
@@ -226,15 +230,15 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 				case 0: // left
-					birth = max({ cube.birth, dcg->dense3[cube.x() + 2][cube.y()+1][cube.z()+1], dcg->dense3[cube.x() + 2][cube.y() + 2][cube.z()+1],
-						dcg->dense3[cube.x() + 2][cube.y()+1][cube.z() + 2],dcg->dense3[cube.x() + 2][cube.y() +2][cube.z() + 2] });
-					nextCoface = Cube(birth, cube.x(), cube.y(), cube.z(), 0);
+					birth = max(max(max(max(cube.birth, dcg->dense3[cx + 2][cy+1][cz+1]), dcg->dense3[cx + 2][cy + 2][cz+1]),
+						dcg->dense3[cx + 2][cy+1][cz + 2]),dcg->dense3[cx + 2][cy +2][cz + 2]);
+					nextCoface = Cube(birth, cx, cy, cz, 0);
 					break;
 
 				case 1: //right
-					birth = max({ cube.birth, dcg->dense3[cube.x()][cube.y()+1][cube.z()+1], dcg->dense3[cube.x()][cube.y() + 2][cube.z()+1],
-						dcg->dense3[cube.x()][cube.y()+1][cube.z() + 2],dcg->dense3[cube.x()][cube.y() + 2][cube.z() + 2] });
-					nextCoface = Cube(birth, cube.x() - 1, cube.y(), cube.z(), 0);
+					birth = max(max(max(max(cube.birth, dcg->dense3[cx][cy+1][cz+1]), dcg->dense3[cx][cy + 2][cz+1]),
+						dcg->dense3[cx][cy+1][cz + 2]),dcg->dense3[cx][cy + 2][cz + 2]);
+					nextCoface = Cube(birth, cx - 1, cy, cz, 0);
 					break;
 				}
 
