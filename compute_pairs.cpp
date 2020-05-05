@@ -36,7 +36,7 @@ ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, con
 	print = _print;
 }
 
-void ComputePairs::compute_pairs_main(vector<Cube>& ctr, int min_cache_size){
+void ComputePairs::compute_pairs_main(vector<Cube>& ctr, unsigned long min_cache_size){
 	if(print == true){
 		cout << "persistence intervals in dim " << dim << ":" << endl;
 	}
@@ -222,7 +222,7 @@ Cube ComputePairs::pop_pivot(CubeQue& column){
 
 Cube ComputePairs::get_pivot(CubeQue& column) {
 	Cube result = pop_pivot(column);
-	if (result.index != -1) {
+	if (result.index != NONE) {
 		column.push(result);
 	}
 	return result;

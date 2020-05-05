@@ -1,21 +1,21 @@
 #CC = g++-9
 CC = c++
 #CC = cl     # for windows
-CFLAGS = -O3 -std=c++11 -march=native
+CFLAGS = -O3 -std=c++11 -march=native -W
 TARGET = cubicalripser
 SRCS = cubicalripser.cpp dense_cubical_grids.cpp cube.cpp coboundary_enumerator.cpp joint_pairs.cpp compute_pairs.cpp
-OBJS = cubicalripser.o dense_cubical_grids.o cube.o coboundary_enumerator.o joint_pairs.o compute_pairs.o
+DEPS=$(SRCS:.cpp=.d)
+OBJS=$(SRCS:.cpp=.o)
+
+-include $(DEPS)
 
 .PHONY: all
-all: $(TARGET)
+all: $(OBJS)
+	$(CC) -o $(TARGET) $(OBJS)
 
 .cpp.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -MMD -MP $(CFLAGS) -c $<
 
 .PHONY: clean
 clean:
 	rm -f $(TARGET) *.o
-
-$(TARGET): $(OBJS) $(SRCS)
-	$(CC) -o $@ $(OBJS)
-
