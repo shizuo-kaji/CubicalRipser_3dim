@@ -39,16 +39,17 @@ double ***alloc3d(uint32_t x, uint32_t y, uint32_t z) {
 }
 
 // read from file
-DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, file_format format)  {
+DenseCubicalGrids::DenseCubicalGrids(Config& _config)  {
 
-	threshold = _threshold;
+	config = &_config;
+	threshold = config->threshold;
 
 	// read file
-	cout << filename << endl;
-	switch(format){
+	cout << "Reading " << config->filename << endl;
+	switch(config->format){
 		case DIPHA:
 		{
-			ifstream fin( filename, ios::in | ios::binary );
+			ifstream fin( config->filename, ios::in | ios::binary );
 
 			int64_t d;
 			fin.read( ( char * ) &d, sizeof( int64_t ) ); // magic number
@@ -86,7 +87,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 							}
 						}
 						else {
-							dense3[x][y][z] = threshold;
+							dense3[x][y][z] = config->threshold;
 						}
 					}
 				}
@@ -98,7 +99,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 		case PERSEUS:
 		{
 			ifstream reading_file; 
-			reading_file.open(filename.c_str(), ios::in); 
+			reading_file.open(config->filename.c_str(), ios::in); 
 
 			string reading_line_buffer; 
 			getline(reading_file, reading_line_buffer); 
@@ -125,7 +126,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 								getline(reading_file, reading_line_buffer);
 								double dou = atof(reading_line_buffer.c_str());
 								if (dou == -1) {
-									dense3[x][y][z] = threshold;
+									dense3[x][y][z] = config->threshold;
 								}
 								else {
 									dense3[x][y][z] = dou;
@@ -133,7 +134,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 							}
 						}
 						else {
-							dense3[x][y][z] = threshold;
+							dense3[x][y][z] = config->threshold;
 						}
 					} 
 				}
@@ -145,7 +146,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 		{
 			vector<unsigned long> shape;
 			vector<double> data;
-			npy::LoadArrayFromNumpy(filename.c_str(), shape, data);
+			npy::LoadArrayFromNumpy(config->filename.c_str(), shape, data);
 			if(shape.size() > 3){
 				cerr << "Input array should be 2 or 3 dimensional " << endl;
 				exit(-1);
@@ -169,7 +170,7 @@ DenseCubicalGrids::DenseCubicalGrids(const string& filename, double _threshold, 
 							dense3[x][y][z] = data[i++];
 						}
 						else { // fill the boundary with the threashold value
-							dense3[x][y][z] = threshold;
+							dense3[x][y][z] = config->threshold;
 						}
 					}
 				}

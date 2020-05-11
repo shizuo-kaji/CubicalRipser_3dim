@@ -1,3 +1,4 @@
+.DEFAULT_GOAL := all
 #CC = g++-9
 CC = c++
 #CC = cl     # for windows
@@ -10,7 +11,9 @@ OBJS=$(SRCS:.cpp=.o)
 -include $(DEPS)
 
 .PHONY: all
-all: $(OBJS)
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)
 
 .cpp.o:

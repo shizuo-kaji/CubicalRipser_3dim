@@ -32,7 +32,7 @@ public:
         birth_y = _birth_y;
         birth_z = _birth_z;
         if (print == true) {
-            std::cout << "[" << birth << "," << death << ")" << " birth loc (" << birth_x << "," << birth_y << "," << birth_z << ")" << std::endl;
+            std::cout << "[" << birth << "," << death << ")" << " location (" << birth_x << "," << birth_y << "," << birth_z << ")" << std::endl;
         }
     }
 

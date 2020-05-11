@@ -14,6 +14,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <cstdint>
+#include "config.h"
 
 using namespace std;
 
@@ -21,8 +22,8 @@ class JointPairs{
 private:
 	DenseCubicalGrids* dcg;
 	vector<WritePairs> *wp;
-	bool print;
+	Config* config;
 public:
-	JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WritePairs> &_wp, const bool _print);
+	JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WritePairs> &_wp, Config&);
 	void joint_pairs_main( vector<Cube>& ctr );
 };

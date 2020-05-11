@@ -28,9 +28,9 @@ using namespace std;
 
 
 // enumerate all edges (dim=1)
-JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WritePairs> &_wp, const bool _print){
+JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WritePairs> &_wp, Config& _config){
 	dcg = _dcg;
-	print = _print;
+	config = &_config;
 	wp = &_wp;
 	ctr.clear();
 	// the order of loop matters for performance!
@@ -39,7 +39,7 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WriteP
 			for (uint32_t y = 0; y < dcg->ay; ++y) {
 				for(uint32_t x = 0; x < dcg->ax ; ++x){
 					double birth = dcg -> getBirth(x,y,z,m, 1);
-					if(birth < dcg -> threshold){
+					if(birth < config->threshold){
 						ctr.push_back(Cube(birth, x,y,z,m));
 					}
 				}
@@ -53,43 +53,53 @@ JointPairs::JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WriteP
 void JointPairs::joint_pairs_main(vector<Cube>& ctr){
 	UnionFind dset(dcg);
 	uint64_t u,v=0;
-	double min_birth = dcg -> threshold;
+	double min_birth = config->threshold;
 	uint64_t min_idx=0;
 
-	if(print == true){
+	if(config->print == true){
 		cout << "persistence intervals in dim " << 0 << ":" << endl;
 	}
 	
     for (auto e = ctr.rbegin(), last = ctr.rend(); e != last; ++e) {
 		// indexing scheme for union find is DIFFERENT from that of cubes
-		// identify end points
+		// for each edge e, identify root indices u and v of the end points
 		uint64_t uind = e->x() + (dcg->ax)*e->y() + (dcg->axy)*e->z();
+		uint64_t vind;
 		u = dset.find(uind);
 		switch(e->m()){ //type
 			case 0:
-				v = dset.find(uind+1); // x+1
+				vind = uind+1; // x+1
 				break;
 			case 1:
-				v = dset.find(uind+(dcg->ax)); // y+1
+				vind = uind+(dcg->ax); // y+1
 				break;
 			case 2:
-				v = dset.find(uind+(dcg->axy)); // z+1
+				vind = uind+(dcg->axy); // z+1
 				break;
 		}
+		v = dset.find(vind); 
 
 		if(u != v){
 			double birth;
-			int duind;
+			int rcind;
 			if(dset.birthtime[u] >= dset.birthtime[v]){
-				birth = dset.birthtime[u];
-				duind = u; // the one who dies to make a cycle
+				birth = dset.birthtime[u]; // the component u is killed
+				if(config->location==LOC_DEATH){
+					rcind = uind; // cell of which the location is recorded
+				}else{
+					rcind = u; // cell of which the location is recorded
+				}
 				if (dset.birthtime[v] < min_birth) {
 					min_birth = dset.birthtime[v];
 					min_idx = v;
 				}
 			}else{
 				birth = dset.birthtime[v]; 
-				duind = v; // the one who dies to make a cycle
+				if(config->location==LOC_DEATH){
+					rcind = vind; // cell of which the location is recorded
+				}else{
+					rcind = v; // cell of which the location is recorded
+				}
 				if (dset.birthtime[u] < min_birth) {
 					min_birth = dset.birthtime[u];
 					min_idx = u;
@@ -98,14 +108,14 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr){
 			double death = e->birth;
 			dset.link(u, v);
 			if(birth != death){
-				wp -> push_back(WritePairs(0, birth, death, duind%(dcg->ax), (duind/(dcg->ax))%(dcg->ay), (duind/(dcg->axy))%(dcg->az), print));
+				wp -> push_back(WritePairs(0, birth, death, rcind%(dcg->ax), (rcind/(dcg->ax))%(dcg->ay), (rcind/(dcg->axy))%(dcg->az), config->print));
 			}
 			// column clearing
 	        e->index = NONE;
 		}
 	}
 	// the base point component
-	wp -> push_back(WritePairs(0, min_birth, dcg -> threshold, min_idx%(dcg->ax), (min_idx/(dcg->ax))%(dcg->ay), (min_idx/(dcg->axy))%(dcg->az), print));
+	wp -> push_back(WritePairs(0, min_birth, dcg -> threshold, min_idx%(dcg->ax), (min_idx/(dcg->ax))%(dcg->ay), (min_idx/(dcg->axy))%(dcg->az), config->print));
 //	cout << ctr.size() << endl;
 
 	// remove unnecessary edges

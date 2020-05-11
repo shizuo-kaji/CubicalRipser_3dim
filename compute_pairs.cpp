@@ -29,15 +29,15 @@ using namespace std;
 #include "write_pairs.h"
 #include "compute_pairs.h"
 	
-ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, const bool _print){
+ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, Config& _config){
 	dcg = _dcg;
 	dim = 1; //  default method is LINK_FIND, where we skip dim=0
 	wp = &_wp;
-	print = _print;
+	config = &_config;
 }
 
-void ComputePairs::compute_pairs_main(vector<Cube>& ctr, unsigned long min_cache_size){
-	if(print == true){
+void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
+	if(config->print == true){
 		cout << "persistence intervals in dim " << dim << ":" << endl;
 	}
 	
@@ -82,7 +82,11 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, unsigned long min_cache
 			if (found_persistence_pair) { 
 				double death = pivot.birth;
 				if (birth != death) {
-					wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), print));
+					if(config->location==LOC_DEATH){
+						wp->push_back(WritePairs(dim, birth, death, pivot.x(), pivot.y(), pivot.z(), config->print));
+					}else{
+						wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
+					}
 				}
 //                cout << pivot.index << ",ap," << i << endl;
 				pivot_column_index.emplace(pivot.index, i);
@@ -132,21 +136,29 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr, unsigned long min_cache
 //                        cout << i << " to " << j << " " << pivot.index << endl;
 						continue;
 					} else { // If the pivot is new
-                        if(working_coboundary.size() >= min_cache_size){
+                        if((int)working_coboundary.size() >= config->min_cache_size){
 							add_cache(i, working_coboundary, recorded_wc);
 //							recorded_wc.emplace(i, working_coboundary);
 						}
 						double death = pivot.birth;
 						if (birth != death) {
-							wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), print));
+							if(config->location==LOC_DEATH){
+								wp->push_back(WritePairs(dim, birth, death, pivot.x(), pivot.y(), pivot.z(), config->print));
+							}else{
+								wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
+							}
 						}
 //                        cout << pivot.index << ",f," << i << endl;
 						pivot_column_index.emplace(pivot.index, i);
 						break;
 					}
-				} else { // if the column is reduced to zero
+				} else { // permanent cycle
 					if (birth != dcg->threshold) {
-						wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(), print));
+						if(config->location==LOC_DEATH){
+							wp->push_back(WritePairs(dim, birth, dcg->threshold, pivot.x(), pivot.y(), pivot.z(), config->print));
+						}else{
+							wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
+						}
 					}
 					break;
 				}

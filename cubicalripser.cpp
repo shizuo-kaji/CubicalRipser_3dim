@@ -19,7 +19,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <string>
 #include <cstdint>
-#include <cfloat>
 
 using namespace std;
 
@@ -29,9 +28,9 @@ using namespace std;
 #include "write_pairs.h"
 #include "joint_pairs.h"
 #include "compute_pairs.h"
+#include "config.h"
 #include "npy.hpp"
 
-enum calculation_method { LINKFIND, COMPUTEPAIRS};
 
 void print_usage_and_exit(int exit_code) {
 	 cerr << "Usage: "
@@ -49,7 +48,10 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --min_cache_size  minimum number of non-zero entries of a reduced column to be cached (the higher the slower but less memory)" << endl
 	      << "  --output         name of file that will contain the persistence diagram " << endl
 	      << "  --print          print persistence pairs on your console" << endl
-	      << "  --location          output birth location" << endl
+	      << "  --location       output type of location" << endl
+	      << "                     birth      (localtion of birth cell; default)" << endl
+	      << "                     death      (localtion of death cell)" << endl
+	      << "                     none      (output nothing)" << endl
 	      << endl;
 
 	exit(exit_code);
@@ -58,16 +60,7 @@ void print_usage_and_exit(int exit_code) {
 /////////////////////////////////////////////
 int main(int argc, char** argv){
 
-	string filename = "";
-	string output_filename = "output.csv"; //default output filename
-	file_format format;
-	calculation_method method = LINKFIND;
-	double threshold = DBL_MAX;
-	uint8_t maxdim = 2;  // compute PH up to this dimension
-	bool print = false; // flag for printing to std
-	bool location = false; // flag for saving location
-	int min_cache_size = 0; // num of minimum non-zero entries of a reduced column to be cached
-
+	Config config;
 	// command-line argument parsing
 	for (int i = 1; i < argc; ++i) {
 		const string arg(argv[i]);
@@ -76,72 +69,81 @@ int main(int argc, char** argv){
 		} else if (arg == "--threshold") {
 			string parameter = string(argv[++i]);
 			size_t next_pos;
-			threshold = stod(parameter, &next_pos);
+			config.threshold = stod(parameter, &next_pos);
 			if (next_pos != parameter.size()) print_usage_and_exit(-1);
 		} else if (arg == "--maxdim") {
-			maxdim = stoi(argv[++i]);
+			config.maxdim = stoi(argv[++i]);
 		} else if(arg == "--method") {
 			string parameter = string(argv[++i]);
 			if (parameter == "link_find") {
-				method = LINKFIND;
+				config.method = LINKFIND;
 			} else if (parameter == "compute_pairs") {
-				method = COMPUTEPAIRS;
+				config.method = COMPUTEPAIRS;
 			} else {
 				print_usage_and_exit(-1);
 			}
 		} else if (arg == "--output") {
-			output_filename = string(argv[++i]);
+			config.output_filename = string(argv[++i]);
 		} else if (arg == "--min_cache_size"){
-            min_cache_size = stoi(argv[++i]);
+            config.min_cache_size = stoi(argv[++i]);
 		} else if (arg == "--print"){
-			print = true;
+			config.print = true;
 		} else if (arg == "--location"){
-			location = true;
+			string parameter = string(argv[++i]);
+			if (parameter == "birth") {
+				config.location = LOC_BIRTH;
+			} else if (parameter == "death") {
+				config.location = LOC_DEATH;
+			} else if (parameter == "none") {
+				config.location = LOC_NONE;
+			} else {
+				print_usage_and_exit(-1);
+			}
 		} else {
-			if (!filename.empty()) { print_usage_and_exit(-1); }
-			filename = argv[i];
+			if (!config.filename.empty()) { print_usage_and_exit(-1); }
+			config.filename = argv[i];
 		}
 	}
 
-	if (filename.empty()) { print_usage_and_exit(-1); }
-    ifstream file_stream(filename);
-	if (!filename.empty() && file_stream.fail()) {
-		cerr << "couldn't open file " << filename << endl;
+	if (config.filename.empty()) { print_usage_and_exit(-1); }
+    ifstream file_stream(config.filename);
+	if (!config.filename.empty() && file_stream.fail()) {
+		cerr << "couldn't open file " << config.filename << endl;
 		exit(-1);
 	}
 	// infer input file type from its extention
-	if(filename.find(".txt")!= std::string::npos){
-		format = PERSEUS;
-	}else if(filename.find(".npy")!= std::string::npos){
-		format = NUMPY;
+	if(config.filename.find(".txt")!= std::string::npos){
+		config.format = PERSEUS;
+	}else if(config.filename.find(".npy")!= std::string::npos){
+		config.format = NUMPY;
 	}else{
-		format = DIPHA;
+		config.format = DIPHA;
 	}
 	vector<WritePairs> writepairs; // (dim birth death x y z)
 	writepairs.clear();
 	
-	DenseCubicalGrids* dcg = new DenseCubicalGrids(filename, threshold, format);
+	DenseCubicalGrids* dcg = new DenseCubicalGrids(config);
 	vector<Cube> ctr;
 
-	maxdim = std::min<uint8_t>(maxdim, dcg->dim - 1);
+	config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
 
 	// compute PH
-	ComputePairs* cp = new ComputePairs(dcg, writepairs, print);
+	ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
     vector<uint32_t> betti(0);
-	switch(method){
+	switch(config.method){
 		case LINKFIND:
 		{
-			JointPairs* jp = new JointPairs(dcg, ctr, writepairs, print);
+			JointPairs* jp = new JointPairs(dcg, ctr, writepairs, config);
 			jp -> joint_pairs_main(ctr); // dim0
             betti.push_back(writepairs.size());
             cout << "the number of pairs in dim 0: " << betti[0] << endl;
-			if(maxdim>0){
-				cp -> compute_pairs_main(ctr,min_cache_size); // dim1
+			if(config.maxdim>0){
+				cp -> compute_pairs_main(ctr); // dim1
                 betti.push_back(writepairs.size() - betti[0]);
                 cout << "the number of pairs in dim 1: " << betti[1] << endl;
-				if(maxdim>1){
+				if(config.maxdim>1){
 					cp -> assemble_columns_to_reduce(ctr,2);
-					cp -> compute_pairs_main(ctr,min_cache_size); // dim2
+					cp -> compute_pairs_main(ctr); // dim2
                     betti.push_back(writepairs.size() - betti[0] - betti[1]);
                     cout << "the number of pairs in dim 2: " << betti[2] << endl;
 				}
@@ -152,13 +154,13 @@ int main(int argc, char** argv){
 		case COMPUTEPAIRS:
 		{
 			cp -> assemble_columns_to_reduce(ctr,0);
-			cp -> compute_pairs_main(ctr,min_cache_size); // dim0
-			if(maxdim>0){
+			cp -> compute_pairs_main(ctr); // dim0
+			if(config.maxdim>0){
 				cp -> assemble_columns_to_reduce(ctr,1);
-				cp -> compute_pairs_main(ctr,min_cache_size); // dim1
-				if(maxdim>1){			
+				cp -> compute_pairs_main(ctr); // dim1
+				if(config.maxdim>1){			
 					cp -> assemble_columns_to_reduce(ctr,2);
-					cp -> compute_pairs_main(ctr,min_cache_size); // dim2
+					cp -> compute_pairs_main(ctr); // dim2
 				}
 			}
 		break;
@@ -169,8 +171,8 @@ int main(int argc, char** argv){
 	ofstream writing_file;
 	int64_t p = writepairs.size();
 	cout << "the number of total pairs : " << p << endl;
-	if(output_filename.find(".csv")!= std::string::npos){
-		writing_file.open(output_filename, ios::out);
+	if(config.output_filename.find(".csv")!= std::string::npos){
+		writing_file.open(config.output_filename, ios::out);
 		if(!writing_file.is_open()){
 			cerr << " error: open file for output failed! " << endl;
 		}
@@ -179,13 +181,13 @@ int main(int argc, char** argv){
 			writing_file << d << ",";
 			writing_file << writepairs[i].birth << ",";
 			writing_file << writepairs[i].death;
-			if(location){
+			if(config.location != LOC_NONE){
 				writing_file << "," << writepairs[i].birth_x << "," << writepairs[i].birth_y<< "," << writepairs[i].birth_z;
 			}
 			writing_file << endl;
 		}
 		writing_file.close();
-	}else if(output_filename.find(".npy")!= std::string::npos){
+	}else if(config.output_filename.find(".npy")!= std::string::npos){
 		long unsigned leshape[] = {0,6};
 		leshape[0] = p;
 		vector<double> data(6*p);
@@ -197,9 +199,9 @@ int main(int argc, char** argv){
 			data[6*i+4] = writepairs[i].birth_y;
 			data[6*i+5] = writepairs[i].birth_z;
 		}
-		npy::SaveArrayAsNumpy(output_filename, false, 2, leshape, data);
+		npy::SaveArrayAsNumpy(config.output_filename, false, 2, leshape, data);
 	} else { // DIPHA format
-		writing_file.open(output_filename, ios::out | ios::binary);
+		writing_file.open(config.output_filename, ios::out | ios::binary);
 		if(!writing_file.is_open()){
 			cerr << " error: open file for output failed! " << endl;
 		}

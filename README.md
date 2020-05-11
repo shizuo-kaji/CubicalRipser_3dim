@@ -17,7 +17,7 @@ any later version.
 ## How to use
 To build the software: (precompiled Windows/Mac binaries are found under win64/mac directories)
 
-    % make
+    % make all
 
 To see the command-line options:
 
@@ -25,12 +25,15 @@ To see the command-line options:
 
 Example:
 
-    % ./cubicalripser --print --location --maxdim 2 --output out.csv demo/3dimsample.txt
+    % ./cubicalripser --print --location birth --maxdim 2 --output out.csv demo/3dimsample.txt
 
 Look at the Jupyter notebook demo/cubicalripser.ipynb for practical usage.
 
 ## Input file format
 CubicalRipser takes three types of input files: NUMPY, TEXT, DIPHA.
+Image files (JPEG, PNG, etc.) can be converted to NUMPY array by
+
+    % python demo/img2npy.py input.jpg output.npy
 
 - 2D or 3D Numpy array (recommended). The filename should end with ".npy". DType must be float64. see the Jupyter Notebook example found under the demo directory.
 - Text file. The filename should end with ".txt"
@@ -53,4 +56,4 @@ I added the following functionality:
 - input size up to 2^20-1 x 2^20-1 x 2^20-1
 - cleaned up/optimised codes (much less memory footprint, much faster for certain data)
 - cache control
-- output birth location
+- output birth/death location

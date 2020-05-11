@@ -15,20 +15,20 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <vector>
+#include "config.h"
 
 using namespace std;
 
-enum file_format { DIPHA, PERSEUS, NUMPY };
-
 class DenseCubicalGrids {
 public:
+	Config *config;
 	double threshold;
 	uint8_t dim;
 	uint32_t ax, ay, az;
     uint32_t axy, axyz, ayz;
 	double*** dense3;
 
-	DenseCubicalGrids(const std::string& filename, double _threshold, file_format format);
+	DenseCubicalGrids(Config&);
 	~DenseCubicalGrids();
 	
 	double getBirth(uint32_t x, uint32_t y, uint32_t z, uint8_t cm, uint8_t dim);

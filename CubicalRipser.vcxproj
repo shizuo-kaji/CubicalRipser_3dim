@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClInclude Include="coboundary_enumerator.h" />
     <ClInclude Include="compute_pairs.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="cube.h" />
     <ClInclude Include="dense_cubical_grids.h" />
     <ClInclude Include="joint_pairs.h" />
