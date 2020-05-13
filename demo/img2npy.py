@@ -6,26 +6,47 @@ import os
 from PIL import Image
 
 #%%
-parser = argparse.ArgumentParser("Convert image file to Numpy")
-parser.add_argument('from_fn')
-parser.add_argument('to_fn')
+parser = argparse.ArgumentParser("Convert image file to Numpy array")
+parser.add_argument('from_fn', nargs="*", help="multiple files of the same dimension would be stacked to a 3D image")
+parser.add_argument('to_fn', help="output filename (.npy)")
 parser.add_argument('--reduce','-r', type=int, default=1)
 args = parser.parse_args()
 
 s = args.reduce
 
 # %%
-if ".npy" in args.from_fn:
-    im = np.load(args.from_fn).astype(np.float64)
-else:
-    im = np.array(Image.open(args.from_fn).convert('L'),dtype=np.float64)
+fn,ext = os.path.splitext(args.from_fn[0])
+if ext == ".dcm":
+    import pydicom as dicom
 
-print("input shape: ",im.shape)
+images = []
+for ffn in args.from_fn:
+    print("processing {}".format(ffn))
+    fn,ext = os.path.splitext(ffn)
+    if ext == ".npy":
+        im = np.load(ffn).astype(np.float64)
+    elif ext == ".dcm":
+        ref_dicom_in = dicom.read_file(ffn, force=True)
+#        ref_dicom_in.file_meta.TransferSyntaxUID = dicom.uid.ImplicitVRLittleEndian
+        im = ref_dicom_in.pixel_array.astype(np.float64) +ref_dicom_in.RescaleIntercept
+    elif ext == ".csv":
+        im = np.loadtxt(ffn,delimiter=",")
+    else:
+        im = np.array(Image.open(ffn).convert('L'),dtype=np.float64)
 
-if len(im.shape)==3:
-    im = im[::s,::s,::s]
-else:
-    im = im[::s,::s]
+    images.append(im)
 
-print("output shape: ",im.shape)
-np.save(args.to_fn,im)
+img_arr = np.squeeze(np.stack(images,axis=-1))
+print("input shape: ",img_arr.shape)
+
+# size reduction
+if len(img_arr.shape)==4:
+    img_arr = img_arr[::s,::s,::s,::s]
+elif len(img_arr.shape)==3:
+    img_arr = img_arr[::s,::s,::s]
+elif len(img_arr.shape)==2:
+    img_arr = img_arr[::s,::s]
+
+# save to npy
+print("output shape: ",img_arr.shape)
+np.save(args.to_fn,img_arr)
