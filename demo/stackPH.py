@@ -43,12 +43,12 @@ def histVect(ph,mx,my,mz,min_life=-1,max_life=-1,n_life_bins=4,n_birth_bins=4,di
     if max_life < 0:
         max_life = M
 
-    min_birth = np.min(ph[:,1])
-    max_birth = np.max(ph[:,1])
+    min_birth, max_birth = np.quantile(ph[:,1],[0.1,0.9])
     #
     life_bins = np.linspace(min_life,max_life,n_life_bins-1)
     birth_bins =np.linspace(min_birth,max_birth,n_birth_bins-1)
     cycle_vec = np.zeros((mx,my,mz,len(dims),n_life_bins,n_birth_bins))
+#    print(life_bins,birth_bins)
 
     # histogram
     for c in ph:

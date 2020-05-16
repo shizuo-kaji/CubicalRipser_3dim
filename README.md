@@ -14,11 +14,38 @@ the terms of the GNU Lesser General Public License as published by the
 Free Software Foundation, either version 3 of the License, or (at your option)
 any later version.
 
-## How to use
-To build the software: (precompiled Windows/Mac binaries are found under win64/mac directories)
+## How to compile
+Precompiled Windows/Mac binaries are found under win64/mac directories.
+("cripser.cpython-37m-darwin.so" or "cripser.cp37-win_amd64.pyd" are python modules.
+you can just copy them to the same directory as the python script, if you have the right version of Python.)
+
+To build the comannd-line executable from source:
+
+    % cd build
+    % cmake ..
+    % make
+
+On Windows, you may get an error like "Python config failure: Python is 64-bit, chosen compiler is 32-bit".
+Then, you have to specify your compiler; for example
+
+    % cmake .. -G"Visual Studio 15 2017 Win64"
+
+
+The executable is "cubicalripser".
+
+If cmake is not available on your system,
 
     % make all
 
+but perhaps you have to manually modify "Makefile".
+
+To install Python module,
+
+    % cd python
+    % pip install .
+
+
+## How to use
 To see the command-line options:
 
     % ./cubicalripser
@@ -26,6 +53,13 @@ To see the command-line options:
 Example:
 
     % ./cubicalripser --print --location birth --maxdim 2 --output out.csv demo/3dimsample.txt
+
+To use from python,
+
+    import cripser
+    cripser.computePH(arr)
+
+where arr is a 2D or 3D numpy array of type numpy.float64.
 
 Look at the Jupyter notebook demo/cubicalripser.ipynb for practical usage.
 
