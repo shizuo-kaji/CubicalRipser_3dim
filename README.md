@@ -17,7 +17,7 @@ any later version.
 ## How to compile
 Precompiled Windows/Mac binaries are found under win64/mac directories.
 ("cripser.cpython-37m-darwin.so" or "cripser.cp37-win_amd64.pyd" are python modules.
-you can just copy them to the same directory as the python script, if you have the right version of Python.)
+You can simply copy them to the same directory as the python script, if you have the right version of Python.)
 
 To build the comannd-line executable from source:
 
@@ -41,7 +41,6 @@ but perhaps you have to manually modify "Makefile".
 
 To install Python module,
 
-    % cd python
     % pip install .
 
 
@@ -91,3 +90,4 @@ I added the following functionality:
 - cleaned up/optimised codes (much less memory footprint, much faster for certain data)
 - cache control
 - output birth/death location
+- python binding
