@@ -15,7 +15,13 @@ Free Software Foundation, either version 3 of the License, or (at your option)
 any later version.
 
 ## Installation
-Precompiled Windows/Mac binaries are found under win64/mac directories.
+(Recommended)
+Install the Python module only:
+
+    % pip install git+https://github.com/shizuo-kaji/CubicalRipser_3dim
+
+(For those who need commend-line versions as well)
+Precompiled Windows/Mac command-line binaries are found under win64/mac directories.
 ("cripser.cpython-37m-darwin.so" or "cripser.cp37-win_amd64.pyd" are python modules.
 You can simply copy them to the same directory as the python script, if you have the right version of Python.)
 
