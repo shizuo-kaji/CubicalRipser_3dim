@@ -14,10 +14,14 @@ the terms of the GNU Lesser General Public License as published by the
 Free Software Foundation, either version 3 of the License, or (at your option)
 any later version.
 
-## How to compile
+## Installation
 Precompiled Windows/Mac binaries are found under win64/mac directories.
 ("cripser.cpython-37m-darwin.so" or "cripser.cp37-win_amd64.pyd" are python modules.
 You can simply copy them to the same directory as the python script, if you have the right version of Python.)
+
+If you just want to use the python binding,
+
+    % pip install git+https://github.com/shizuo-kaji/CubicalRipser_3dim
 
 To build the comannd-line executable from source:
 
