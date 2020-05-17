@@ -273,9 +273,9 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
 			}
 		}
 	}
-    clock_t start = clock();
+//    clock_t start = clock();
     sort(ctr.begin(), ctr.end(), CubeComparator());
-    clock_t end = clock();
-    const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
-    cout << "Sorting Time: " <<  time << endl;
+//    clock_t end = clock();
+//    const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+//    cout << "Sorting Time: " <<  time << endl;
 }
