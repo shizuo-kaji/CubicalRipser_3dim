@@ -66,7 +66,8 @@ To use from python,
 
 where arr is a 2D or 3D numpy array of type numpy.float64.
 
-Look at the Jupyter notebook demo/cubicalripser.ipynb for practical usage.
+Look at the Jupyter notebook demo/cubicalripser.ipynb and https://github.com/shizuo-kaji/HomologyCNN for practical usage.
+
 
 ## Input file format
 CubicalRipser takes three types of input files: NUMPY, TEXT, DIPHA.
