@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser("Convert image file to Numpy array")
 parser.add_argument('from_fn', nargs="*", help="multiple files of the same dimension would be stacked to a 3D image")
 parser.add_argument('to_fn', help="output filename (.npy)")
 parser.add_argument('--reduce','-r', type=int, default=1)
+parser.add_argument('--tile','-t', type=int, default=1)
 args = parser.parse_args()
 
 s = args.reduce
@@ -42,10 +43,13 @@ print("input shape: ",img_arr.shape)
 # size reduction
 if len(img_arr.shape)==4:
     img_arr = img_arr[::s,::s,::s,::s]
+    img_arr = np.tile(img_arr, (args.tile,args.tile,args.tile,args.tile))
 elif len(img_arr.shape)==3:
     img_arr = img_arr[::s,::s,::s]
+    img_arr = np.tile(img_arr, (args.tile,args.tile,args.tile))
 elif len(img_arr.shape)==2:
     img_arr = img_arr[::s,::s]
+    img_arr = np.tile(img_arr, (args.tile,args.tile))
 
 # save to npy
 print("output shape: ",img_arr.shape)

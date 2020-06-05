@@ -37,10 +37,6 @@ ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, Con
 }
 
 void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
-	if(config->print == true){
-		cout << "persistence intervals in dim " << dim << ":" << endl;
-	}
-	
 	pivot_column_index = std::unordered_map<uint64_t, uint32_t>();
 	vector<Cube> coface_entries;
 	auto ctl_size = ctr.size();
@@ -155,7 +151,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 				} else { // permanent cycle
 					if (birth != dcg->threshold) {
 						if(config->location==LOC_DEATH){
-							wp->push_back(WritePairs(dim, birth, dcg->threshold, pivot.x(), pivot.y(), pivot.z(), config->print));
+							wp->push_back(WritePairs(dim, birth, dcg->threshold, 0, 0, 0, config->print));
 						}else{
 							wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
 						}

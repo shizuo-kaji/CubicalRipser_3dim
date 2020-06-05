@@ -8,6 +8,10 @@ modified by Shizuo Kaji, Kyushu University, 2019
 CubicalRipser is an adaptation of [Ripser](http://ripser.org) by Ulrich Bauer for a filtered cubical complex.
 For 2 and 3 dimensional cubical complexes, we believe CubicalRipser is currently the fastest program for computing persistent homology.
 
+For details, please look at our preprint
+[Cubical Ripser: Software for computing persistent homology of image and volume data](https://arxiv.org/abs/2005.12692)
+by Shizuo Kaji, Takeki Sudo, Kazushi Ahara.
+
 ## License
 CubicalRipser is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the
@@ -62,7 +66,7 @@ Example:
 To use from python,
 
     import cripser
-    cripser.computePH(arr)
+    cripser.computePH(arr,maxdim=2,location="birth")
 
 where arr is a 2D or 3D numpy array of type numpy.float64.
 
@@ -96,5 +100,9 @@ I added the following functionality:
 - input size up to 2^20-1 x 2^20-1 x 2^20-1
 - cleaned up/optimised codes (much less memory footprint, much faster for certain data)
 - cache control
+- option to use the Alexander duality for the highest degree persistent homology
 - output birth/death location
 - python binding
+
+## TODO
+- When using Alexander duality for 2d image, it saves memory if we use the 2d complex (currently, we compute for a thickened 3d complex having the same PH)

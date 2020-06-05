@@ -20,10 +20,12 @@ using namespace std;
 
 class JointPairs{
 private:
-	DenseCubicalGrids* dcg;
 	vector<WritePairs> *wp;
 	Config* config;
 public:
-	JointPairs(DenseCubicalGrids* _dcg, vector<Cube>& ctr, vector<WritePairs> &_wp, Config&);
-	void joint_pairs_main( vector<Cube>& ctr );
+	DenseCubicalGrids* dcg;
+	JointPairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, Config&);
+	void enum_edges(std::vector<uint8_t>,vector<Cube>&);
+	void enum_edges_alex(std::vector<uint8_t>,vector<Cube>&);
+	void joint_pairs_main( vector<Cube>& ctr, int current_dim);
 };

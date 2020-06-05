@@ -41,13 +41,15 @@ void print_usage_and_exit(int exit_code) {
 	      << endl
 	      << "  --help           print this screen" << endl
 	      << "  --threshold <t>  compute cubical complexes up to birth time <t>" << endl
-	      << "  --maxdim <t>     compute persistent homology up to dimension <t>" << endl
+		  << "  --maxdim <t>     compute persistent homology up to dimension <t>" << endl
 	      << "  --method         method to compute the persistent homology of the cubical complexes. Options are" << endl
-	      << "                     link_find      (calculating the 0-dim PH, use 'link_find' algorithm; default)" << endl
-	      << "                     compute_pairs  (calculating the 0-dim PH, use 'compute_pairs' algorithm)" << endl
+	      << "                     link_find      (calculating the 0-dim PH by the 'link_find' algorithm; default)" << endl
+	      << "                     compute_pairs  (calculating the 0-dim PH by the 'compute_pairs' algorithm)" << endl
+	      << "                     alexander      (calculating the highest PH also by the 'link_find' algorithm)" << endl
 	      << "  --min_cache_size  minimum number of non-zero entries of a reduced column to be cached (the higher the slower but less memory)" << endl
 	      << "  --output         name of file that will contain the persistence diagram " << endl
 	      << "  --print          print persistence pairs on your console" << endl
+	      << "  --top_dim        compute only for top dimension using Alexander duality" << endl
 	      << "  --location       output type of location" << endl
 	      << "                     birth      (localtion of birth cell; default)" << endl
 	      << "                     death      (localtion of death cell)" << endl
@@ -88,6 +90,8 @@ int main(int argc, char** argv){
             config.min_cache_size = stoi(argv[++i]);
 		} else if (arg == "--print"){
 			config.print = true;
+		} else if (arg == "--top_dim") {
+			config.method = ALEXANDER;
 		} else if (arg == "--location"){
 			string parameter = string(argv[++i]);
 			if (parameter == "birth") {
@@ -123,23 +127,26 @@ int main(int argc, char** argv){
 	writepairs.clear();
 	
 	DenseCubicalGrids* dcg = new DenseCubicalGrids(config);
-	dcg->loadImage();
-
 	vector<Cube> ctr;
 
-	config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
-
 	// compute PH
-	ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
     vector<uint32_t> betti(0);
 	switch(config.method){
 		case LINKFIND:
 		{
-			JointPairs* jp = new JointPairs(dcg, ctr, writepairs, config);
-			jp -> joint_pairs_main(ctr); // dim0
+			dcg->loadImage(false);
+			config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
+			JointPairs* jp = new JointPairs(dcg, writepairs, config);
+			if(dcg->dim==2){
+				jp -> enum_edges({0,1},ctr);
+			}else{
+				jp -> enum_edges({0,1,2},ctr);
+			}
+			jp -> joint_pairs_main(ctr,0); // dim0
             betti.push_back(writepairs.size());
             cout << "the number of pairs in dim 0: " << betti[0] << endl;
 			if(config.maxdim>0){
+				ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
 				cp -> compute_pairs_main(ctr); // dim1
                 betti.push_back(writepairs.size() - betti[0]);
                 cout << "the number of pairs in dim 1: " << betti[1] << endl;
@@ -155,18 +162,43 @@ int main(int argc, char** argv){
 		
 		case COMPUTEPAIRS:
 		{
+			dcg->loadImage(false);
+			config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
+			ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
 			cp -> assemble_columns_to_reduce(ctr,0);
 			cp -> compute_pairs_main(ctr); // dim0
+            betti.push_back(writepairs.size());
+            cout << "the number of pairs in dim 0: " << betti[0] << endl;
 			if(config.maxdim>0){
 				cp -> assemble_columns_to_reduce(ctr,1);
 				cp -> compute_pairs_main(ctr); // dim1
-				if(config.maxdim>1){			
+				betti.push_back(writepairs.size() - betti[0]);
+				cout << "the number of pairs in dim 1: " << betti[1] << endl;
+				if(config.maxdim>1){
 					cp -> assemble_columns_to_reduce(ctr,2);
 					cp -> compute_pairs_main(ctr); // dim2
+					betti.push_back(writepairs.size() - betti[0] - betti[1]);
+					cout << "the number of pairs in dim 2: " << betti[2] << endl;
 				}
 			}
 		break;
 		}
+
+		case ALEXANDER: // only for top dim
+		{
+			dcg->loadImage(true);
+			JointPairs* jp = new JointPairs(dcg, writepairs, config);
+			if(dcg->dim==2){
+				jp -> enum_edges({0,1,3,4},ctr);
+				jp -> joint_pairs_main(ctr,1); // dim1
+				cout << "the number of pairs in dim 1: " << writepairs.size() << endl;
+			}else if(dcg->dim==3){
+				jp -> enum_edges({0,1,2,3,4,5,6,7,8,9,10,11,12},ctr);
+				jp -> joint_pairs_main(ctr,2); // dim2
+				cout << "the number of pairs in dim 2: " << writepairs.size() << endl;
+			}
+		break;
+		}		
 	}
 
 	// write to file

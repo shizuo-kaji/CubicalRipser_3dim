@@ -30,7 +30,7 @@ public:
 
 	DenseCubicalGrids(Config&);
 	~DenseCubicalGrids();
-	void loadImage();
+	void loadImage(bool embedded);
 	double ***alloc3d(uint32_t x, uint32_t y, uint32_t z);
 	double getBirth(uint32_t x, uint32_t y, uint32_t z, uint8_t cm, uint8_t dim);
 };

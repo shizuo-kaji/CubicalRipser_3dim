@@ -37,7 +37,7 @@ using namespace std;
 namespace py = pybind11;
 
 /////////////////////////////////////////////
-py::array_t<double> computePH(py::array_t<double> img){
+py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, const std::string &location="birth"){
 
 	Config config;
 	config.format = NUMPY;
@@ -51,7 +51,9 @@ py::array_t<double> computePH(py::array_t<double> img){
     const auto &buff_info = img.request();
     const auto &shape = buff_info.shape;
 	dcg->dim = buff_info.ndim;
+	config.maxdim = maxdim;
 	config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
+	if(location=="death") config.location=LOC_DEATH;
 
 	// load file
 	dcg->ax = shape[0];
@@ -98,8 +100,13 @@ py::array_t<double> computePH(py::array_t<double> img){
 	ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
     vector<uint32_t> betti(0);
 
-	JointPairs* jp = new JointPairs(dcg, ctr, writepairs, config);
-	jp -> joint_pairs_main(ctr); // dim0
+	JointPairs* jp = new JointPairs(dcg, writepairs, config);
+	if(dcg->dim==2){
+		jp -> enum_edges({0,1},ctr);
+	}else{
+		jp -> enum_edges({0,1,2},ctr);
+	}
+	jp -> joint_pairs_main(ctr,0); // dim0
 	betti.push_back(writepairs.size());
 	if(config.maxdim>0){
 		cp -> compute_pairs_main(ctr); // dim1
@@ -138,7 +145,7 @@ PYBIND11_MODULE(cripser, m) {
     )pbdoc";
 
     m.def("computePH", &computePH, R"pbdoc(Compute Persistent Homology
-    )pbdoc");
+    )pbdoc", py::arg("arr"),  py::arg("maxdim")=2, py::arg("location")="birth");
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;
