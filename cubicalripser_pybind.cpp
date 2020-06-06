@@ -57,8 +57,8 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, const std::
 
 	// load file
 	dcg->ax = shape[0];
-	dcg->ay = shape[1];
 	if (dcg->dim == 3) {
+		dcg->ay = shape[1];
 		dcg->az = shape[2];
 		dcg->dense3 = dcg->alloc3d(dcg->ax + 2, dcg->ay + 2, dcg->az + 2);
 		for (uint32_t x = 0; x < dcg->ax + 2; ++x) {
@@ -73,8 +73,8 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, const std::
 				}
 			}
 		}
-	}
-	else {
+	}else if (dcg->dim == 2) {
+		dcg->ay = shape[1];
 		dcg->az = 1;
 		dcg->dense3 = dcg->alloc3d(dcg->ax + 2, dcg->ay + 2, dcg->az + 2);
 		for (uint32_t x = 0; x < dcg->ax + 2; ++x) {
@@ -89,7 +89,24 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, const std::
 				}
 			}
 		}
+	}else if (dcg->dim == 1) {
+		dcg->ay = 1;
+		dcg->az = 1;
+		dcg->dense3 = dcg->alloc3d(dcg->ax + 2, dcg->ay + 2, dcg->az + 2);
+		for (uint32_t x = 0; x < dcg->ax + 2; ++x) {
+			for (uint32_t y = 0; y < dcg->ay + 2; ++y) {
+				for (uint32_t z = 0; z < dcg->az + 2; ++z) {
+					if (0 < x && x <= dcg->ax && 0 < y && y <= dcg->ay && 0 < z && z <= dcg->az) {
+						dcg->dense3[x][y][z] = *img.data(x-1); // note the shift
+					}
+					else { // fill the boundary with the threashold value
+						dcg->dense3[x][y][z] = config.threshold;
+					}
+				}
+			}
+		}
 	}
+
 	dcg -> axy = dcg->ax * dcg->ay;
 	dcg -> ayz = dcg->ay * dcg->az;
 	dcg -> axyz = dcg->ax * dcg->ay * dcg->az;
@@ -101,7 +118,9 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, const std::
     vector<uint32_t> betti(0);
 
 	JointPairs* jp = new JointPairs(dcg, writepairs, config);
-	if(dcg->dim==2){
+	if(dcg->dim==1){
+		jp -> enum_edges({0},ctr);
+	}else if(dcg->dim==2){
 		jp -> enum_edges({0,1},ctr);
 	}else{
 		jp -> enum_edges({0,1,2},ctr);

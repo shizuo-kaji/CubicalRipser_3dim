@@ -50,9 +50,13 @@ void DenseCubicalGrids::loadImage(bool embedded){
 			assert(dim < 4);
 			fin.read( ( char * ) &d, sizeof( int64_t ) );
 			ax = d;
-			fin.read( ( char * ) &d, sizeof( int64_t ) );
-			ay = d;
-			if (dim == 3) {
+			if (dim>1) {
+				fin.read( ( char * ) &d, sizeof( int64_t ) );
+				ay = d;
+			}else{
+				ay = 1;
+			}
+			if (dim>2) {
 				fin.read((char *)&d, sizeof(int64_t));
 				az = d;
 			}else {
@@ -146,9 +150,13 @@ void DenseCubicalGrids::loadImage(bool embedded){
 			assert(dim < 4);
 			getline(reading_file, reading_line_buffer);
 			ax = atoi(reading_line_buffer.c_str()); 
-			getline(reading_file, reading_line_buffer); 
-			ay = atoi(reading_line_buffer.c_str()); 
-			if (dim == 3) {
+			if (dim>1) {
+				getline(reading_file, reading_line_buffer); 
+				ay = atoi(reading_line_buffer.c_str()); 
+			}else {
+				ay = 1;
+			}
+			if (dim>2) {
 				getline(reading_file, reading_line_buffer);
 				az = atoi(reading_line_buffer.c_str());
 			}else {
@@ -248,11 +256,14 @@ void DenseCubicalGrids::loadImage(bool embedded){
 			}
 			dim = shape.size();
 			ax = shape[0];
-			ay = shape[1];
-			if (dim == 3) {
-				az = shape[2];
+			if (dim>1) {
+				ay = shape[1];
+			}else {
+				ay = 1;
 			}
-			else {
+			if (dim>2) {
+				az = shape[2];
+			}else {
 				az = 1;
 			}
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;

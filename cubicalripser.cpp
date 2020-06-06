@@ -120,10 +120,14 @@ int main(int argc, char** argv){
 		config.format = PERSEUS;
 	}else if(config.filename.find(".npy")!= std::string::npos){
 		config.format = NUMPY;
-	}else{
+	}else if(config.filename.find(".complex")!= std::string::npos){
 		config.format = DIPHA;
+	}else{
+		cerr << "unknown input file format! (the filename extension should be one of npy, txt, complex): " << config.filename << endl;
+		exit(-1);
 	}
-	vector<WritePairs> writepairs; // (dim birth death x y z)
+
+	vector<WritePairs> writepairs; // record (dim birth death x y z)
 	writepairs.clear();
 	
 	DenseCubicalGrids* dcg = new DenseCubicalGrids(config);
@@ -137,7 +141,9 @@ int main(int argc, char** argv){
 			dcg->loadImage(false);
 			config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
 			JointPairs* jp = new JointPairs(dcg, writepairs, config);
-			if(dcg->dim==2){
+			if(dcg->dim==1){
+				jp -> enum_edges({0},ctr);
+			}else if(dcg->dim==2){
 				jp -> enum_edges({0,1},ctr);
 			}else{
 				jp -> enum_edges({0,1,2},ctr);
@@ -188,7 +194,11 @@ int main(int argc, char** argv){
 		{
 			dcg->loadImage(true);
 			JointPairs* jp = new JointPairs(dcg, writepairs, config);
-			if(dcg->dim==2){
+			if(dcg->dim==1){
+				jp -> enum_edges({0},ctr);
+				jp -> joint_pairs_main(ctr,0); // dim0
+				cout << "the number of pairs in dim 0: " << writepairs.size() << endl;
+			}else if(dcg->dim==2){
 				jp -> enum_edges({0,1,3,4},ctr);
 				jp -> joint_pairs_main(ctr,1); // dim1
 				cout << "the number of pairs in dim 1: " << writepairs.size() << endl;

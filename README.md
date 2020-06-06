@@ -1,4 +1,4 @@
-# CubicalRipser : Persistent homology for 2D image and 3D voxel data
+# CubicalRipser : Persistent homology for 2D image and 3D voxel data (and 1D scalar timeseries)
 
 copyright by Takeki Sudo and Kazushi Ahara, Meiji University, 2018
 
@@ -79,7 +79,7 @@ Image files (JPEG, PNG, etc.) can be converted to NUMPY array by
 
     % python demo/img2npy.py input.jpg output.npy
 
-- 2D or 3D Numpy array (recommended). The filename should end with ".npy". DType must be float64. see the Jupyter Notebook example found under the demo directory.
+- 1D/2D/3D Numpy array (recommended). The filename should end with ".npy". DType must be float64. see the Jupyter Notebook example found under the demo directory.
 - Text file. The filename should end with ".txt"
 ```
 3
@@ -91,7 +91,7 @@ val[2,1,1]
 ...
 val[max_x,max_y,max_z]
 ```
-- [DIPHA binary format](https://github.com/DIPHA/dipha#file-formats) 
+- [DIPHA binary format](https://github.com/DIPHA/dipha#file-formats). The filename should end with ".complex".
 
 
 ## Difference with the original version
