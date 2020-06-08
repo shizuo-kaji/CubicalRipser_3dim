@@ -18,6 +18,11 @@ the terms of the GNU Lesser General Public License as published by the
 Free Software Foundation, either version 3 of the License, or (at your option)
 any later version.
 
+## Get Started
+- You can try Cubical Ripser on [Google Colaboratory](https://colab.research.google.com/github/shizuo-kaji/CubicalRipser_3dim/blob/master/demo/cubicalripser.ipynb)
+- You may also want to look at [A guide through TDA tools](https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb) giving hands-on for various tools including Cubical Ripser
+- How Deep-learning and Persistent homology can be combined is demonstrated at https://github.com/shizuo-kaji/HomologyCNN
+
 ## Installation
 (Recommended)
 Install the Python module only:
@@ -29,7 +34,7 @@ Precompiled Windows/Mac command-line binaries are found under win64/mac director
 ("cripser.cpython-37m-darwin.so" or "cripser.cp37-win_amd64.pyd" are python modules.
 You can simply copy them to the same directory as the python script, if you have the right version of Python.)
 
-To build the comannd-line executable from source:
+To build the command-line executable from source:
 
     % cd build
     % cmake ..

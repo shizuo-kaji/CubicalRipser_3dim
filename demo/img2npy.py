@@ -18,8 +18,12 @@ s = args.reduce
 # %%
 fn,ext = os.path.splitext(args.from_fn[0])
 if ext == ".dcm":
-    import pydicom as dicom
-
+    try:
+        import pydicom as dicom
+    except:
+        print("Install pydicom first by: pip install pydicom")
+        exit()
+        
 images = []
 for ffn in args.from_fn:
     print("processing {}".format(ffn))
