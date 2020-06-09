@@ -45,7 +45,6 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --method         method to compute the persistent homology of the cubical complexes. Options are" << endl
 	      << "                     link_find      (calculating the 0-dim PH by the 'link_find' algorithm; default)" << endl
 	      << "                     compute_pairs  (calculating the 0-dim PH by the 'compute_pairs' algorithm)" << endl
-	      << "                     alexander      (calculating the highest PH also by the 'link_find' algorithm)" << endl
 	      << "  --min_cache_size  minimum number of non-zero entries of a reduced column to be cached (the higher the slower but less memory)" << endl
 	      << "  --output         name of file that will contain the persistence diagram " << endl
 	      << "  --print          print persistence pairs on your console" << endl

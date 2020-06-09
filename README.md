@@ -50,6 +50,7 @@ The executable is "cubicalripser".
 
 If cmake is not available on your system,
 
+    % cd src
     % make all
 
 but perhaps you have to manually modify "Makefile".
