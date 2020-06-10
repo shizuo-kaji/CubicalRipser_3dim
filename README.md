@@ -20,7 +20,7 @@ any later version.
 
 ## Get Started
 - You can try Cubical Ripser on [Google Colaboratory](https://colab.research.google.com/github/shizuo-kaji/CubicalRipser_3dim/blob/master/demo/cubicalripser.ipynb)
-- You may also want to look at [A guide through TDA tools](https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb) giving hands-on for various tools including Cubical Ripser
+- You may also want to look at [A guide through TDA tools](https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb) giving a hands-on tutorial for various tools including Cubical Ripser
 - How Deep-learning and Persistent homology can be combined is demonstrated at https://github.com/shizuo-kaji/HomologyCNN
 
 ## Installation
@@ -102,13 +102,12 @@ val[max_x,max_y,max_z]
 
 ## Difference with the original version
 I added the following functionality:
-- input/output numpy array file (.npy): see the Jupyter Notebook example found under the demo directory.
-- input size up to 2^20-1 x 2^20-1 x 2^20-1
-- cleaned up/optimised codes (much less memory footprint, much faster for certain data)
+- Python friendly: see the Jupyter Notebook example found under the demo directory.
+- input size up to 2^20-1 x 2^20-1 x 2^20-1 (compared to 510x510x510)
+- cleaned up/optimised codes (much less memory footprint, much faster for certain data; sometimes more than 100 times.)
 - cache control
 - option to use the Alexander duality for the highest degree persistent homology
 - output birth/death location
-- python binding
 
 ## TODO
-- When using Alexander duality for 2d image, it saves memory if we use the 2d complex (currently, we compute for a thickened 3d complex having the same PH)
+- Do no use bounding cells so that we can reduce memory usage. (but using an accessor for cell weights affects performance, so we have to find another way.)
