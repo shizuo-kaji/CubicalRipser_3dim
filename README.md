@@ -83,6 +83,13 @@ Example:
 
     % ./cubicalripser --print --location birth --maxdim 2 --output out.csv demo/3dimsample.txt
 
+The results are recorded in **result.csv**.
+Each line in the output **result.csv** consists of six numbers indicating
+the dimension of the cycle, birth-time, death-time, and location (x,y,z). 
+
+Cubical Ripser accepts 1D/2D/3D Numpy arrays
+
+    % ./cubicalripser --location birth --output result.csv input.npy
 
 ## Input file format
 CubicalRipser accepts three types of input files: NUMPY, TEXT, DIPHA.
@@ -102,13 +109,11 @@ result = cripser.computePH(arr,maxdim=1,location="birth")   # compute the persis
 Here, **result** is another 2D Numpy array of shape (M,6), where M is the number of cycles.
 The six numbers of each row indicate the dimension of the cycle, birth-time, death-time, and location (x,y,z) of the cell giving birth to the cycle.
 
-Alternatively, one can use the command-line executable to compute the persistent homology
-of the 1D/2D/3D Numpy array **input.npy** and obtain results in **result.csv**.
+If one wants to compute only for the top dimensional persistent homology (that is, H_1 for images and H_2 for volumes),
 
-    % ./cubicalripser --location birth --output result.csv input.npy
+    result = cripser.computePH(arr,top_dim=True,location="birth")
 
-Each line in the output **result.csv** consists of six numbers indicating
-the dimension of the cycle, birth-time, death-time, and location (x,y,z). 
+uses the [Alexander duality](https://arxiv.org/abs/2005.04597) to reduce the computational resources.
 
 ### 3D Volume file
 Given a series of DICOM files named **input00.dcm**, **input01.dcm**, **input02.dcm**...,

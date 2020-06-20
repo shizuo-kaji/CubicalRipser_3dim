@@ -62,7 +62,6 @@ void DenseCubicalGrids::loadImage(bool embedded){
 			}else {
 				az = 1;
 			}
-			dense3 = alloc3d(ax+2, ay+2, az+2);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 
 			double dou;
@@ -116,6 +115,7 @@ void DenseCubicalGrids::loadImage(bool embedded){
 				ax = ax + 2;
 				ay = ay + 2;				
 			}else{
+				dense3 = alloc3d(ax+2, ay+2, az+2);
 				for (uint32_t z = 0; z < az + 2; ++z) {
 					for (uint32_t y = 0; y < ay + 2; ++y) {
 						for (uint32_t x = 0; x < ax + 2; ++x) {
@@ -162,7 +162,6 @@ void DenseCubicalGrids::loadImage(bool embedded){
 			}else {
 				az = 1;
 			}
-			dense3 = alloc3d(ax+2, ay+2, az+2);
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
 			if(embedded){ // dual complex
 				if(az>1){
@@ -220,6 +219,7 @@ void DenseCubicalGrids::loadImage(bool embedded){
 				ax = ax + 2;
 				ay = ay + 2;				
 			}else{
+				dense3 = alloc3d(ax+2, ay+2, az+2);
 				for (uint32_t z = 0; z < az + 2; ++z) {
 					for (uint32_t y = 0; y < ay + 2; ++y) {
 						for (uint32_t x = 0; x < ax + 2; ++x) {
