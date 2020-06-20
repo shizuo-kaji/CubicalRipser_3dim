@@ -10,7 +10,6 @@ You should have received a copy of the GNU Lesser General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -19,7 +18,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <string>
 #include <cstdint>
-
 
 #include "cube.h"
 #include "dense_cubical_grids.h"
@@ -37,7 +35,7 @@ using namespace std;
 namespace py = pybind11;
 
 /////////////////////////////////////////////
-py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_dim=false, const std::string &location="birth"){
+py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_dim=false, bool embedded=false, const std::string &location="birth"){
 
 	Config config;
 	config.format = NUMPY;
@@ -54,11 +52,15 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	config.maxdim = maxdim;
 	config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
 	if(location=="death") config.location=LOC_DEATH;
-
-
 	if(top_dim && dcg->dim > 1){
 		config.method = ALEXANDER;
-		// load file
+		config.embedded = !embedded;
+	}else{
+		config.embedded = embedded;
+	}
+
+	// load 
+	if(config.embedded){
 		dcg->ax = shape[0];
 		if (dcg->dim == 3) {
 			dcg->ay = shape[1];
@@ -104,22 +106,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 		dcg -> axy = dcg->ax * dcg->ay;
 		dcg -> ayz = dcg->ay * dcg->az;
 		dcg -> axyz = dcg->ax * dcg->ay * dcg->az;
-
-		// compute PH
-		JointPairs* jp = new JointPairs(dcg, writepairs, config);
-		if(dcg->dim==1){
-			jp -> enum_edges({0},ctr);
-			jp -> joint_pairs_main(ctr,0); // dim0
-		}else if(dcg->dim==2){
-			jp -> enum_edges({0,1,3,4},ctr);
-			jp -> joint_pairs_main(ctr,1); // dim1
-		}else if(dcg->dim==3){
-			jp -> enum_edges({0,1,2,3,4,5,6,7,8,9,10,11,12},ctr);
-			jp -> joint_pairs_main(ctr,2); // dim2
-		}
-
-	}else{  // all dimensions
-		// load file
+	}else{
 		dcg->ax = shape[0];
 		if (dcg->dim == 3) {
 			dcg->ay = shape[1];
@@ -174,8 +161,23 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 		dcg -> axy = dcg->ax * dcg->ay;
 		dcg -> ayz = dcg->ay * dcg->az;
 		dcg -> axyz = dcg->ax * dcg->ay * dcg->az;
+	}
 
+	// compute PH
+	if(config.method==ALEXANDER){
 		// compute PH
+		JointPairs* jp = new JointPairs(dcg, writepairs, config);
+		if(dcg->dim==1){
+			jp -> enum_edges({0},ctr);
+			jp -> joint_pairs_main(ctr,0); // dim0
+		}else if(dcg->dim==2){
+			jp -> enum_edges({0,1,3,4},ctr);
+			jp -> joint_pairs_main(ctr,1); // dim1
+		}else if(dcg->dim==3){
+			jp -> enum_edges({0,1,2,3,4,5,6,7,8,9,10,11,12},ctr);
+			jp -> joint_pairs_main(ctr,2); // dim2
+		}
+	}else{
 		ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
 		vector<uint32_t> betti(0);
 		JointPairs* jp = new JointPairs(dcg, writepairs, config);
@@ -226,7 +228,7 @@ PYBIND11_MODULE(cripser, m) {
     )pbdoc";
 
     m.def("computePH", &computePH, R"pbdoc(Compute Persistent Homology
-    )pbdoc", py::arg("arr"),  py::arg("maxdim")=2, py::arg("top_dim")=false, py::arg("location")="birth");
+    )pbdoc", py::arg("arr"),  py::arg("maxdim")=2, py::arg("top_dim")=false, py::arg("embedded")=false, py::arg("location")="birth");
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;

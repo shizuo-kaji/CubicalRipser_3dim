@@ -44,32 +44,32 @@ bool CoboundaryEnumerator::hasNextCoface() {
 		for (uint8_t i = position; i < 6; ++i) {
 			switch (i){
 			case 0:
-				birth = max(cube.birth, dcg->dense3[cx+1][cy+1][cz+2]);
+				birth = dcg->getBirth(cx,cy,cz,2,1);
 				nextCoface = Cube(birth, cx, cy, cz, 2);
 				break;
 
 			case 1:
-				birth = max(cube.birth, dcg->dense3[cx+1][cy+1][cz]);
+				birth = dcg->getBirth(cx,cy,cz-1,2,1);
 				nextCoface = Cube(birth, cx, cy, cz - 1, 2);
 				break;
 
 			case 2:
-				birth = max(cube.birth, dcg->dense3[cx+1][cy + 2][cz+1]);
+				birth = dcg->getBirth(cx,cy,cz,1,1);
 				nextCoface = Cube(birth, cx, cy, cz, 1);
 				break;
 
 			case 3:
-				birth = max(cube.birth, dcg->dense3[cx+1][cy][cz+1]);
+				birth = dcg->getBirth(cx,cy-1,cz,1,1);
 				nextCoface = Cube(birth, cx, cy - 1, cz, 1);
 				break;
 
 			case 4:
-				birth = max(cube.birth, dcg->dense3[cx + 2][cy+1][cz+1]);
+				birth = dcg->getBirth(cx,cy,cz,0,1);
 				nextCoface = Cube(birth, cx, cy, cz, 0);
 				break;
 
 			case 5:
-				birth = max(cube.birth, dcg->dense3[cx][cy+1][cz+1]);
+				birth = dcg->getBirth(cx-1,cy,cz,0,1);
 				nextCoface = Cube(birth, cx - 1, cy, cz, 0);
 				break;
 			}
@@ -87,22 +87,22 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 				case 0:
-					birth = max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz + 2]), dcg->dense3[cx + 2][cy+1][cz + 2]);
+					birth = dcg->getBirth(cx,cy,cz,1,2);
 					nextCoface = Cube(birth, cx, cy, cz, 1);
 					break;
 
 				case 1:
-					birth = max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz]), dcg->dense3[cx + 2][cy+1][cz]);
+					birth = dcg->getBirth(cx,cy,cz-1,1,2);
 					nextCoface = Cube(birth, cx, cy, cz - 1, 1);
 					break;
 
 				case 2:
-					birth = max(max(cube.birth, dcg->dense3[cx+1][cy + 2][cz+1]), dcg->dense3[cx + 2][cy + 2][cz+1]);
+					birth = dcg->getBirth(cx,cy,cz,0,2);
 					nextCoface = Cube(birth, cx, cy, cz, 0);
 					break;
 
 				case 3:
-					birth = max(max(cube.birth, dcg->dense3[cx+1][cy][cz+1]), dcg->dense3[cx + 2][cy][cz+1]);
+					birth = dcg->getBirth(cx,cy-1,cz,0,2);
 					nextCoface = Cube(birth, cx, cy - 1, cz, 0);
 					break;
 				}
@@ -118,22 +118,22 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 				case 0:
-					birth = max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz + 2]), dcg->dense3[cx+1][cy + 2][cz + 2]);
+					birth = dcg->getBirth(cx,cy,cz,2,2);
 					nextCoface = Cube(birth, cx, cy, cz, 2);
 					break;
 
 				case 1:
-					birth = max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz]), dcg->dense3[cx+1][cy + 2][cz]);
+					birth = dcg->getBirth(cx,cy,cz-1,2,2);
 					nextCoface = Cube(birth, cx, cy, cz - 1, 2);
 					break;
 
 				case 2:
-					birth = max(max(cube.birth, dcg->dense3[cx + 2][cy+1][cz+1]), dcg->dense3[cx + 2][cy + 2][cz+1]);
+					birth = dcg->getBirth(cx,cy,cz,0,2);
 					nextCoface = Cube(birth, cx, cy, cz, 0);
 					break;
 
 				case 3:
-					birth = max(max(cube.birth, dcg->dense3[cx][cy+1][cz+1]), dcg->dense3[cx][cy + 2][cz+1]);
+					birth = dcg->getBirth(cx-1,cy,cz,0,2);
 					nextCoface = Cube(birth, cx - 1, cy, cz, 0);
 					break;
 				}
@@ -149,22 +149,22 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 					case 0:
-						birth = max(max(cube.birth, dcg->dense3[cx+1][cy + 2][cz+1]), dcg->dense3[cx+1][cy + 2][cz + 2]);
+						birth = dcg->getBirth(cx,cy,cz,2,2);
 						nextCoface = Cube(birth, cx, cy, cz, 2);
 						break;
 
 					case 1:
-						birth = max(max(cube.birth, dcg->dense3[cx+1][cy][cz+1]), dcg->dense3[cx+1][cy][cz + 2]);
+						birth = dcg->getBirth(cx,cy-1,cz,2,2);
 						nextCoface = Cube(birth, cx, cy - 1, cz, 2);
 						break;
 
 					case 2:
-						birth = max(max(cube.birth, dcg->dense3[cx + 2][cy+1][cz+1]), dcg->dense3[cx + 2][cy+1][cz + 2]);
+						birth = dcg->getBirth(cx,cy,cz,1,2);
 						nextCoface = Cube(birth, cx, cy, cz, 1);
 						break;
 
 					case 3:
-						birth = max(max(cube.birth, dcg->dense3[cx][cy+1][cz+1]), dcg->dense3[cx][cy+1][cz + 2]);
+						birth = dcg->getBirth(cx-1,cy,cz,1,2);
 						nextCoface = Cube(birth, cx - 1, cy, cz, 1);
 						break;
 				}
@@ -184,14 +184,12 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 					case 0: // upper
-						birth = max(max(max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz + 2]), dcg->dense3[cx + 2][cy+1][cz + 2]),
-							dcg->dense3[cx+1][cy + 2][cz + 2]),dcg->dense3[cx + 2][cy + 2][cz + 2]);
+						birth = dcg->getBirth(cx,cy,cz,0,3);
 						nextCoface = Cube(birth, cx, cy, cz, 0);
 						break;
 
 					case 1: // lower
-						birth = max(max(max(max(cube.birth, dcg->dense3[cx+1][cy+1][cz]), dcg->dense3[cx + 2][cy+1][cz]),
-							dcg->dense3[cx+1][cy + 2][cz]),dcg->dense3[cx + 2][cy + 2][cz]);
+						birth = dcg->getBirth(cx,cy,cz-1,0,3);
 						nextCoface = Cube(birth, cx, cy, cz - 1, 0);
 						break;
 				}
@@ -207,14 +205,12 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 					case 0: // left
-						birth = max(max(max(max(cube.birth, dcg->dense3[cx+1][cy + 2][cz+1]), dcg->dense3[cx + 2][cy + 2][cz+1]),
-							dcg->dense3[cx+1][cy + 2][cz + 2]),dcg->dense3[cx + 2][cy + 2][cz + 2]);
+						birth = dcg->getBirth(cx,cy,cz,0,3);
 						nextCoface = Cube(birth, cx, cy, cz, 0);
 						break;
 
 					case 1: //right
-						birth = max(max(max(max(cube.birth, dcg->dense3[cx+1][cy][cz+1]), dcg->dense3[cx + 2][cy][cz+1]),
-							dcg->dense3[cx+1][cy][cz + 2]),dcg->dense3[cx + 2][cy][cz + 2]);
+						birth = dcg->getBirth(cx,cy-1,cz,0,3);
 						nextCoface = Cube(birth, cx, cy - 1, cz, 0);
 						break;
 				}
@@ -230,14 +226,12 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 				case 0: // left
-					birth = max(max(max(max(cube.birth, dcg->dense3[cx + 2][cy+1][cz+1]), dcg->dense3[cx + 2][cy + 2][cz+1]),
-						dcg->dense3[cx + 2][cy+1][cz + 2]),dcg->dense3[cx + 2][cy +2][cz + 2]);
+					birth = dcg->getBirth(cx,cy,cz,0,3);
 					nextCoface = Cube(birth, cx, cy, cz, 0);
 					break;
 
 				case 1: //right
-					birth = max(max(max(max(cube.birth, dcg->dense3[cx][cy+1][cz+1]), dcg->dense3[cx][cy + 2][cz+1]),
-						dcg->dense3[cx][cy+1][cz + 2]),dcg->dense3[cx][cy + 2][cz + 2]);
+					birth = dcg->getBirth(cx-1,cy,cz,0,3);
 					nextCoface = Cube(birth, cx - 1, cy, cz, 0);
 					break;
 				}

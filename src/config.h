@@ -18,6 +18,7 @@ struct Config {
 	double threshold = DBL_MAX;
 	int maxdim=2;;  // compute PH for these dimensions
 	bool print = false; // flag for printing to std
+	bool embedded = false; // embed image in the sphere (for alexander duality)
 	output_location location = LOC_BIRTH; // flag for saving location
 	int min_cache_size = 0; // num of minimum non-zero entries of a reduced column to be cached
 };

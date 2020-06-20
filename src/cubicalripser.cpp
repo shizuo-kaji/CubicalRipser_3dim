@@ -49,6 +49,7 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --output         name of file that will contain the persistence diagram " << endl
 	      << "  --print          print persistence pairs on your console" << endl
 	      << "  --top_dim        compute only for top dimension using Alexander duality" << endl
+	      << "  --embedded       embed the image into the sphere" << endl
 	      << "  --location       output type of location" << endl
 	      << "                     birth      (localtion of birth cell; default)" << endl
 	      << "                     death      (localtion of death cell)" << endl
@@ -62,6 +63,7 @@ void print_usage_and_exit(int exit_code) {
 int main(int argc, char** argv){
 
 	Config config;
+	bool arg_embedded = false;
 	// command-line argument parsing
 	for (int i = 1; i < argc; ++i) {
 		const string arg(argv[i]);
@@ -89,6 +91,8 @@ int main(int argc, char** argv){
             config.min_cache_size = stoi(argv[++i]);
 		} else if (arg == "--print"){
 			config.print = true;
+		} else if (arg == "--embedded"){
+			arg_embedded = true;
 		} else if (arg == "--top_dim") {
 			config.method = ALEXANDER;
 		} else if (arg == "--location"){
@@ -109,6 +113,11 @@ int main(int argc, char** argv){
 	}
 
 	if (config.filename.empty()) { print_usage_and_exit(-1); }
+	if(config.method == ALEXANDER){
+		config.embedded = !arg_embedded;
+	}else{
+		config.embedded = arg_embedded;
+	}
     ifstream file_stream(config.filename);
 	if (!config.filename.empty() && file_stream.fail()) {
 		cerr << "couldn't open file " << config.filename << endl;
@@ -137,7 +146,7 @@ int main(int argc, char** argv){
 	switch(config.method){
 		case LINKFIND:
 		{
-			dcg->loadImage(false);
+			dcg->loadImage(config.embedded);
 			config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
 			JointPairs* jp = new JointPairs(dcg, writepairs, config);
 			if(dcg->dim==1){
@@ -167,7 +176,7 @@ int main(int argc, char** argv){
 		
 		case COMPUTEPAIRS:
 		{
-			dcg->loadImage(false);
+			dcg->loadImage(config.embedded);
 			config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
 			ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
 			cp -> assemble_columns_to_reduce(ctr,0);
@@ -191,7 +200,7 @@ int main(int argc, char** argv){
 
 		case ALEXANDER: // only for top dim
 		{
-			dcg->loadImage(true);
+			dcg->loadImage(config.embedded);
 			JointPairs* jp = new JointPairs(dcg, writepairs, config);
 			if(dcg->dim==1){
 				jp -> enum_edges({0},ctr);
