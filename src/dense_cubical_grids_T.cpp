@@ -13,12 +13,13 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cassert>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <algorithm>
 #include <string>
 #include <initializer_list>
-#include <exception> 
 
+// switch V and T
 #include "dense_cubical_grids.h"
 #include "npy.hpp"
 
@@ -28,8 +29,8 @@ using namespace std;
 DenseCubicalGrids::DenseCubicalGrids(Config& _config)  {
 	config = &_config;
 	threshold = config->threshold;
+	config->tconstruction = true;
 }
-
 
 void DenseCubicalGrids::gridFromArray(vector<double>& arr, bool embedded){
 //	cout << arr.size() << ", " << ax << ", " << ay << ", " << az << endl;
@@ -287,6 +288,12 @@ void DenseCubicalGrids::loadImage(bool embedded){
 			}
 		}
 	}	
+    // T-construction
+    if(true || config->tconstruction){
+        if(az>1) az++;
+        ax++;
+        ay++;
+    }
     //
 	axy = ax * ay;
 	ayz = ay * az;
@@ -294,60 +301,40 @@ void DenseCubicalGrids::loadImage(bool embedded){
 //	cout << ax << "," << ay << "," << az << endl;
 }
 
-
 // return filtlation value for a cube
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint8_t cm, uint8_t dim) {
 	// beware of the shift due to the boundary
 	switch (dim) {
-		case 0:
+		case 3:
 			return dense3[cx+1][cy+1][cz+1];
-		case 1:
-			switch (cm) {
-			case 0:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 1][cz + 1]);
-			case 1:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 2][cz + 1]);
-			case 2:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 1][cz + 2]);
-			case 3:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 2][cz + 1]);
-			case 4:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 0][cz + 1]);
-			// for 3d dual only
-			case 5:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 0][cz + 2]);
-			case 6:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 2][cz + 2]);
-			case 7:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 0][cz + 2]);
-			case 8:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 1][cz + 2]);
-			case 9:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 2][cz + 2]);
-			case 10:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 0][cz + 0]);
-			case 11:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 1][cz + 0]);
-			case 12:
-				return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 2][cz + 0]);
-			}
 		case 2:
 			switch (cm) {
-			case 0: // x - y (fix z)
-				return max({ dense3[cx+1][cy+1][cz+1], dense3[cx+2][cy+1][cz+1],
-					dense3[cx+2][cy+2][cz+1], dense3[cx+1][cy+2][cz+1] });
-			case 1: // z - x (fix y)
-				return max({ dense3[cx+1][cy+1][cz+1], dense3[cx+1][cy+1][cz+2],
-					dense3[cx+2][cy+1][cz+2], dense3[cx+2][cy+1][cz+1] });
-			case 2: // y - z (fix x)
-				return max({ dense3[cx+1][cy+1][cz+1], dense3[cx+1][cy+2][cz+1],
-					dense3[cx+1][cy+2][cz+2], dense3[cx+1][cy+1][cz+2] });
+				case 0: // fix z
+					return min(dense3[cx+1][cy+1][cz], dense3[cx + 1][cy + 1][cz + 1]);
+				case 1: // fix y
+					return min(dense3[cx+1][cy][cz+1], dense3[cx + 1][cy + 1][cz + 1]);
+				case 2: // fix x
+					return min(dense3[cx][cy+1][cz+1], dense3[cx + 1][cy + 1][cz + 1]);
+				break;
 			}
-		case 3:
-			return max({ dense3[cx+1][cy+1][cz+1], dense3[cx+2][cy+1][cz+1],
-				dense3[cx+2][cy+2][cz+1], dense3[cx+1][cy+2][cz+1],
-				dense3[cx+1][cy+1][cz+2], dense3[cx+2][cy+1][cz+2],
-				dense3[cx+2][cy+2][cz+2], dense3[cx+1][cy+2][cz+2] });
+		case 1:
+			switch (cm) {
+				case 0: // x,x+1
+					return min({ dense3[cx+1][cy+1][cz+1], dense3[cx+1][cy+1][cz],
+						dense3[cx+1][cy][cz+1], dense3[cx+1][cy][cz] });
+				case 1: // y,y+1
+					return min({ dense3[cx+1][cy+1][cz+1], dense3[cx][cy+1][cz+1],
+						dense3[cx+1][cy+1][cz], dense3[cx][cy+1][cz] });
+				case 2: // z,z+1
+					return min({ dense3[cx+1][cy+1][cz+1], dense3[cx][cy+1][cz+1],
+						dense3[cx+1][cy][cz+1], dense3[cx][cy][cz+1] });
+				break;
+			}
+		case 0:
+			return min({ dense3[cx][cy][cz], dense3[cx+1][cy][cz],
+				dense3[cx+1][cy+1][cz], dense3[cx][cy+1][cz],
+				dense3[cx][cy][cz+1], dense3[cx+1][cy][cz+1],
+				dense3[cx+1][cy+1][cz+1], dense3[cx][cy+1][cz+1] });
 		}
 	return threshold; // dim > 3
 }

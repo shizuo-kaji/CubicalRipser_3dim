@@ -62,7 +62,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='cripser',
-    version='0.0.3',
+    version='0.0.4',
     author='Shizuo KAJI',
     author_email='skaji@imi.kyushu-u.ac.jp',
     description='Cubical Ripser Python binding',

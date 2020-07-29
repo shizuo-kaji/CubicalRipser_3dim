@@ -6,12 +6,24 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include_directories("src/")
 
-ADD_LIBRARY(mylib STATIC src/compute_pairs.cpp src/coboundary_enumerator.cpp src/cube.cpp src/dense_cubical_grids.cpp src/joint_pairs.cpp)
+
+ADD_LIBRARY(mylib STATIC src/compute_pairs.cpp src/cube.cpp src/joint_pairs.cpp)
+
+## V-construction
+ADD_LIBRARY(vmylib STATIC src/coboundary_enumerator.cpp src/dense_cubical_grids.cpp)
+
+## T-construction
+ADD_LIBRARY(tmylib STATIC src/coboundary_enumerator_T.cpp src/dense_cubical_grids_T.cpp)
 
 add_subdirectory(pybind11)
 
 pybind11_add_module(cripser src/cubicalripser_pybind.cpp)
 target_link_libraries(cripser PRIVATE mylib)
+target_link_libraries(cripser PRIVATE vmylib)
 
 add_executable(cubicalripser src/cubicalripser.cpp)
+add_executable(tcubicalripser src/cubicalripser.cpp)
 target_link_libraries(cubicalripser PRIVATE mylib)
+target_link_libraries(cubicalripser PRIVATE vmylib)
+target_link_libraries(tcubicalripser PRIVATE mylib)
+target_link_libraries(tcubicalripser PRIVATE tmylib)

@@ -37,8 +37,8 @@ ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, Con
 }
 
 void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
-	pivot_column_index = std::unordered_map<uint64_t, uint32_t>();
-	vector<Cube> coface_entries;
+	pivot_column_index = std::unordered_map<uint64_t, uint32_t>();   // pivotID => column
+	vector<Cube> coface_entries; // pivotIDs of cofaces
 	auto ctl_size = ctr.size();
 	CoboundaryEnumerator cofaces(dcg,dim);
 	unordered_map<uint32_t, CubeQue > recorded_wc;
@@ -46,56 +46,30 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 
 	pivot_column_index.reserve(ctl_size);
 	recorded_wc.reserve(ctl_size);
-//	vector<Cube> working_coboundary;
-		
-	for(uint32_t i = 0; i < ctl_size; ++i){
-		CubeQue working_coboundary;
-//		working_coboundary.clear();
+
+	for(uint32_t i = 0; i < ctl_size; ++i){  // descending order of birth
+		CubeQue working_coboundary;   // non-zero entries of the column
+        //    vector<Cube> working_coboundary;
 		double birth = ctr[i].birth;
+//        cout << i << endl;  ctr[i].print();   // debug
 
 		auto j = i;
 		Cube pivot;
 		bool might_be_apparent_pair = true;
 		bool found_persistence_pair = false;
 
-		do {
-			coface_entries.clear();
-			cofaces.setCoboundaryEnumerator(ctr[j]);
-
-			while (cofaces.hasNextCoface() && !found_persistence_pair) {
-				coface_entries.push_back(cofaces.nextCoface);
-//                cout << "cf: " << j << " " << cofaces.nextCoface.index << endl;
-				if (might_be_apparent_pair && (ctr[j].birth == cofaces.nextCoface.birth)) {
-					if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
-						pivot.copyCube(cofaces.nextCoface); // I have a new pivot
-						found_persistence_pair = true;
-					} else {
-						might_be_apparent_pair = false;
-					}
-				}
-			}
-
-			if (found_persistence_pair) { 
-				double death = pivot.birth;
-				if (birth != death) {
-					if(config->location==LOC_DEATH){
-						wp->push_back(WritePairs(dim, birth, death, pivot.x(), pivot.y(), pivot.z(), config->print));
-					}else{
-						wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
-					}
-				}
-//                cout << pivot.index << ",ap," << i << endl;
-				pivot_column_index.emplace(pivot.index, i);
-				break;
-			}else{
-				auto findWc = recorded_wc.find(j);
-				if(findWc != recorded_wc.end()){ // If the pivot is cached
-					auto wc = findWc -> second;
-					while(!wc.empty()){ // push the old pivot's wc
-						working_coboundary.push(wc.top());
-						wc.pop();
-					}
-					/// If we use vector container
+		while(true){
+            bool cache_hit = false;
+            if(i!=j){
+                auto findWc = recorded_wc.find(j);
+                if(findWc != recorded_wc.end()){ // If the reduced form of the pivot column is cached
+                    auto wc = findWc -> second;
+                    while(!wc.empty()){ // add the cached pivot column
+                        working_coboundary.push(wc.top());
+                        wc.pop();
+                    }
+                    cache_hit = true;
+                    /// If we use vector container
                     // for(auto e:wc){
                     //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
                     //     if(idx==working_coboundary.end()){
@@ -105,62 +79,93 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                     //     }
                     // }
                     /// working_coboundary.insert(working_coboundary.end(), wc.begin(), wc.end());
-				} else { // If the pivot is not yet cached,
-					for(auto e : coface_entries){
-						working_coboundary.push(e);
-					}
-					/// If we use vector container
-                    // for(auto e:coface_entries){
-                    //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
-                    //     if(idx==working_coboundary.end()){
-                    //         working_coboundary.push_back(e);
-                    //     }else{
-                    //         working_coboundary.erase(idx);
-                    //     }
-                    // }
-                    /// working_coboundary.insert(working_coboundary.end(), coface_entries.begin(), coface_entries.end());
-				}
-				/// If we use vector container
-                // sort(working_coboundary.begin(),working_coboundary.end(),CubeComparator());
-				pivot = get_pivot(working_coboundary);
-				if (pivot.index != NONE){
+                }
+            }
+            if(!cache_hit){
+                // make the column by enumerating cofaces
+                coface_entries.clear();
+                cofaces.setCoboundaryEnumerator(ctr[j]);
+                while (cofaces.hasNextCoface() && !found_persistence_pair) {
+                    coface_entries.push_back(cofaces.nextCoface);
+    //                cout << "cf: " << j << endl;
+//                    cofaces.nextCoface.print();
+                    if (might_be_apparent_pair && (ctr[j].birth == cofaces.nextCoface.birth)) { // we cannot find this coface on the left
+                        if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
+                            pivot.copyCube(cofaces.nextCoface);
+                            found_persistence_pair = true;
+                        } else {
+                            might_be_apparent_pair = false;
+                        }
+                    }
+                }
+                if (found_persistence_pair) {
+                    double death = pivot.birth;
+                    if (birth != death) {
+                        if(config->location==LOC_DEATH){
+                            wp->push_back(WritePairs(dim, birth, death, pivot.x(), pivot.y(), pivot.z(), config->print));
+                        }else{
+                            wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
+                        }
+                    }
+    //                cout << pivot.index << ",ap," << i << endl;
+                    pivot_column_index.emplace(pivot.index, i);
+                    break;
+                }
+                for(auto e : coface_entries){
+                    working_coboundary.push(e);
+                }
+                /// If we use vector container
+                // for(auto e:coface_entries){
+                //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
+                //     if(idx==working_coboundary.end()){
+                //         working_coboundary.push_back(e);
+                //     }else{
+                //         working_coboundary.erase(idx);
+                //     }
+                // }
+                /// working_coboundary.insert(working_coboundary.end(), coface_entries.begin(), coface_entries.end());
+            }
+            
+            /// If we use vector container
+            // sort(working_coboundary.begin(),working_coboundary.end(),CubeComparator());
+            pivot = get_pivot(working_coboundary);
+            if (pivot.index != NONE){
 //                if(!working_coboundary.empty()){
 //                    pivot = working_coboundary.back();
-					auto pair = pivot_column_index.find(pivot.index);
-					if (pair != pivot_column_index.end()) {	// recurse
-						j = pair -> second;
+                auto pair = pivot_column_index.find(pivot.index);
+                if (pair != pivot_column_index.end()) {	// found entry to reduce
+                    j = pair -> second;
 //                        cout << i << " to " << j << " " << pivot.index << endl;
-						continue;
-					} else { // If the pivot is new
-                        if((int)working_coboundary.size() >= config->min_cache_size){
-							add_cache(i, working_coboundary, recorded_wc);
+                    continue;
+                } else { // If the pivot is new
+                    if((int)working_coboundary.size() >= config->min_cache_size){
+                        add_cache(i, working_coboundary, recorded_wc);
 //							recorded_wc.emplace(i, working_coboundary);
-						}
-						double death = pivot.birth;
-						if (birth != death) {
-							if(config->location==LOC_DEATH){
-								wp->push_back(WritePairs(dim, birth, death, pivot.x(), pivot.y(), pivot.z(), config->print));
-							}else{
-								wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
-							}
-						}
+                    }
+                    pivot_column_index.emplace(pivot.index, i); // column i has the pivot
+                    double death = pivot.birth;
+                    if (birth != death) {
+                        if(config->location==LOC_DEATH){
+                            wp->push_back(WritePairs(dim, birth, death, pivot.x(), pivot.y(), pivot.z(), config->print));
+                        }else{
+                            wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
+                        }
+                    }
 //                        cout << pivot.index << ",f," << i << endl;
-						pivot_column_index.emplace(pivot.index, i);
-						break;
-					}
-				} else { // permanent cycle
-					if (birth != dcg->threshold) {
-						if(config->location==LOC_DEATH){
-							wp->push_back(WritePairs(dim, birth, dcg->threshold, 0, 0, 0, config->print));
-						}else{
-							wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
-						}
-					}
-					break;
-				}
-			}			
+                    break;
+                }
+            } else { // the column is reduced to zero, which means it corresponds to a permanent cycle
+                if (birth != dcg->threshold) {
+                    if(config->location==LOC_DEATH){
+                        wp->push_back(WritePairs(dim, birth, dcg->threshold, 0, 0, 0, config->print));
+                    }else{
+                        wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
+                    }
+                }
+                break;
+            }
 
-		} while (true);
+		};
 	}
 }
 
@@ -258,6 +263,7 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
 				for (uint32_t y = 0; y < dcg->ay; ++y) {
 					for (uint32_t x = 0; x < dcg->ax; ++x) {
 						birth = dcg -> getBirth(x,y,z,m, dim);
+//                        cout << x << "," << y << "," << z << ", " << m << "," << birth << endl;
 						Cube v = Cube(birth,x,y,z,m);
 						if (pivot_column_index.find(v.index) == pivot_column_index.end()) {
 							if (birth < dcg -> threshold) {

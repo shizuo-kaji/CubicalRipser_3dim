@@ -19,12 +19,13 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include <string>
 #include <cstdint>
+#include <cassert>
 
 using namespace std;
 
 #include "cube.h"
+// switch T and V
 #include "dense_cubical_grids.h"
-#include "coboundary_enumerator.h"
 #include "write_pairs.h"
 #include "joint_pairs.h"
 #include "compute_pairs.h"
@@ -39,21 +40,21 @@ void print_usage_and_exit(int exit_code) {
 	      << endl
 	      << "Options:" << endl
 	      << endl
-	      << "  --help           print this screen" << endl
-	      << "  --threshold <t>  compute cubical complexes up to birth time <t>" << endl
-		  << "  --maxdim <t>     compute persistent homology up to dimension <t>" << endl
-	      << "  --method         method to compute the persistent homology of the cubical complexes. Options are" << endl
-	      << "                     link_find      (calculating the 0-dim PH by the 'link_find' algorithm; default)" << endl
-	      << "                     compute_pairs  (calculating the 0-dim PH by the 'compute_pairs' algorithm)" << endl
-	      << "  --min_cache_size  minimum number of non-zero entries of a reduced column to be cached (the higher the slower but less memory)" << endl
-	      << "  --output         name of file that will contain the persistence diagram " << endl
-	      << "  --print          print persistence pairs on your console" << endl
-	      << "  --top_dim        compute only for top dimension using Alexander duality" << endl
-	      << "  --embedded       embed the image into the sphere" << endl
-	      << "  --location       output type of location" << endl
-	      << "                     birth      (localtion of birth cell; default)" << endl
-	      << "                     death      (localtion of death cell)" << endl
-	      << "                     none      (output nothing)" << endl
+	      << "  --help, -h          print this screen" << endl
+	      << "  --threshold <t>, -t compute cubical complexes up to birth time <t>" << endl
+		  << "  --maxdim <t>, -m    compute persistent homology up to dimension <t>" << endl
+	      << "  --algorithm, -a     algorithm to compute the persistent homology of the cubical complexes:" << endl
+	      << "                    		link_find      (calculating the 0-dim PH by the 'link_find' algorithm; default)" << endl
+	      << "                    		compute_pairs  (calculating the 0-dim PH by the 'compute_pairs' algorithm)" << endl
+	      << "  --min_cache_size, -c  minimum number of non-zero entries of a reduced column to be cached (the higher the slower but less memory)" << endl
+	      << "  --output, -o        name of the output file" << endl
+	      << "  --print, -p         print persistence pairs on console" << endl
+	      << "  --top_dim        	compute only for top dimension using Alexander duality" << endl
+	      << "  --embedded, -e   	pad the image boundary with -infty" << endl
+	      << "  --location, -l   	type of location to be output:" << endl
+	      << "								birth      (localtion of birth cell; default)" << endl
+	      << "								death      (localtion of death cell)" << endl
+	      << "								none      (output nothing)" << endl
 	      << endl;
 
 	exit(exit_code);
@@ -69,14 +70,14 @@ int main(int argc, char** argv){
 		const string arg(argv[i]);
 		if (arg == "--help") {
 			print_usage_and_exit(0);
-		} else if (arg == "--threshold") {
+		} else if (arg == "--threshold" || arg == "-t") {
 			string parameter = string(argv[++i]);
 			size_t next_pos;
 			config.threshold = stod(parameter, &next_pos);
 			if (next_pos != parameter.size()) print_usage_and_exit(-1);
-		} else if (arg == "--maxdim") {
+		} else if (arg == "--maxdim" || arg == "-m") {
 			config.maxdim = stoi(argv[++i]);
-		} else if(arg == "--method") {
+		} else if(arg == "--algorithm" || arg == "-a") {
 			string parameter = string(argv[++i]);
 			if (parameter == "link_find") {
 				config.method = LINKFIND;
@@ -85,17 +86,17 @@ int main(int argc, char** argv){
 			} else {
 				print_usage_and_exit(-1);
 			}
-		} else if (arg == "--output") {
+		} else if (arg == "--output" || arg == "-o") {
 			config.output_filename = string(argv[++i]);
 		} else if (arg == "--min_cache_size"){
             config.min_cache_size = stoi(argv[++i]);
-		} else if (arg == "--print"){
+		} else if (arg == "--print" || arg == "-p"){
 			config.print = true;
-		} else if (arg == "--embedded"){
+		} else if (arg == "--embedded" || arg == "-e"){
 			arg_embedded = true;
 		} else if (arg == "--top_dim") {
 			config.method = ALEXANDER;
-		} else if (arg == "--location"){
+		} else if (arg == "--location" || arg == "-l"){
 			string parameter = string(argv[++i]);
 			if (parameter == "birth") {
 				config.location = LOC_BIRTH;
@@ -128,6 +129,8 @@ int main(int argc, char** argv){
 		config.format = PERSEUS;
 	}else if(config.filename.find(".npy")!= std::string::npos){
 		config.format = NUMPY;
+	}else if(config.filename.find(".csv")!= std::string::npos){
+		config.format = CSV;
 	}else if(config.filename.find(".complex")!= std::string::npos){
 		config.format = DIPHA;
 	}else{
@@ -200,6 +203,10 @@ int main(int argc, char** argv){
 
 		case ALEXANDER: // only for top dim
 		{
+			if(config.tconstruction){
+				cerr << "Alexander duality for T-construction is not implemented yet." << endl;
+				exit(-9);
+			}
 			dcg->loadImage(config.embedded);
 			JointPairs* jp = new JointPairs(dcg, writepairs, config);
 			if(dcg->dim==1){
@@ -227,6 +234,7 @@ int main(int argc, char** argv){
 		writing_file.open(config.output_filename, ios::out);
 		if(!writing_file.is_open()){
 			cerr << " error: open file for output failed! " << endl;
+			exit(-3);
 		}
 		for(int64_t i = 0; i < p; ++i){
 			int64_t d = writepairs[i].dim;
@@ -251,11 +259,16 @@ int main(int argc, char** argv){
 			data[6*i+4] = writepairs[i].birth_y;
 			data[6*i+5] = writepairs[i].birth_z;
 		}
-		npy::SaveArrayAsNumpy(config.output_filename, false, 2, leshape, data);
+		try{
+			npy::SaveArrayAsNumpy(config.output_filename, false, 2, leshape, data);
+		} catch (...) {
+			cerr << " error: open file for output failed! " << endl;
+		}
 	} else { // DIPHA format
 		writing_file.open(config.output_filename, ios::out | ios::binary);
 		if(!writing_file.is_open()){
 			cerr << " error: open file for output failed! " << endl;
+			exit(-3);
 		}
 		int64_t mn = 8067171840;
 		writing_file.write((char *) &mn, sizeof( int64_t )); // magic number

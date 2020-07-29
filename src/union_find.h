@@ -39,7 +39,7 @@ UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
 		for (uint32_t y = 0; y < _dcg->ay; ++y) {
 			for(uint32_t x = 0; x < _dcg->ax ; ++x){
 				parent[i] = i;
-				birthtime[i] = _dcg->getBirth(x,y,z);
+				birthtime[i] = _dcg->getBirth(x,y,z,0,0);
 				time_max[i] = birthtime[i];
 //				cout << x << "," << y << "," << z << ": " << birthtime[i] << endl;
 				i++;

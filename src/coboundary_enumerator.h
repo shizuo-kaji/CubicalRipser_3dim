@@ -22,8 +22,7 @@ public:
 	Cube nextCoface;
 
 	CoboundaryEnumerator(DenseCubicalGrids* _dcg, uint8_t dim);
+	void setCoboundaryEnumerator(Cube& _s);
 
-	void setCoboundaryEnumerator(Cube& _s); 
-
-	bool hasNextCoface(); 
+	bool hasNextCoface();
 };

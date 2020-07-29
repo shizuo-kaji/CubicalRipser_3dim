@@ -6,7 +6,7 @@
 
 enum calculation_method { LINKFIND, COMPUTEPAIRS, ALEXANDER};
 enum output_location { LOC_NONE, LOC_BIRTH, LOC_DEATH};
-enum file_format { DIPHA, PERSEUS, NUMPY };
+enum file_format { DIPHA, PERSEUS, NUMPY, CSV };
 
 
 struct Config {
@@ -18,6 +18,7 @@ struct Config {
 	double threshold = DBL_MAX;
 	int maxdim=2;;  // compute PH for these dimensions
 	bool print = false; // flag for printing to std
+	bool tconstruction = false; // T-construction or V-construction
 	bool embedded = false; // embed image in the sphere (for alexander duality)
 	output_location location = LOC_BIRTH; // flag for saving location
 	int min_cache_size = 0; // num of minimum non-zero entries of a reduced column to be cached

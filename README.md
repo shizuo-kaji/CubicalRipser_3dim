@@ -7,7 +7,8 @@ modified by Shizuo Kaji, Kyushu University, 2019
 ## Description
 CubicalRipser is an adaptation of [Ripser](http://ripser.org) by Ulrich Bauer to computation of persistent homology of weighted cubical complexes.
 
-For 2 and 3 dimensional cubical complexes, we believe CubicalRipser is currently the fastest program for computing persistent homology.
+- For 2 and 3 dimensional cubical complexes, we believe that CubicalRipser is currently the fastest program for computing persistent homology.
+- Cubical Ripser implements both the V- and the T- constructions for the filtration of cubical complexes (see [V and T constructions](#V-and-T-constructions)).
 
 For details, please look at our paper
 [Cubical Ripser: Software for computing persistent homology of image and volume data](https://arxiv.org/abs/2005.12692)
@@ -92,7 +93,9 @@ Cubical Ripser accepts 1D/2D/3D Numpy arrays
     % ./cubicalripser --location birth --output result.csv input.npy
 
 ## Input file format
-CubicalRipser accepts three types of input files: NUMPY, TEXT, DIPHA.
+The python version accepts NUMPY arrays as input.
+
+The command-line version of CubicalRipser accepts three types of input files: NUMPY (.npy), Perseus TEXT (.txt), CSV (.csv), DIPHA (.complex).
 
 ### 2D Image file
 Given a JPEG image **input.jpg**, we can convert it into a 2D Numpy array **input.npy** by
@@ -160,6 +163,9 @@ Similarly, the *persistent histogram image* can be obtained by
     % python demo/stackPH.py result.npy -o lifetime_image.npy -t hist -i input.npy
 
 
+### CSV file (only for 2D image)
+The filename should end with ".csv".
+
 ### Text file (Perseus)
 The filename should end with ".txt".
 Please look at [Perseus Dense Cubical Grids format](http://people.maths.ox.ac.uk/nanda/perseus/) for specification.
@@ -191,6 +197,29 @@ We can convert input and output files between Cubical Ripser and DIPHA.
 - convert DIPHA's output **result.output** into an Numpy array **result.npy**
 
     % python dipha2npy.py result.output result.npy 
+
+## V and T constructions
+There are two major ways to build a filtred cubical complex from an image (that is, a function over a grid).
+- In the V-construction, each pixel in the image corresponds to the 0 cell. 
+- In the T-construction, each pixel in the image corresponds to the top cell.
+
+In the 2D setting, the V-construction amounts to considering 4-neighbour pixel connectivity,
+whereas the T-construction amounts to considering 8-neighbour pixel connectivity.
+
+Cubical Ripser provides two versions of executables: 
+- for the V-construction: cubicalripser, cripser (python module)
+- for the T-construction: tcubicalripser (no python module provided)
+
+By the Alexander duality, the following two give essentially the same results:
+
+    ./cubicalripser input.npy
+    ./tcubicalripser --embedded input.npy
+
+The difference is in the sign of the filtration and the permanent cycle.
+
+Look at the following paper for details:
+[Duality in Persistent Homology of Images by
+Adélie Garin, Teresa Heiss, Kelly Maggs, Bea Bleile, Vanessa Robins](https://arxiv.org/abs/2005.04597)
 
 
 ## Difference with the original version

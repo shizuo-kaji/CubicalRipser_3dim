@@ -32,7 +32,7 @@ void Cube::copyCube(const Cube& v){
 }
 
 void Cube::print(){
-	std::cout << birth << "," << index << "," << x() << "," << y() << "," << z() << "," << m() << std::endl;
+	std::cout << birth << "," << index << "," << x() << "," << y() << "," << z() << "," << (uint32_t)m() << std::endl;
 }
 
 bool Cube::operator==(const Cube& rhs) const{

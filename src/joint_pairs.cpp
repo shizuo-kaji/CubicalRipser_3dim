@@ -43,6 +43,7 @@ void JointPairs::enum_edges(std::vector<uint8_t> types, vector<Cube>& ctr){
 			for (uint32_t y = 0; y < dcg->ay; ++y) {
 				for(uint32_t x = 0; x < dcg->ax ; ++x){
 					double birth = dcg -> getBirth(x,y,z,m, 1);
+//                    cout << x << "," << y << "," << z << ", " << m << "," << birth << endl;
 					if(birth < config->threshold){
 						ctr.push_back(Cube(birth, x,y,z,m));
 					}
@@ -76,13 +77,14 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 			case 2:
 				vind = uind+(dcg->axy); // z+1
 				break;
+            // T-construction
 			case 3:
 				vind = uind+1+(dcg->ax); // x+1,y+1
 				break;
 			case 4:
 				vind = uind+1-(dcg->ax); // x+1,y-1
 				break;
-			// 3d dual only
+			// 3D T-construction only
 			case 5:
 				vind = uind-(dcg->ax)+(dcg->axy); // y-1,z+1
 				break;

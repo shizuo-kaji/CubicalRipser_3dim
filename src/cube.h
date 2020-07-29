@@ -41,6 +41,7 @@ public:
 	bool operator==(const Cube& rhs) const;
 };
 
+// using function object is much faster than using function for sorting
 struct CubeComparator{
 	bool operator()(const Cube& o1, const Cube& o2) const;
 };
