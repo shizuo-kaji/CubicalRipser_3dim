@@ -26,6 +26,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 
+// same for V and T
 DenseCubicalGrids::DenseCubicalGrids(Config& _config)  {
 	config = &_config;
 	threshold = config->threshold;
@@ -38,7 +39,7 @@ void DenseCubicalGrids::gridFromArray(vector<double>& arr, bool embedded){
 		cerr << "wrong file size." << endl;
 		exit(-3);
 	}
-	int i=0;
+	uint64_t i = 0;
 	if(embedded){ // dual complex
 		if(az>1){
 			dense3 = alloc3d(ax+4, ay+4, az+4);
@@ -46,8 +47,7 @@ void DenseCubicalGrids::gridFromArray(vector<double>& arr, bool embedded){
 				for (uint32_t y = 0; y < ay + 4; ++y) {
 					for (uint32_t x = 0; x < ax + 4; ++x) {
 						if (1 < x && x <= ax+1 && 1 < y && y <= ay+1 && 1 < z && z <= az+1) {
-							dense3[x][y][z] = -arr[i];
-							i++;
+							dense3[x][y][z] = -arr[i++];
 						}else if (0 == x || x == ax+3 || 0 == y || y == ay+3 || 0 == z || z == az+3) {
 							dense3[x][y][z] = config->threshold;
 						}else{
@@ -64,8 +64,7 @@ void DenseCubicalGrids::gridFromArray(vector<double>& arr, bool embedded){
 				for (uint32_t y = 0; y < ay + 4; ++y) {
 					for (uint32_t x = 0; x < ax + 4; ++x) {
 						if (1 < x && x <= ax+1 && 1 < y && y <= ay+1 && 1<=z && z<= az) {
-							dense3[x][y][z] = -arr[i];
-							i++;
+							dense3[x][y][z] = -arr[i++];
 						}else if (0 == x || x == ax+3 || 0 == y || y == ay+3 || z==0 || z==az+1) {
 							dense3[x][y][z] = config->threshold;
 						}else{
@@ -84,8 +83,7 @@ void DenseCubicalGrids::gridFromArray(vector<double>& arr, bool embedded){
 			for (uint32_t y = 0; y < ay + 2; ++y) {
 				for (uint32_t x = 0; x < ax + 2; ++x) {
 					if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
-						dense3[x][y][z] = arr[i];
-						i++;
+						dense3[x][y][z] = arr[i++];
 					}else {
 						dense3[x][y][z] = config->threshold;
 					}
@@ -95,6 +93,99 @@ void DenseCubicalGrids::gridFromArray(vector<double>& arr, bool embedded){
 	}
 }
 
+// from numpy array: note the order of axis
+void DenseCubicalGrids::gridFromNpyArray(const double *arr, bool embedded){
+	uint64_t i = 0;
+	// load 
+	if(embedded){
+		if (az>1) {
+			dense3 = alloc3d(ax + 4, ay + 4, az + 4);
+			for (uint32_t x = 0; x < ax + 4; ++x) {
+				for (uint32_t y = 0; y < ay + 4; ++y) {
+					for (uint32_t z = 0; z < az + 4; ++z) {
+						if (1 < x && x <= ax+1 && 1 < y && y <= ay+1 && 1 < z && z <= az+1) {
+//							dense3[x][y][z] = -(*img.data(x-2, y-2, z-2));
+							dense3[x][y][z] = -arr[i++];
+//							cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
+						}else if (0 == x || x == ax+3 || 0 == y || y == ay+3 || 0 == z || z == az+3) {
+							dense3[x][y][z] = config->threshold;
+						}else{
+							dense3[x][y][z] = -config->threshold;
+						}
+					}
+				}
+			}
+			ax += 2;
+			ay += 2;
+			az += 2;
+		}else{
+			dense3 = alloc3d(ax + 4, ay + 4, az + 2);
+			for (uint32_t x = 0; x < ax + 4; ++x) {
+				for (uint32_t y = 0; y < ay + 4; ++y) {
+					for (uint32_t z = 0; z < az + 2; ++z) {
+						if (1 < x && x <= ax+1 && 1 < y && y <= ay+1 && 1<=z && z<= az) {
+//							dense3[x][y][z] = -(*img.data(x-2, y-2));
+							dense3[x][y][z] = -arr[i++];
+						}else if (0 == x || x == ax+3 || 0 == y || y == ay+3 || z==0 || z==az+1) {
+							dense3[x][y][z] = config->threshold;
+						}else{
+							dense3[x][y][z] = -config->threshold;
+						}
+					}
+				}
+			}
+			ax += 2;
+			ay += 2;
+		}
+	}else{
+		if (az>1) {
+			dense3 = alloc3d(ax + 2, ay + 2, az + 2);
+			for (uint32_t x = 0; x < ax + 2; ++x) {
+				for (uint32_t y = 0; y < ay + 2; ++y) {
+					for (uint32_t z = 0; z < az + 2; ++z) {
+						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
+							dense3[x][y][z] = arr[i++];
+						}
+						else { // fill the boundary with the threashold value
+							dense3[x][y][z] = config->threshold;
+						}
+					}
+				}
+			}
+		}else if(ay>1) {
+			dense3 = alloc3d(ax + 2, ay + 2, az + 2);
+			for (uint32_t x = 0; x < ax + 2; ++x) {
+				for (uint32_t y = 0; y < ay + 2; ++y) {
+					for (uint32_t z = 0; z < az + 2; ++z) {
+						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
+							dense3[x][y][z] = arr[i++];
+						}
+						else { // fill the boundary with the threashold value
+							dense3[x][y][z] = config->threshold;
+						}
+					}
+				}
+			}
+		}else{
+			dense3 = alloc3d(ax + 2, ay + 2, az + 2);
+			for (uint32_t x = 0; x < ax + 2; ++x) {
+				for (uint32_t y = 0; y < ay + 2; ++y) {
+					for (uint32_t z = 0; z < az + 2; ++z) {
+						if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
+							dense3[x][y][z] = arr[i++];
+						}
+						else { // fill the boundary with the threashold value
+							dense3[x][y][z] = config->threshold;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
+// different for V and T
 // read from file
 void DenseCubicalGrids::loadImage(bool embedded){
 	// read file
@@ -207,15 +298,15 @@ void DenseCubicalGrids::loadImage(bool embedded){
 		case NUMPY:
 		{
 			vector<unsigned long> shape;
-			vector<double> data;
+			vector<double> arr;
 			try{
-				npy::LoadArrayFromNumpy(config->filename.c_str(), shape, data);
+				npy::LoadArrayFromNumpy(config->filename.c_str(), shape, arr);
 			} catch (...) {
 				cerr << "The data type of an numpy array should be numpy.float64." << endl;
 				exit(-2);
 			}
 			if(shape.size() > 3){
-				cerr << "Input array should be 2 or 3 dimensional " << endl;
+				cerr << "Input array should be 1,2 or 3 dimensional " << endl;
 				exit(-1);
 			}
 			dim = shape.size();
@@ -231,61 +322,8 @@ void DenseCubicalGrids::loadImage(bool embedded){
 				az = 1;
 			}
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
-			uint64_t i = 0;
-			// note the order of axis
-			if(embedded){ // dual complex
-				if(az>1){
-					dense3 = alloc3d(ax+4, ay+4, az+4);
-					for (uint32_t x = 0; x < ax + 4; ++x) {
-						for (uint32_t y = 0; y < ay + 4; ++y) {
-							for (uint32_t z = 0; z < az + 4; ++z) {
-								if (1 < x && x <= ax+1 && 1 < y && y <= ay+1 && 1 < z && z <= az+1) {
-									dense3[x][y][z] = -data[i++];
-								}else if (0 == x || x == ax+3 || 0 == y || y == ay+3 || 0 == z || z == az+3) {
-									dense3[x][y][z] = config->threshold;
-								}else{
-									dense3[x][y][z] = -config->threshold;
-								}
-			//					cout << x << "," << y << "," << z << ": " << dense3[x][y][z] << endl;
-							}
-						}
-					}
-					az = az + 2;
-				}else{
-					dense3 = alloc3d(ax+4, ay+4, az+2);
-					for (uint32_t x = 0; x < ax + 4; ++x) {
-						for (uint32_t y = 0; y < ay + 4; ++y) {
-							for (uint32_t z = 0; z < az + 2; ++z) { // z-axis remains the same
-								if (1 < x && x <= ax+1 && 1 < y && y <= ay+1 && 1<=z && z<= az) {
-									dense3[x][y][z] = -data[i++];
-								}else if (0 == x || x == ax+3 || 0 == y || y == ay+3 || z==0 || z==az+1) {
-									dense3[x][y][z] = config->threshold;
-								}else{
-									dense3[x][y][z] = -config->threshold;
-								}
-//								cout << x << "," << y << "," << z << ": " << dense3[x][y][z] << endl;
-							}
-						}
-					}
-				}
-				ax = ax + 2;
-				ay = ay + 2;				
-			}else{
-				dense3 = alloc3d(ax + 2, ay + 2, az + 2);
-				for (uint32_t x = 0; x < ax + 2; ++x) {
-					for (uint32_t y = 0; y <ay + 2; ++y) {
-						for (uint32_t z = 0; z < az + 2; ++z) {
-							if (0 < x && x <= ax && 0 < y && y <= ay && 0 < z && z <= az) {
-								dense3[x][y][z] = data[i++];
-							}
-							else { // fill the boundary with the threashold value
-								dense3[x][y][z] = config->threshold;
-							}
-						}
-					}
-				}
-				break;
-			}
+			gridFromNpyArray(&arr[0], embedded);
+			break;
 		}
 	}	
     // T-construction

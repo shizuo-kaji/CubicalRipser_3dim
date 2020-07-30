@@ -1,4 +1,5 @@
-######
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # DIPHA <=> Numpy Format Converter
 #%%
 import struct
@@ -34,7 +35,7 @@ elif ".npy" in args.from_fn:
             fh.write(struct.pack("d"*sz,*dat.transpose((2,1,0)).flatten()))
         elif dim == 2:
             fh.write(struct.pack("d"*sz,*dat.transpose((1,0)).flatten()))
-elif ".output" in args.from_fn:
+elif (".output" in args.from_fn) or (".diagram" in args.from_fn):
     dat = open(args.from_fn,'rb').read()
     magic,tp,sz = struct.unpack_from("qqq",dat,0)
     df = np.array(struct.unpack_from("qdd"*sz,dat,8*3)) # (dim,birth,death), offset = 8byte x 3

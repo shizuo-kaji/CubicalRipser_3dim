@@ -216,6 +216,7 @@ By the Alexander duality, the following two give essentially the same results:
     ./tcubicalripser --embedded input.npy
 
 The difference is in the sign of the filtration and the permanent cycle.
+Here, (--embedded) converts the input I to -I^\infty described in the paper below.
 
 Look at the following paper for details:
 [Duality in Persistent Homology of Images by

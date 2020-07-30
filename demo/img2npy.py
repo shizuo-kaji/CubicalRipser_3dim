@@ -1,9 +1,12 @@
-######
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import struct
 import numpy as np
 import argparse
 import os
 from PIL import Image
+import re
+num = lambda val : int(re.sub("\\D", "", val))
 
 #%%
 parser = argparse.ArgumentParser("Convert image file to Numpy array")
@@ -11,7 +14,11 @@ parser.add_argument('from_fn', nargs="*", help="multiple files of the same dimen
 parser.add_argument('to_fn', help="output filename (.npy)")
 parser.add_argument('--reduce','-r', type=int, default=1)
 parser.add_argument('--tile','-t', type=int, default=1)
+parser.add_argument('--sort','-s', action='store_true')
 args = parser.parse_args()
+
+if args.sort:
+    args.from_fn.sort(key=num)
 
 s = args.reduce
 

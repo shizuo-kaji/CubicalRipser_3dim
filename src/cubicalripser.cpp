@@ -50,7 +50,7 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --output, -o        name of the output file" << endl
 	      << "  --print, -p         print persistence pairs on console" << endl
 	      << "  --top_dim        	compute only for top dimension using Alexander duality" << endl
-	      << "  --embedded, -e   	pad the image boundary with -infty" << endl
+	      << "  --embedded, -e   	pad the image boundary with -infty and negate the pixel values" << endl
 	      << "  --location, -l   	type of location to be output:" << endl
 	      << "								birth      (localtion of birth cell; default)" << endl
 	      << "								death      (localtion of death cell)" << endl

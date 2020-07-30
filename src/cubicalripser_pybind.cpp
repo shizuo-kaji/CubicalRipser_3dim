@@ -59,109 +59,24 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 		config.embedded = embedded;
 	}
 
-	// load 
-	if(config.embedded){
-		dcg->ax = shape[0];
-		if (dcg->dim == 3) {
-			dcg->ay = shape[1];
-			dcg->az = shape[2];
-			dcg->dense3 = dcg->alloc3d(dcg->ax + 4, dcg->ay + 4, dcg->az + 4);
-			for (uint32_t x = 0; x < dcg->ax + 4; ++x) {
-				for (uint32_t y = 0; y < dcg->ay + 4; ++y) {
-					for (uint32_t z = 0; z < dcg->az + 4; ++z) {
-						if (1 < x && x <= dcg->ax+1 && 1 < y && y <= dcg->ay+1 && 1 < z && z <= dcg->az+1) {
-							dcg->dense3[x][y][z] = -(*img.data(x-2, y-2, z-2));
-						}else if (0 == x || x == dcg->ax+3 || 0 == y || y == dcg->ay+3 || 0 == z || z == dcg->az+3) {
-							dcg->dense3[x][y][z] = config.threshold;
-						}else{
-							dcg->dense3[x][y][z] = -config.threshold;
-						}
-					}
-				}
-			}
-			dcg->ax += 2;
-			dcg->ay += 2;
-			dcg->az += 2;
-		}else if (dcg->dim == 2) {
-			dcg->ay = shape[1];
-			dcg->az = 1;
-			dcg->dense3 = dcg->alloc3d(dcg->ax + 4, dcg->ay + 4, dcg->az + 2);
-			for (uint32_t x = 0; x < dcg->ax + 4; ++x) {
-				for (uint32_t y = 0; y < dcg->ay + 4; ++y) {
-					for (uint32_t z = 0; z < dcg->az + 2; ++z) {
-						if (1 < x && x <= dcg->ax+1 && 1 < y && y <= dcg->ay+1 && 1<=z && z<= dcg->az) {
-							dcg->dense3[x][y][z] = -(*img.data(x-2, y-2));
-						}else if (0 == x || x == dcg->ax+3 || 0 == y || y == dcg->ay+3 || z==0 || z==dcg->az+1) {
-							dcg->dense3[x][y][z] = config.threshold;
-						}else{
-							dcg->dense3[x][y][z] = -config.threshold;
-						}
-					}
-				}
-			}
-			dcg->ax += 2;
-			dcg->ay += 2;
-		}
-
-		dcg -> axy = dcg->ax * dcg->ay;
-		dcg -> ayz = dcg->ay * dcg->az;
-		dcg -> axyz = dcg->ax * dcg->ay * dcg->az;
-	}else{
-		dcg->ax = shape[0];
-		if (dcg->dim == 3) {
-			dcg->ay = shape[1];
-			dcg->az = shape[2];
-			dcg->dense3 = dcg->alloc3d(dcg->ax + 2, dcg->ay + 2, dcg->az + 2);
-			for (uint32_t x = 0; x < dcg->ax + 2; ++x) {
-				for (uint32_t y = 0; y < dcg->ay + 2; ++y) {
-					for (uint32_t z = 0; z < dcg->az + 2; ++z) {
-						if (0 < x && x <= dcg->ax && 0 < y && y <= dcg->ay && 0 < z && z <= dcg->az) {
-							dcg->dense3[x][y][z] = *img.data(x-1, y-1, z-1); // note the shift
-						}
-						else { // fill the boundary with the threashold value
-							dcg->dense3[x][y][z] = config.threshold;
-						}
-					}
-				}
-			}
-		}else if (dcg->dim == 2) {
-			dcg->ay = shape[1];
-			dcg->az = 1;
-			dcg->dense3 = dcg->alloc3d(dcg->ax + 2, dcg->ay + 2, dcg->az + 2);
-			for (uint32_t x = 0; x < dcg->ax + 2; ++x) {
-				for (uint32_t y = 0; y < dcg->ay + 2; ++y) {
-					for (uint32_t z = 0; z < dcg->az + 2; ++z) {
-						if (0 < x && x <= dcg->ax && 0 < y && y <= dcg->ay && 0 < z && z <= dcg->az) {
-							dcg->dense3[x][y][z] = *img.data(x-1, y-1); // note the shift
-						}
-						else { // fill the boundary with the threashold value
-							dcg->dense3[x][y][z] = config.threshold;
-						}
-					}
-				}
-			}
-		}else if (dcg->dim == 1) {
-			dcg->ay = 1;
-			dcg->az = 1;
-			dcg->dense3 = dcg->alloc3d(dcg->ax + 2, dcg->ay + 2, dcg->az + 2);
-			for (uint32_t x = 0; x < dcg->ax + 2; ++x) {
-				for (uint32_t y = 0; y < dcg->ay + 2; ++y) {
-					for (uint32_t z = 0; z < dcg->az + 2; ++z) {
-						if (0 < x && x <= dcg->ax && 0 < y && y <= dcg->ay && 0 < z && z <= dcg->az) {
-							dcg->dense3[x][y][z] = *img.data(x-1); // note the shift
-						}
-						else { // fill the boundary with the threashold value
-							dcg->dense3[x][y][z] = config.threshold;
-						}
-					}
-				}
-			}
-		}
-
-		dcg -> axy = dcg->ax * dcg->ay;
-		dcg -> ayz = dcg->ay * dcg->az;
-		dcg -> axyz = dcg->ax * dcg->ay * dcg->az;
+	dcg->ax = shape[0];
+	if (dcg->dim>1) {
+		dcg->ay = shape[1];
+	}else {
+		dcg->ay = 1;
 	}
+	if (dcg->dim>2) {
+		dcg->az = shape[2];
+	}else {
+		dcg->az = 1;
+	}
+	dcg -> gridFromNpyArray(&img.data()[0], embedded);
+//	dense3[x][y][z] = -(*img.data(x-2, y-2, z-2));
+
+	dcg -> axy = dcg->ax * dcg->ay;
+	dcg -> ayz = dcg->ay * dcg->az;
+	dcg -> axyz = dcg->ax * dcg->ay * dcg->az;
+	
 
 	// compute PH
 	if(config.method==ALEXANDER){
