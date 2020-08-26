@@ -46,7 +46,8 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --algorithm, -a     algorithm to compute the persistent homology of the cubical complexes:" << endl
 	      << "                    		link_find      (calculating the 0-dim PH by the 'link_find' algorithm; default)" << endl
 	      << "                    		compute_pairs  (calculating the 0-dim PH by the 'compute_pairs' algorithm)" << endl
-	      << "  --min_cache_size, -c  minimum number of non-zero entries of a reduced column to be cached (the higher the slower but less memory)" << endl
+	      << "  --min_recursion_to_cache, -mc  minimum number of recursion for a reduced column to be cached (the higher the slower but less memory)" << endl
+	      << "  --cache_size, -c	maximum number of reduced columns to be cached (the lower the slower but less memory)" << endl
 	      << "  --output, -o        name of the output file" << endl
 	      << "  --print, -p         print persistence pairs on console" << endl
 	      << "  --top_dim        	compute only for top dimension using Alexander duality" << endl
@@ -88,8 +89,10 @@ int main(int argc, char** argv){
 			}
 		} else if (arg == "--output" || arg == "-o") {
 			config.output_filename = string(argv[++i]);
-		} else if (arg == "--min_cache_size"){
-            config.min_cache_size = stoi(argv[++i]);
+		} else if (arg == "--min_recursion_to_cache" || arg == "-mc"){
+            config.min_recursion_to_cache = stoi(argv[++i]);
+		} else if (arg == "--cache_size" || arg == "-c"){
+            config.cache_size = stoi(argv[++i]);
 		} else if (arg == "--print" || arg == "-p"){
 			config.print = true;
 		} else if (arg == "--embedded" || arg == "-e"){
@@ -264,6 +267,8 @@ int main(int argc, char** argv){
 		} catch (...) {
 			cerr << " error: open file for output failed! " << endl;
 		}
+	}else if(config.output_filename.find("no_output")!= std::string::npos){
+		return 0;
 	} else { // DIPHA format
 		writing_file.open(config.output_filename, ios::out | ios::binary);
 		if(!writing_file.is_open()){

@@ -34,5 +34,6 @@ public:
 	void gridFromArray(vector<double>& arr, bool embedded);	
 	void gridFromNpyArray(const double *arr, bool embedded);	
 	double ***alloc3d(uint32_t x, uint32_t y, uint32_t z);
+	double getBirth(uint32_t x, uint32_t y, uint32_t z);
 	double getBirth(uint32_t x, uint32_t y, uint32_t z, uint8_t cm, uint8_t dim);
 };

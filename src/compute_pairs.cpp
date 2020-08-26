@@ -43,6 +43,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 	CoboundaryEnumerator cofaces(dcg,dim);
 	unordered_map<uint32_t, CubeQue > recorded_wc;
 //	unordered_map<int, vector<Cube> > recorded_wc;   // for some unknown reasons, using vector directly with sorting when needed deteriorates performance.
+	queue<uint32_t> cached_column_idx;
 
 	pivot_column_index.reserve(ctl_size);
 	recorded_wc.reserve(ctl_size);
@@ -57,6 +58,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 		Cube pivot;
 		bool might_be_apparent_pair = true;
 		bool found_persistence_pair = false;
+		int num_recurse = 0;
 
 		while(true){
             bool cache_hit = false;
@@ -80,19 +82,21 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                     // }
                     /// working_coboundary.insert(working_coboundary.end(), wc.begin(), wc.end());
                 }
-            }
+//				assert(might_be_apparent_pair == false); // As there is always cell-coface pair with the same birthtime, the flag should be set by the next block.
+			}
             if(!cache_hit){
                 // make the column by enumerating cofaces
                 coface_entries.clear();
                 cofaces.setCoboundaryEnumerator(ctr[j]);
-                while (cofaces.hasNextCoface() && !found_persistence_pair) {
+                while (cofaces.hasNextCoface()) {
                     coface_entries.push_back(cofaces.nextCoface);
     //                cout << "cf: " << j << endl;
 //                    cofaces.nextCoface.print();
-                    if (might_be_apparent_pair && (ctr[j].birth == cofaces.nextCoface.birth)) { // we cannot find this coface on the left
+                    if (might_be_apparent_pair && (ctr[j].birth == cofaces.nextCoface.birth)) { // we cannot find this coface on the left (Short-Circuit Evaluation)
                         if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
                             pivot.copyCube(cofaces.nextCoface);
                             found_persistence_pair = true;
+							break;
                         } else {
                             might_be_apparent_pair = false;
                         }
@@ -135,12 +139,18 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                 auto pair = pivot_column_index.find(pivot.index);
                 if (pair != pivot_column_index.end()) {	// found entry to reduce
                     j = pair -> second;
+					num_recurse++;
 //                        cout << i << " to " << j << " " << pivot.index << endl;
                     continue;
                 } else { // If the pivot is new
-                    if((int)working_coboundary.size() >= config->min_cache_size){
+//                    if((int)working_coboundary.size() >= config->min_cache_size){
+                    if(num_recurse >= config->min_recursion_to_cache){
                         add_cache(i, working_coboundary, recorded_wc);
-//							recorded_wc.emplace(i, working_coboundary);
+						cached_column_idx.push(i);
+						if(cached_column_idx.size()>config->cache_size){
+							recorded_wc.erase(cached_column_idx.front());
+							cached_column_idx.pop();
+						}
                     }
                     pivot_column_index.emplace(pivot.index, i); // column i has the pivot
                     double death = pivot.birth;

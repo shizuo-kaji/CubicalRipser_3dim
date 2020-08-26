@@ -5,24 +5,31 @@ import numpy as np
 import argparse
 import os
 from PIL import Image
-import re
+import re,struct
+import shutil
 num = lambda val : int(re.sub("\\D", "", val))
+dtype ={"uint8": np.uint8, "uint16": np.uint16, "float": np.float32, "double": np.float64}
 
 #%%
 parser = argparse.ArgumentParser("Convert image file to Numpy array")
-parser.add_argument('from_fn', nargs="*", help="multiple files of the same dimension would be stacked to a 3D image")
+parser.add_argument('from_fn', nargs="*", help="multiple files of the same dimension would be stacked to a 3D image. If directory is specified, combine all the files in the directory.")
 parser.add_argument('to_fn', help="output filename (.npy)")
 parser.add_argument('--reduce','-r', type=int, default=1)
 parser.add_argument('--tile','-t', type=int, default=1)
-parser.add_argument('--sort','-s', action='store_true')
+#parser.add_argument('--dtype','-d', type=str, default="double", choices=dtype.keys())
+parser.add_argument('--sort','-s', action='store_true', help="Sort file names before stacking")
 args = parser.parse_args()
-
-if args.sort:
-    args.from_fn.sort(key=num)
 
 s = args.reduce
 
 # %%
+if os.path.isdir(args.from_fn[0]):
+    fns = os.listdir(args.from_fn[0])
+    args.from_fn = [os.path.join(args.from_fn[0],f) for f in fns]
+
+if args.sort:
+    args.from_fn.sort(key=num)
+
 fn,ext = os.path.splitext(args.from_fn[0])
 if ext == ".dcm":
     try:
@@ -62,6 +69,26 @@ elif len(img_arr.shape)==2:
     img_arr = img_arr[::s,::s]
     img_arr = np.tile(img_arr, (args.tile,args.tile))
 
-# save to npy
-print("output shape: ",img_arr.shape)
-np.save(args.to_fn,img_arr)
+# save
+print("output ",args.to_fn, " shape: ",img_arr.shape)
+
+fn,ext = os.path.splitext(args.to_fn)
+if ext == ".raw":  # for use with cubicle
+    data = img_arr.astype(np.uint16).flatten()
+    with open(args.to_fn, 'wb') as out:
+        for v in data:
+            out.write(struct.pack('H', v))   # B: uchar, H: ushort
+elif ext == ".pgm":   # for use with diamorse
+    if len(img_arr.shape)==3:
+        with open(args.to_fn, 'wb') as outfile:
+            for z in range(img_arr.shape[2]):
+                fname = fn+"_{:0>4}.pgm".format(z)
+                Image.fromarray(img_arr[:,:,z].astype(np.uint8),mode='L').save(fname)
+                with open(fname, 'rb') as infile:
+                    shutil.copyfileobj(infile,outfile)
+                os.remove(fname)
+    else:
+        Image.fromarray(img_arr.astype(np.uint8),mode='L').save(args.to_fn)
+else:
+    np.save(args.to_fn,img_arr)
+

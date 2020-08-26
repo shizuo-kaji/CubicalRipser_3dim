@@ -43,6 +43,17 @@ elif (".output" in args.from_fn) or (".diagram" in args.from_fn):
     print("0-cycle: {}, 1-cycle: {}, 2-cycle {}, all: {}".format(len(df[df[:,0]==0]),len(df[df[:,0]==1]),len(df[df[:,0]==2]),len(df) ))
     print(df[:5,:])
     np.save(args.to_fn,df)
+elif (".txt" in args.from_fn): ## diamorse
+    text = []
+    with open(args.from_fn,'r') as fh:
+        for line in fh:
+            if line[0] != "#":
+                text.append(line)
+    df = (np.genfromtxt(text))[:,[2,0,1,3,4,5,6,7,8]]
+    print(df.shape)
+    print("0-cycle: {}, 1-cycle: {}, 2-cycle {}, 3-cycle {}, all: {}".format(len(df[df[:,0]==0]),len(df[df[:,0]==1]),len(df[df[:,0]==2]),len(df[df[:,0]==3]),len(df) ))
+    print(df[:5,:])
+    np.save(args.to_fn,df)
 
 # %%
 #plt.imshow(df[:,:,0])

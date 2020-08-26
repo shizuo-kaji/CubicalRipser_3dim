@@ -21,7 +21,8 @@ struct Config {
 	bool tconstruction = false; // T-construction or V-construction
 	bool embedded = false; // embed image in the sphere (for alexander duality)
 	output_location location = LOC_BIRTH; // flag for saving location
-	int min_cache_size = 0; // num of minimum non-zero entries of a reduced column to be cached
+	int min_recursion_to_cache = 0; // num of minimum recursions for a reduced column to be cached
+	uint32_t cache_size = 1 << 31; // the maximum number of reduced columns to be cached
 };
 
 #endif

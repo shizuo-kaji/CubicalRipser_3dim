@@ -14,16 +14,22 @@ num = lambda val : int(re.sub("\\D", "", val))
 
 #%%
 parser = argparse.ArgumentParser("")
-parser.add_argument('input',type=str, nargs="*", help="numpy array")
+parser.add_argument('input',type=str, nargs="*", help="numpy array or multiple images or directory containing multiple images")
 parser.add_argument('--output', '-o', default=None)
 parser.add_argument('--location', '-l', default="birth")
 parser.add_argument('--top_dim',action='store_true')
 parser.add_argument('--embedded', '-e', action='store_true')
 parser.add_argument('--maxdim','-m', default=2,type=int)
-parser.add_argument('--sort','-s', action='store_true')
+parser.add_argument('--sort','-s', action='store_true', help="Sort file names before stacking")
 parser.add_argument('--software',type=str,default="cubicalripser")
 args = parser.parse_args()
 
+if os.path.isdir(args.input[0]):
+    fns = os.listdir(args.input[0])
+    args.input = [os.path.join(args.input[0],f) for f in fns]
+
+if args.sort:
+    args.input.sort(key=num)
 
 fn,ext = os.path.splitext(args.input[0])
 if ext == ".dcm":
@@ -34,9 +40,6 @@ if ext == ".dcm":
         exit()
         
 images = []
-
-if args.sort:
-    args.input.sort(key=num)
 
 for ffn in args.input:
     print("processing {}".format(ffn))
