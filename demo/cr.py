@@ -16,7 +16,6 @@ num = lambda val : int(re.sub("\\D", "", val))
 parser = argparse.ArgumentParser("")
 parser.add_argument('input',type=str, nargs="*", help="numpy array or multiple images or directory containing multiple images")
 parser.add_argument('--output', '-o', default=None)
-parser.add_argument('--location', '-l', default="birth")
 parser.add_argument('--top_dim',action='store_true')
 parser.add_argument('--embedded', '-e', action='store_true')
 parser.add_argument('--maxdim','-m', default=2,type=int)
@@ -74,8 +73,9 @@ if args.software=="gudhi":
     print("Betti numbers: ", gd.persistent_betti_numbers(np.inf,-np.inf))
 
 else:
-    res = cripser.computePH(img_arr,maxdim=args.maxdim,top_dim=args.top_dim,embedded=args.embedded,location=args.location)
+    res = cripser.computePH(img_arr,maxdim=args.maxdim,top_dim=args.top_dim,embedded=args.embedded)
     print("Betti numbers: ", [res[res[:,0]==i].shape[0] for i in range(3)])
+#    print(res[:10])
 
 if args.output is not None:
     np.save(args.output,res)

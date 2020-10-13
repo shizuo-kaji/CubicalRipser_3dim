@@ -36,7 +36,7 @@ namespace py = pybind11;
 
 /////////////////////////////////////////////
 py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_dim=false, bool embedded=false, const std::string &location="birth"){
-
+	// we ignore "location" argument
 	Config config;
 	config.format = NUMPY;
 
@@ -51,7 +51,6 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	dcg->dim = buff_info.ndim;
 	config.maxdim = maxdim;
 	config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
-	if(location=="death") config.location=LOC_DEATH;
 	if(top_dim && dcg->dim > 1){
 		config.method = ALEXANDER;
 		config.embedded = !embedded;
@@ -118,7 +117,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 
 	// result
 	int64_t p = writepairs.size();
-	vector<ssize_t> result_shape{p,6};
+	vector<ssize_t> result_shape{p,9};
 	py::array_t<double> data{result_shape};
 	for(int64_t i = 0; i < p; ++i){
 		*data.mutable_data(i, 0) = writepairs[i].dim;
@@ -127,6 +126,9 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 		*data.mutable_data(i, 3) = writepairs[i].birth_x;
 		*data.mutable_data(i, 4) = writepairs[i].birth_y;
 		*data.mutable_data(i, 5) = writepairs[i].birth_z;
+		*data.mutable_data(i, 6) = writepairs[i].death_x;
+		*data.mutable_data(i, 7) = writepairs[i].death_y;
+		*data.mutable_data(i, 8) = writepairs[i].death_z;
 	}
 	return data;
 }

@@ -18,9 +18,8 @@ parser.add_argument('--reduce','-r', type=int, default=1)
 parser.add_argument('--tile','-t', type=int, default=1)
 #parser.add_argument('--dtype','-d', type=str, default="double", choices=dtype.keys())
 parser.add_argument('--sort','-s', action='store_true', help="Sort file names before stacking")
+parser.add_argument('--zsplit','-z', action='store_true', help="save one file for each slice along z-axis")
 args = parser.parse_args()
-
-s = args.reduce
 
 # %%
 if os.path.isdir(args.from_fn[0]):
@@ -30,7 +29,7 @@ if os.path.isdir(args.from_fn[0]):
 if args.sort:
     args.from_fn.sort(key=num)
 
-fn,ext = os.path.splitext(args.from_fn[0])
+frfn,ext = os.path.splitext(args.from_fn[0])
 if ext == ".dcm":
     try:
         import pydicom as dicom
@@ -44,6 +43,9 @@ for ffn in args.from_fn:
     fn,ext = os.path.splitext(ffn)
     if ext == ".npy":
         im = np.load(ffn).astype(np.float64)
+    elif ext == ".npz":
+        imz = np.load(ffn)
+        im = imz[imz.files[0]]
     elif ext == ".dcm":
         ref_dicom_in = dicom.read_file(ffn, force=True)
 #        ref_dicom_in.file_meta.TransferSyntaxUID = dicom.uid.ImplicitVRLittleEndian
@@ -59,6 +61,7 @@ img_arr = np.squeeze(np.stack(images,axis=-1))
 print("input shape: ",img_arr.shape)
 
 # size reduction
+s = args.reduce
 if len(img_arr.shape)==4:
     img_arr = img_arr[::s,::s,::s,::s]
     img_arr = np.tile(img_arr, (args.tile,args.tile,args.tile,args.tile))
@@ -72,7 +75,7 @@ elif len(img_arr.shape)==2:
 # save
 print("output ",args.to_fn, " shape: ",img_arr.shape)
 
-fn,ext = os.path.splitext(args.to_fn)
+tofn,ext = os.path.splitext(args.to_fn)
 if ext == ".raw":  # for use with cubicle
     data = img_arr.astype(np.uint16).flatten()
     with open(args.to_fn, 'wb') as out:
@@ -82,7 +85,7 @@ elif ext == ".pgm":   # for use with diamorse
     if len(img_arr.shape)==3:
         with open(args.to_fn, 'wb') as outfile:
             for z in range(img_arr.shape[2]):
-                fname = fn+"_{:0>4}.pgm".format(z)
+                fname = tofn+"_{:0>4}.pgm".format(z)
                 Image.fromarray(img_arr[:,:,z].astype(np.uint8),mode='L').save(fname)
                 with open(fname, 'rb') as infile:
                     shutil.copyfileobj(infile,outfile)
@@ -90,5 +93,10 @@ elif ext == ".pgm":   # for use with diamorse
     else:
         Image.fromarray(img_arr.astype(np.uint8),mode='L').save(args.to_fn)
 else:
-    np.save(args.to_fn,img_arr)
+    if args.zsplit:
+        os.makedirs(args.to_fn,exist_ok=True)
+        for i in range(img_arr.shape[2]):
+            np.save(os.path.join(args.to_fn,frfn)+"_{:0>4}.npy".format(i),img_arr[:,:,i])
+    else:
+        np.save(args.to_fn,img_arr)
 

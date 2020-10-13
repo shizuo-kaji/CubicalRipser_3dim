@@ -43,19 +43,18 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --help, -h          print this screen" << endl
 	      << "  --threshold <t>, -t compute cubical complexes up to birth time <t>" << endl
 		  << "  --maxdim <t>, -m    compute persistent homology up to dimension <t>" << endl
-	      << "  --algorithm, -a     algorithm to compute the persistent homology of the cubical complexes:" << endl
-	      << "                    		link_find      (calculating the 0-dim PH by the 'link_find' algorithm; default)" << endl
-	      << "                    		compute_pairs  (calculating the 0-dim PH by the 'compute_pairs' algorithm)" << endl
+	      << "  --algorithm, -a     algorithm to compute the 0-dim persistent homology:" << endl
+	      << "                    		link_find      (default)" << endl
+	      << "                    		compute_pairs  (slow in most cases)" << endl
 	      << "  --min_recursion_to_cache, -mc  minimum number of recursion for a reduced column to be cached (the higher the slower but less memory)" << endl
 	      << "  --cache_size, -c	maximum number of reduced columns to be cached (the lower the slower but less memory)" << endl
 	      << "  --output, -o        name of the output file" << endl
 	      << "  --print, -p         print persistence pairs on console" << endl
-	      << "  --top_dim        	compute only for top dimension using Alexander duality" << endl
-	      << "  --embedded, -e   	pad the image boundary with -infty and negate the pixel values" << endl
-	      << "  --location, -l   	type of location to be output:" << endl
-	      << "								birth      (localtion of birth cell; default)" << endl
-	      << "								death      (localtion of death cell)" << endl
-	      << "								none      (output nothing)" << endl
+	      << "  --top_dim        	compute only for top dimension using Alexander duality (setting '--maxdim 0 --embedded' is generally faster for this purpose)" << endl
+	      << "  --embedded, -e   	Take the Alexander dual (pad the image boundary with -infty and negate the pixel values)" << endl
+	      << "  --location, -l   	whether creator/destroyer location is included in the output:" << endl
+	      << "								yes      (default)" << endl
+	      << "								none     " << endl
 	      << endl;
 
 	exit(exit_code);
@@ -101,14 +100,8 @@ int main(int argc, char** argv){
 			config.method = ALEXANDER;
 		} else if (arg == "--location" || arg == "-l"){
 			string parameter = string(argv[++i]);
-			if (parameter == "birth") {
-				config.location = LOC_BIRTH;
-			} else if (parameter == "death") {
-				config.location = LOC_DEATH;
-			} else if (parameter == "none") {
+			if (parameter == "none") {
 				config.location = LOC_NONE;
-			} else {
-				print_usage_and_exit(-1);
 			}
 		} else {
 			if (!config.filename.empty()) { print_usage_and_exit(-1); }
@@ -241,19 +234,18 @@ int main(int argc, char** argv){
 		}
 		for(int64_t i = 0; i < p; ++i){
 			int64_t d = writepairs[i].dim;
-			writing_file << d << ",";
-			writing_file << writepairs[i].birth << ",";
-			writing_file << writepairs[i].death;
+			writing_file << d << "," << writepairs[i].birth << "," << writepairs[i].death;
 			if(config.location != LOC_NONE){
 				writing_file << "," << writepairs[i].birth_x << "," << writepairs[i].birth_y<< "," << writepairs[i].birth_z;
+				writing_file << "," << writepairs[i].death_x << "," << writepairs[i].death_y<< "," << writepairs[i].death_z;
 			}
 			writing_file << endl;
 		}
 		writing_file.close();
-	}else if(config.output_filename.find(".npy")!= std::string::npos){
-		long unsigned leshape[] = {0,6};
+	}else if(config.output_filename.find(".npy")!= std::string::npos){ // output in npy
+		long unsigned leshape[] = {0,9};
 		leshape[0] = p;
-		vector<double> data(6*p);
+		vector<double> data(9*p);
 		for(int64_t i = 0; i < p; ++i){
 			data[6*i] = writepairs[i].dim;
 			data[6*i+1] = writepairs[i].birth;
@@ -261,15 +253,18 @@ int main(int argc, char** argv){
 			data[6*i+3] = writepairs[i].birth_x;
 			data[6*i+4] = writepairs[i].birth_y;
 			data[6*i+5] = writepairs[i].birth_z;
+			data[6*i+6] = writepairs[i].death_x;
+			data[6*i+7] = writepairs[i].death_y;
+			data[6*i+8] = writepairs[i].death_z;
 		}
 		try{
 			npy::SaveArrayAsNumpy(config.output_filename, false, 2, leshape, data);
 		} catch (...) {
 			cerr << " error: open file for output failed! " << endl;
 		}
-	}else if(config.output_filename.find("no_output")!= std::string::npos){
+	}else if(config.output_filename.compare("none")==0){ // no output
 		return 0;
-	} else { // DIPHA format
+	} else { // output in DIPHA format
 		writing_file.open(config.output_filename, ios::out | ios::binary);
 		if(!writing_file.is_open()){
 			cerr << " error: open file for output failed! " << endl;

@@ -105,11 +105,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                 if (found_persistence_pair) {
                     double death = pivot.birth;
                     if (birth != death) {
-                        if(config->location==LOC_DEATH){
-                            wp->push_back(WritePairs(dim, birth, death, pivot.x(), pivot.y(), pivot.z(), config->print));
-                        }else{
-                            wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
-                        }
+						wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), pivot.x(), pivot.y(), pivot.z(), config->print));
                     }
     //                cout << pivot.index << ",ap," << i << endl;
                     pivot_column_index.emplace(pivot.index, i);
@@ -155,22 +151,14 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                     pivot_column_index.emplace(pivot.index, i); // column i has the pivot
                     double death = pivot.birth;
                     if (birth != death) {
-                        if(config->location==LOC_DEATH){
-                            wp->push_back(WritePairs(dim, birth, death, pivot.x(), pivot.y(), pivot.z(), config->print));
-                        }else{
-                            wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
-                        }
+						wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), pivot.x(), pivot.y(), pivot.z(), config->print));
                     }
 //                        cout << pivot.index << ",f," << i << endl;
                     break;
                 }
             } else { // the column is reduced to zero, which means it corresponds to a permanent cycle
                 if (birth != dcg->threshold) {
-                    if(config->location==LOC_DEATH){
-                        wp->push_back(WritePairs(dim, birth, dcg->threshold, 0, 0, 0, config->print));
-                    }else{
-                        wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(), config->print));
-                    }
+					wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(),  0, 0, 0, config->print));
                 }
                 break;
             }

@@ -117,28 +117,22 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 
 		if(u != v){
 			double birth;
-			int rcind;
+			int birth_ind,death_ind;
 			if(dset.birthtime[u] >= dset.birthtime[v]){
 				birth = dset.birthtime[u]; // the younger component u is killed
 				if(current_dim==0){
-					if(config->location==LOC_DEATH){
-						if(dset.birthtime[uind]>dset.birthtime[vind]){
-							rcind = uind; // cell of which the location is recorded
-						}else{
-							rcind = vind;
-						}
+					if(dset.birthtime[uind]>dset.birthtime[vind]){
+						death_ind = uind; // cell of which the location is recorded
 					}else{
-						rcind = u; 
+						death_ind = vind;
 					}
+					birth_ind = u; 
 				}else{
-					if(config->location==LOC_DEATH){
-						rcind = u;
+					death_ind = u;
+					if(dset.birthtime[uind]>dset.birthtime[vind]){
+						birth_ind = uind; 
 					}else{
-						if(dset.birthtime[uind]>dset.birthtime[vind]){
-							rcind = uind; 
-						}else{
-							rcind = vind;
-						}
+						birth_ind = vind;
 					}
 				}
 				if (dset.birthtime[v] < min_birth) {
@@ -148,24 +142,18 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 			}else{ // the younger component v is killed
 				birth = dset.birthtime[v];
 				if(current_dim==0){
-					if(config->location==LOC_DEATH){
-						if(dset.birthtime[uind]>dset.birthtime[vind]){
-							rcind = uind; 
-						}else{
-							rcind = vind;
-						}
+					if(dset.birthtime[uind]>dset.birthtime[vind]){
+						death_ind = uind; 
 					}else{
-						rcind = v; 
+						death_ind = vind;
 					}
+					birth_ind = v; 
 				}else{
-					if(config->location==LOC_DEATH){
-						rcind = v;
+					death_ind = v;
+					if(dset.birthtime[uind]>dset.birthtime[vind]){
+						birth_ind = uind;
 					}else{
-						if(dset.birthtime[uind]>dset.birthtime[vind]){
-							rcind = uind;
-						}else{
-							rcind = vind;
-						}
+						birth_ind = vind;
 					}
 				}
 				if (dset.birthtime[u] < min_birth) {
@@ -177,13 +165,19 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 			dset.link(u, v);
 			if(birth != death){
 				if(current_dim==0){
-					wp -> push_back(WritePairs(current_dim, birth, death, rcind%(dcg->ax), (rcind/(dcg->ax))%(dcg->ay), (rcind/(dcg->axy))%(dcg->az), config->print));
+					wp -> push_back(WritePairs(current_dim, birth, death, birth_ind%(dcg->ax), (birth_ind/(dcg->ax))%(dcg->ay), (birth_ind/(dcg->axy))%(dcg->az), death_ind%(dcg->ax), (death_ind/(dcg->ax))%(dcg->ay), (death_ind/(dcg->axy))%(dcg->az),config->print));
 				}else{ // shift back embedding
-					int cx=(rcind%(dcg->ax))-1;
-					int cy=((rcind/(dcg->ax))%(dcg->ay))-1;
-					int cz=((rcind/(dcg->axy))%(dcg->az));
-					if(current_dim==2) cz--;
-					wp -> push_back(WritePairs(current_dim, -death, -birth, cx,cy,cz, config->print));
+					int cx=(birth_ind%(dcg->ax))-1;
+					int cy=((birth_ind/(dcg->ax))%(dcg->ay))-1;
+					int cz=((birth_ind/(dcg->axy))%(dcg->az));
+					int dx=(birth_ind%(dcg->ax))-1;
+					int dy=((birth_ind/(dcg->ax))%(dcg->ay))-1;
+					int dz=((birth_ind/(dcg->axy))%(dcg->az));
+					if(current_dim==2){
+						cz--;
+						dz--;
+					}
+					wp -> push_back(WritePairs(current_dim, -death, -birth, cx,cy,cz, dx,dy,dz, config->print));
 				}
 			}
 			// column clearing
@@ -192,7 +186,7 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 	}
 	// the base point component
 	if(current_dim==0){
-		wp -> push_back(WritePairs(current_dim, min_birth, dcg -> threshold, min_idx%(dcg->ax), (min_idx/(dcg->ax))%(dcg->ay), (min_idx/(dcg->axy))%(dcg->az), config->print));
+		wp -> push_back(WritePairs(current_dim, min_birth, dcg -> threshold, min_idx%(dcg->ax), (min_idx/(dcg->ax))%(dcg->ay), (min_idx/(dcg->axy))%(dcg->az), 0,0,0, config->print));
 	}
 
 //	cout << ctr.size() << endl;

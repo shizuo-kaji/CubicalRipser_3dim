@@ -20,19 +20,21 @@ public:
 	uint8_t dim;
 	double birth;
 	double death;
-	uint32_t birth_x;
-	uint32_t birth_y;
-	uint32_t birth_z;
+	uint32_t birth_x,birth_y,birth_z;
+	uint32_t death_x,death_y,death_z;
 
-	WritePairs(uint8_t _dim, double _birth, double _death, uint32_t _birth_x,uint32_t _birth_y,uint32_t _birth_z, bool print = false){
+	WritePairs(uint8_t _dim, double _birth, double _death, uint32_t _birth_x,uint32_t _birth_y,uint32_t _birth_z, uint32_t _death_x,uint32_t _death_y,uint32_t _death_z, bool print = false){
         dim = _dim;
         birth = _birth;
         death = _death;
         birth_x = _birth_x;
         birth_y = _birth_y;
         birth_z = _birth_z;
+        death_x = _death_x;
+        death_y = _death_y;
+        death_z = _death_z;
         if (print == true) {
-            std::cout << "[" << birth << "," << death << ")" << " location (" << birth_x << "," << birth_y << "," << birth_z << ")" << std::endl;
+            std::cout << "[" << birth << "," << death << ")" << " birth loc. (" << birth_x << "," << birth_y << "," << birth_z << "), " << " death loc. (" << death_x << "," << death_y << "," << death_z << ")" << std::endl;
         }
     }
 

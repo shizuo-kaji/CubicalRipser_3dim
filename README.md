@@ -7,8 +7,10 @@ modified by Shizuo Kaji, Kyushu University, 2019
 ## Description
 CubicalRipser is an adaptation of [Ripser](http://ripser.org) by Ulrich Bauer to computation of persistent homology of weighted cubical complexes.
 
-- For 2 and 3 dimensional cubical complexes, we believe that CubicalRipser is currently the fastest program for computing persistent homology.
+- For 2 and 3 dimensional cubical complexes, CubicalRipser is among the fastest programs for computing persistent homology 
 - Cubical Ripser implements both the V- and the T- constructions for the filtration of cubical complexes (see [V and T constructions](#V-and-T-constructions)).
+- The coefficients are taken in the field with two elements.
+- See [Other software for persistent homology of cubical complexes](#Other-software-for-persistent-homology-of-cubical-complexes)
 
 For details, please look at our paper
 [Cubical Ripser: Software for computing persistent homology of image and volume data](https://arxiv.org/abs/2005.12692)
@@ -69,7 +71,7 @@ To install Python module,
 To use from python,
 
     import cripser
-    cripser.computePH(arr,maxdim=2,location="birth")
+    cripser.computePH(arr,maxdim=2)
 
 where arr is a 2D or 3D numpy array of type numpy.float64.
 
@@ -82,15 +84,15 @@ To see the command-line options:
 
 Example:
 
-    % ./cubicalripser --print --location birth --maxdim 2 --output out.csv demo/3dimsample.txt
+    % ./cubicalripser --print --maxdim 2 --output out.csv demo/3dimsample.txt
 
 The results are recorded in **result.csv**.
-Each line in the output **result.csv** consists of six numbers indicating
-the dimension of the cycle, birth-time, death-time, and location (x,y,z). 
+Each line in the output **result.csv** consists of nine numbers indicating
+the dimension of the cycle, birth-time, death-time, the creator location (x,y,z), and the destroyer location (x,y,z). 
 
 Cubical Ripser accepts 1D/2D/3D Numpy arrays
 
-    % ./cubicalripser --location birth --output result.csv input.npy
+    % ./cubicalripser --output result.csv input.npy
 
 ## Input file format
 The python version accepts NUMPY arrays as input.
@@ -107,14 +109,14 @@ Then, we can compute its persistent homology by the python module:
 import numpy as np                                      # import the Numpy module
 import cripser                                          # import the Cubical Ripser python module
 arr = np.load("input.npy").astype(np.float64)           # load the image in the numpy array format
-result = cripser.computePH(arr,maxdim=1,location="birth")   # compute the persistent homology up to degree 1
+result = cripser.computePH(arr,maxdim=1)   # compute the persistent homology up to degree 1
 ```
 Here, **result** is another 2D Numpy array of shape (M,6), where M is the number of cycles.
-The six numbers of each row indicate the dimension of the cycle, birth-time, death-time, and location (x,y,z) of the cell giving birth to the cycle.
+The none numbers of each row indicate the dimension of the cycle, birth-time, death-time, location (x,y,z) of the cell giving birth to the cycle, and location (x,y,z) of the cell destroying the cycle.
 
 If one wants to compute only for the top dimensional persistent homology (that is, H_1 for images and H_2 for volumes),
 
-    result = cripser.computePH(arr,top_dim=True,location="birth")
+    result = cripser.computePH(arr,top_dim=True)
 
 uses the [Alexander duality](https://arxiv.org/abs/2005.04597) to reduce the computational resources.
 
@@ -150,7 +152,7 @@ is demonstrated [here](https://github.com/shizuo-kaji/TutorialTopologicalDataAna
 *Lifetime enhanced image* is a way to feed the topological features obtained by persistent homology
 into convolutional neural networks (CNNs).
 
-    % ./cubicalripser --location birth --output result.npy input.npy
+    % ./cubicalripser --output result.npy input.npy
     % python demo/stackPH.py result.npy -o lifetime_image.npy -i input.npy
 
 In **lifetime_image.npy**, persistent homology is encoded as the extra channels so that it can be used as input for CNNs.
@@ -224,6 +226,7 @@ Adélie Garin, Teresa Heiss, Kelly Maggs, Bea Bleile, Vanessa Robins](https://ar
 
 
 ## Difference with the original version
+- the old (original) version is available at https://github.com/CubicalRipser/CubicalRipser_3dim
 - cleaned up/optimised codes (much less memory footprint, much faster for certain data; sometimes more than 100 times.)
 - Python friendly: see the Jupyter Notebook example found under the demo directory.
 - virtually infinite input size (compared to 510x510x510)
@@ -231,5 +234,34 @@ Adélie Garin, Teresa Heiss, Kelly Maggs, Bea Bleile, Vanessa Robins](https://ar
 - option to use the Alexander duality for the highest degree persistent homology
 - output birth/death location
 
-## TODO
-- Do no use bounding cells so that we can reduce memory usage. (but using an accessor for cell weights affects performance, so we have to find another way.)
+## Other software for persistent homology of cubical complexes
+We give a referece to various software for persistent homology of images.
+The comments are based on our limited understanding and tests, and hence, could be wrong.
+
+- [Cubicle](https://bitbucket.org/hubwag/cubicle/src/master/) by Hubert Wagner
+
+It computes for the V-construction of the image.
+Its parallelised algorithm offers faster computation on multi-core machines.
+Also, it reads the input image by chunks and reduces boundary matrix on disk, so it requires small memory footprint.
+However, with input data with a huge boundary matrix, the disk IO becomes a bottleneck.
+
+- [DIPHA](https://github.com/DIPHA/dipha) by Ulrich Bauer and Michael Kerber
+
+It computes for the V-construction of the image.
+It is parallelised with MPI so it works on a cluster. 
+The software has been used in various projects.
+The memory footprint is relatively large.
+
+- [GUDHI](http://gudhi.gforge.inria.fr/) developed at INRIA
+
+It computes for the T-construction of the image.
+It is well-documented and offers a well-organised and easy to use interface.
+It focuses more on usability than performance.
+
+- [diamorse](https://github.com/AppliedMathematicsANU/diamorse) developed at The Australian National University.
+
+It computes for the V-construction of the image.
+
+- [Perseus](http://people.maths.ox.ac.uk/nanda/perseus/) by Vidit Nanda
+
+It computes for the V-construction of the image.
