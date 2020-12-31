@@ -63,9 +63,9 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 	
     for (auto e = ctr.rbegin(), last = ctr.rend(); e != last; ++e) {
 		// indexing scheme for union find is DIFFERENT from that of cubes
-		// for each edge e, identify root indices u and v of the end points
 		uint64_t uind = e->x() + (dcg->ax)*e->y() + (dcg->axy)*e->z();
 		uint64_t vind;
+		// for each edge e, identify root indices u and v of the end points
 		u = dset.find(uind);
 		switch(e->m()){ //type
 			case 0:
@@ -164,20 +164,10 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 			double death = e->birth;
 			dset.link(u, v);
 			if(birth != death){
-				if(current_dim==0){
+				if(config->tconstruction){
+					wp -> push_back(WritePairs(current_dim, Cube(birth, birth_ind%(dcg->ax), (birth_ind/(dcg->ax))%(dcg->ay), (birth_ind/(dcg->axy))%(dcg->az), 0), Cube(death, death_ind%(dcg->ax), (death_ind/(dcg->ax))%(dcg->ay), (death_ind/(dcg->axy))%(dcg->az), 0), dcg, config->print));
+				}else{
 					wp -> push_back(WritePairs(current_dim, birth, death, birth_ind%(dcg->ax), (birth_ind/(dcg->ax))%(dcg->ay), (birth_ind/(dcg->axy))%(dcg->az), death_ind%(dcg->ax), (death_ind/(dcg->ax))%(dcg->ay), (death_ind/(dcg->axy))%(dcg->az),config->print));
-				}else{ // shift back embedding
-					int cx=(birth_ind%(dcg->ax))-1;
-					int cy=((birth_ind/(dcg->ax))%(dcg->ay))-1;
-					int cz=((birth_ind/(dcg->axy))%(dcg->az));
-					int dx=(birth_ind%(dcg->ax))-1;
-					int dy=((birth_ind/(dcg->ax))%(dcg->ay))-1;
-					int dz=((birth_ind/(dcg->axy))%(dcg->az));
-					if(current_dim==2){
-						cz--;
-						dz--;
-					}
-					wp -> push_back(WritePairs(current_dim, -death, -birth, cx,cy,cz, dx,dy,dz, config->print));
 				}
 			}
 			// column clearing

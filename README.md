@@ -75,6 +75,13 @@ To use from python,
 
 where arr is a 2D or 3D numpy array of type numpy.float64.
 
+If you want to compute with the T-construction instead of the V-construction,
+
+    import tcripser
+    tcripser.computePH(arr,maxdim=2)
+
+(NOTE: for some unknown reasons, the computation of the T-construction is very slow on MacOS Big Sur (not on Linux nor on Windows))
+
 Look at the Jupyter notebook demo/cubicalripser.ipynb and https://github.com/shizuo-kaji/HomologyCNN for practical usage.
 
 ### Command-line executable
@@ -113,12 +120,6 @@ result = cripser.computePH(arr,maxdim=1)   # compute the persistent homology up 
 ```
 Here, **result** is another 2D Numpy array of shape (M,6), where M is the number of cycles.
 The none numbers of each row indicate the dimension of the cycle, birth-time, death-time, location (x,y,z) of the cell giving birth to the cycle, and location (x,y,z) of the cell destroying the cycle.
-
-If one wants to compute only for the top dimensional persistent homology (that is, H_1 for images and H_2 for volumes),
-
-    result = cripser.computePH(arr,top_dim=True)
-
-uses the [Alexander duality](https://arxiv.org/abs/2005.04597) to reduce the computational resources.
 
 ### 3D Volume file
 Given a series of DICOM files named **input00.dcm**, **input01.dcm**, **input02.dcm**...,
@@ -244,6 +245,11 @@ It computes for the V-construction of the image.
 Its parallelised algorithm offers faster computation on multi-core machines.
 Also, it reads the input image by chunks and reduces boundary matrix on disk, so it requires small memory footprint.
 However, with input data with a huge boundary matrix, the disk IO becomes a bottleneck.
+
+-[HomcCube](https://i-obayashi.info/software.html) By Ippei Obayashi.
+
+It computes for the V-construction of the image.
+It is integrated into Homcloud developed by the same author.
 
 - [DIPHA](https://github.com/DIPHA/dipha) by Ulrich Bauer and Michael Kerber
 

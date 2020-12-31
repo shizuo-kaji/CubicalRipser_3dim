@@ -62,13 +62,13 @@ class CMakeBuild(build_ext):
 
 setup(
     name='cripser',
-    version='0.0.5',
+    version='0.0.6',
     author='Shizuo KAJI',
     author_email='skaji@imi.kyushu-u.ac.jp',
     description='Cubical Ripser Python binding',
     long_description='Persistent homology calculation for 1D (scalar time series), 2D (image), and 3D (voxel) arrays',
     license='MIT',
-    ext_modules=[CMakeExtension('cripser')],
+    ext_modules=[CMakeExtension('cripser'),CMakeExtension('tcripser')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )

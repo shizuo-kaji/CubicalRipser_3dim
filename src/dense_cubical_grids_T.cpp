@@ -14,7 +14,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 #include <algorithm>
 #include <string>
 #include <initializer_list>
@@ -26,7 +25,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 
-// same for V and T
 DenseCubicalGrids::DenseCubicalGrids(Config& _config)  {
 	config = &_config;
 	threshold = config->threshold;
@@ -219,6 +217,9 @@ void DenseCubicalGrids::loadImage(bool embedded){
 				az = 1;
 			}
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
+			img_x = ax;
+			img_y = ay;
+			img_z = az;
 			double dou;
 			vector<double> arr;
 			arr.reserve(ax*ay*az);
@@ -255,6 +256,9 @@ void DenseCubicalGrids::loadImage(bool embedded){
 				az = 1;
 			}
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
+			img_x = ax;
+			img_y = ay;
+			img_z = az;
 			vector<double> arr;
 			arr.reserve(ax*ay*az);
 			while(!reading_file.eof()){
@@ -291,6 +295,9 @@ void DenseCubicalGrids::loadImage(bool embedded){
 			}
 			az = 1;
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
+			img_x = ax;
+			img_y = ay;
+			img_z = az;
 			gridFromArray(arr, embedded);
 			break;
 		}
@@ -322,6 +329,9 @@ void DenseCubicalGrids::loadImage(bool embedded){
 				az = 1;
 			}
 			cout << "ax : ay : az = " << ax << " : " << ay << " : " << az << endl;
+			img_x = ax;
+			img_y = ay;
+			img_z = az;
 			gridFromNpyArray(&arr[0], embedded);
 			break;
 		}
@@ -383,21 +393,34 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint8_
 	return threshold; // dim > 3
 }
 
-// allocate 3d array
-double ***DenseCubicalGrids::alloc3d(uint32_t x, uint32_t y, uint32_t z) {
-	double ***d = (double***)malloc(x * sizeof(double**));
-	d[0] = (double**)malloc(x * y * sizeof(double*));
-	d[0][0] = (double*)malloc(x*y*z * sizeof(double));
-	for (uint32_t i = 0; i < x ; i++) {
-		d[i] = d[0] + i * y;
-		for (uint32_t j = 0; j < y; j++) d[i][j] = d[0][0] + i * y*z + j * z;
+// (x,y,z) of the voxel which defines the birthtime of the cube
+vector<uint32_t> DenseCubicalGrids::ParentVoxel(uint8_t _dim, Cube &c){
+	uint8_t cm = c.m();
+	uint32_t cx = c.x();
+	uint32_t cy = c.y();
+	uint32_t cz = c.z();
+	if(c.birth == dense3[cx+1][cy+1][cz+1]){
+		return {cx,cy,cz};
+	}else if(c.birth == dense3[cx+0][cy+1][cz+1]){			// T-construction
+		return { cx - 1,cy,cz };
+	}else if(c.birth == dense3[cx+0][cy+0][cz+1]){
+		return { cx - 1,cy-1,cz };
+	}else if(c.birth == dense3[cx+0][cy+0][cz+0]){
+		return { cx - 1,cy-1,cz-1 };
+	}else if(c.birth == dense3[cx+0][cy+1][cz+0]){
+		return { cx - 1,cy,cz-1 };
+	}else if(c.birth == dense3[cx+1][cy+0][cz+1]){
+		return { cx,cy-1,cz};
+	}else if(c.birth == dense3[cx+1][cy+0][cz+0]){
+		return { cx,cy-1,cz-1};
+	}else if(c.birth == dense3[cx+1][cy+1][cz+0]){
+		return { cx,cy,cz-1};
+	}else{
+		cerr << "parent voxel not found!" << endl;
+		return { 0,0,0 };
 	}
-	if (d == NULL) {
-		cerr << "not enough memory!" << endl;
-	}
-	return d;
 }
-
+	
 DenseCubicalGrids::~DenseCubicalGrids(){
 	free(dense3[0][0]);
 	free(dense3[0]);

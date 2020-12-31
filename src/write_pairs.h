@@ -13,6 +13,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <cstdint>
+#include "dense_cubical_grids.h"
 
 class WritePairs
 {
@@ -33,6 +34,24 @@ public:
         death_x = _death_x;
         death_y = _death_y;
         death_z = _death_z;
+        if (print == true) {
+            std::cout << "[" << birth << "," << death << ")" << " birth loc. (" << birth_x << "," << birth_y << "," << birth_z << "), " << " death loc. (" << death_x << "," << death_y << "," << death_z << ")" << std::endl;
+        }
+    }
+    WritePairs(uint8_t _dim, Cube _birthC, Cube _deathC, DenseCubicalGrids* _dcg, bool print = false){
+        dim = _dim;
+        birth = _birthC.birth;
+        death = _deathC.birth;
+        auto b =  _dcg->ParentVoxel(dim, _birthC);
+        auto d =  _dcg->ParentVoxel(dim, _deathC);
+        // vector<uint32_t> b = {0,0,0};
+        // vector<uint32_t> d = {0,0,0};
+        birth_x=b[0];
+        birth_y=b[1];
+        birth_z=b[2];
+        death_x=d[0];
+        death_y=d[1];
+        death_z=d[2];
         if (print == true) {
             std::cout << "[" << birth << "," << death << ")" << " birth loc. (" << birth_x << "," << birth_y << "," << birth_z << "), " << " death loc. (" << death_x << "," << death_y << "," << death_z << ")" << std::endl;
         }

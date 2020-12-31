@@ -28,6 +28,10 @@ public:
         birth = _b;
         index = (uint64_t)_x | ((uint64_t)_y<<20) | ((uint64_t)_z<<40) | ((uint64_t)_m<<60);
     };
+    Cube(double _b, uint64_t _birth){
+        birth = _b;
+        index = _birth;
+    };
     uint32_t x(){return( (index) & 0xfffff);}
     uint32_t y(){return( (index >> 20) & 0xfffff);}
     uint32_t z(){return( (index >> 40) & 0xfffff);}

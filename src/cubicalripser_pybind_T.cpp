@@ -34,6 +34,7 @@ using namespace std;
 
 namespace py = pybind11;
 
+/// The only difference from cubicalripser_pybind.cpp is the PYBIND11_MODULE statements
 /////////////////////////////////////////////
 py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_dim=false, bool embedded=false, const std::string &location="yes"){
 	// we ignore "location" argument
@@ -76,6 +77,13 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	}
 	dcg -> gridFromNpyArray(&img.data()[0], embedded);
 //	dense3[x][y][z] = -(*img.data(x-2, y-2, z-2));
+
+    // T-construction
+    if(true){
+        if(dcg->az>1) dcg->az++;
+        dcg->ax++;
+        dcg->ay++;
+    }
 
 	dcg -> axy = dcg->ax * dcg->ay;
 	dcg -> ayz = dcg->ay * dcg->az;
@@ -142,11 +150,11 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	return data;
 }
 
-PYBIND11_MODULE(cripser, m) {
+PYBIND11_MODULE(tcripser, m) {
     m.doc() = R"pbdoc(
-        Cubical Ripser plugin
+        Cubical Ripser (T-construction) plugin
         -----------------------
-        .. currentmodule:: cripser
+        .. currentmodule:: tcripser
         .. autosummary::
            :toctree: _generate
            add

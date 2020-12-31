@@ -50,7 +50,7 @@ void print_usage_and_exit(int exit_code) {
 	      << "  --cache_size, -c	maximum number of reduced columns to be cached (the lower the slower but less memory)" << endl
 	      << "  --output, -o        name of the output file" << endl
 	      << "  --print, -p         print persistence pairs on console" << endl
-	      << "  --top_dim        	compute only for top dimension using Alexander duality (setting '--maxdim 0 --embedded' is generally faster for this purpose)" << endl
+	      << "  --top_dim        	(not recommended) compute only for top dimension using Alexander duality (setting '--maxdim 0 --embedded' is generally faster for this purpose)" << endl
 	      << "  --embedded, -e   	Take the Alexander dual (pad the image boundary with -infty and negate the pixel values)" << endl
 	      << "  --location, -l   	whether creator/destroyer location is included in the output:" << endl
 	      << "								yes      (default)" << endl
@@ -222,6 +222,14 @@ int main(int argc, char** argv){
 		}		
 	}
 
+	// determine shift between dcg and the voxel coordinates
+	auto pad_x = (dcg->ax - dcg->img_x)/2;
+	auto pad_y = (dcg->ay - dcg->img_y)/2;
+	auto pad_z = (dcg->az - dcg->img_z)/2;
+	// cout << "dcg: " << dcg->ax <<", " << dcg->ay <<", " <<dcg->az <<", " << endl;
+	// cout << "image: " << dcg->img_x <<", " << dcg->img_y <<", " <<dcg->img_z <<", " << endl;
+	// cout << "padding: " << pad_x <<", " << pad_y <<", " <<pad_z <<", " << endl;
+
 	// write to file
 	ofstream writing_file;
 	int64_t p = writepairs.size();
@@ -236,8 +244,8 @@ int main(int argc, char** argv){
 			int64_t d = writepairs[i].dim;
 			writing_file << d << "," << writepairs[i].birth << "," << writepairs[i].death;
 			if(config.location != LOC_NONE){
-				writing_file << "," << writepairs[i].birth_x << "," << writepairs[i].birth_y<< "," << writepairs[i].birth_z;
-				writing_file << "," << writepairs[i].death_x << "," << writepairs[i].death_y<< "," << writepairs[i].death_z;
+				writing_file << "," << writepairs[i].birth_x-pad_x << "," << writepairs[i].birth_y-pad_y << "," << writepairs[i].birth_z-pad_z;
+				writing_file << "," << writepairs[i].death_x-pad_x << "," << writepairs[i].death_y-pad_y << "," << writepairs[i].death_z-pad_z;
 			}
 			writing_file << endl;
 		}
@@ -250,12 +258,12 @@ int main(int argc, char** argv){
 			data[6*i] = writepairs[i].dim;
 			data[6*i+1] = writepairs[i].birth;
 			data[6*i+2] = writepairs[i].death;
-			data[6*i+3] = writepairs[i].birth_x;
-			data[6*i+4] = writepairs[i].birth_y;
-			data[6*i+5] = writepairs[i].birth_z;
-			data[6*i+6] = writepairs[i].death_x;
-			data[6*i+7] = writepairs[i].death_y;
-			data[6*i+8] = writepairs[i].death_z;
+			data[6*i+3] = writepairs[i].birth_x-pad_x;
+			data[6*i+4] = writepairs[i].birth_y-pad_y;
+			data[6*i+5] = writepairs[i].birth_z-pad_z;
+			data[6*i+6] = writepairs[i].death_x-pad_x;
+			data[6*i+7] = writepairs[i].death_y-pad_y;
+			data[6*i+8] = writepairs[i].death_z-pad_z;
 		}
 		try{
 			npy::SaveArrayAsNumpy(config.output_filename, false, 2, leshape, data);
