@@ -141,7 +141,7 @@ int main(int argc, char** argv){
 	vector<Cube> ctr;
 
 	// compute PH
-    vector<uint32_t> betti(0);
+    vector<uint64_t> betti(0);
 	switch(config.method){
 		case LINKFIND:
 		{

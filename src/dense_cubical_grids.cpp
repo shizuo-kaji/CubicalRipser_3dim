@@ -405,7 +405,6 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint8_
 
 // (x,y,z) of the voxel which defines the birthtime of the cube
 vector<uint32_t> DenseCubicalGrids::ParentVoxel(uint8_t _dim, Cube &c){
-	uint8_t cm = c.m();
 	uint32_t cx = c.x();
 	uint32_t cy = c.y();
 	uint32_t cz = c.z();

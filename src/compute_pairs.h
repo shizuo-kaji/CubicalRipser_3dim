@@ -15,6 +15,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <unordered_map>
 #include "config.h"
+//#include "sparsehash/dense_hash_map"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ class ComputePairs{
 private:
 	DenseCubicalGrids* dcg;
 	unordered_map<uint64_t, uint32_t> pivot_column_index;
+//	google::dense_hash_map<uint64_t, uint32_t> pivot_column_index;
 	uint8_t dim;
 	vector<WritePairs> *wp;
 	Config* config;

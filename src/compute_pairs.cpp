@@ -28,24 +28,26 @@ using namespace std;
 #include "coboundary_enumerator.h"
 #include "write_pairs.h"
 #include "compute_pairs.h"
-	
+
 ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, Config& _config){
 	dcg = _dcg;
 	dim = 1; //  default method is LINK_FIND, where we skip dim=0
 	wp = &_wp;
 	config = &_config;
+//	pivot_column_index.set_empty_key(0xffffffff); // for googlehash
 }
 
 void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
-	pivot_column_index = std::unordered_map<uint64_t, uint32_t>();   // pivotID => column
 	vector<Cube> coface_entries; // pivotIDs of cofaces
 	auto ctl_size = ctr.size();
+	pivot_column_index.clear();
+	pivot_column_index.reserve(ctl_size);
+//	pivot_column_index.resize(ctl_size); // googlehash
 	CoboundaryEnumerator cofaces(dcg,dim);
 	unordered_map<uint32_t, CubeQue > recorded_wc;
 //	unordered_map<int, vector<Cube> > recorded_wc;   // for some unknown reasons, using vector directly with sorting when needed deteriorates performance.
 	queue<uint32_t> cached_column_idx;
 
-	pivot_column_index.reserve(ctl_size);
 	recorded_wc.reserve(ctl_size);
 
 	for(uint32_t i = 0; i < ctl_size; ++i){  // descending order of birth
@@ -109,7 +111,8 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 						wp->push_back(WritePairs(dim, ctr[i], pivot, dcg, config->print));
                     }
     //                cout << pivot.index << ",ap," << i << endl;
-                    pivot_column_index.emplace(pivot.index, i);
+                    //pivot_column_index.emplace(pivot.index, i);
+                    pivot_column_index[pivot.index] = i;
                     break;
                 }
                 for(auto e : coface_entries){
@@ -149,7 +152,8 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 							cached_column_idx.pop();
 						}
                     }
-                    pivot_column_index.emplace(pivot.index, i); // column i has the pivot
+                    // pivot_column_index.emplace(pivot.index, i); // column i has the pivot
+					pivot_column_index[pivot.index] = i;
                     double death = pivot.birth;
                     if (birth != death) {
 //						wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), pivot.x(), pivot.y(), pivot.z(), config->print));

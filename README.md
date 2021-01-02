@@ -71,16 +71,24 @@ To install Python module,
 To use from python,
 
     import cripser
-    cripser.computePH(arr,maxdim=2)
+    pd = cripser.computePH(arr,maxdim=2)
 
 where arr is a 2D or 3D numpy array of type numpy.float64.
+The result is stored in (n,9)-array, where n is the number of cycles.
+Each row consists of
+
+    dim birth   death   x1  y1  z1  x2  y2  z2
+
+where (x1,y1,z1) is the location of the creator cell of the cycle and (x2,y2,z2) is the location of the destroyer cell of the cycle.
+See also [Creator and Destroyer cells](#Creator-and-Destroyer-cells).
 
 If you want to compute with the T-construction instead of the V-construction,
 
     import tcripser
-    tcripser.computePH(arr,maxdim=2)
-
-(NOTE: for some unknown reasons, the computation of the T-construction is very slow on MacOS Big Sur (not on Linux nor on Windows))
+    pd = tcripser.computePH(arr,maxdim=2)
+    
+NOTE: Currently, the computation with the T-construction can be very slow when compiled with Apple's Clang 
+(it seems to be due to the implementation of std::unordered_map). 
 
 Look at the Jupyter notebook demo/cubicalripser.ipynb and https://github.com/shizuo-kaji/HomologyCNN for practical usage.
 
@@ -224,6 +232,24 @@ Here, (--embedded) converts the input I to -I^\infty described in the paper belo
 Look at the following paper for details:
 [Duality in Persistent Homology of Images by
 Adélie Garin, Teresa Heiss, Kelly Maggs, Bea Bleile, Vanessa Robins](https://arxiv.org/abs/2005.04597)
+
+## Creator and Destroyer cells
+The creator of a cycle is the cell which gives birth to the cycle. 
+For example, the voxel in a connected component with the lowest filtration value creates a 0-dimensional cycle,
+and the voxel which connects two separate connected components destroys the component with a higher birth time.
+The creator and the destroyer cells are not uniquely determined, but they provide useful information to localise the cycle.
+Cubical Ripser adopts the following convention on the location of these cells:
+when the lifetime of a cycle is finte,
+
+    arr[x2,y2,z2] - arr[x1,y1,z1] = death - birth = lifetime
+
+where arr is the image, (x1,y1,z1) is the location of the creator cell, and (x2,y2,z2) is the location of the destroyer cell.
+Note that when computed with the (--embedded) option, the roles of creator and destroyer are switched:
+
+    arr[x1,y1,z1] - arr[x2,y2,z2] = death - birth = lifetime
+
+
+The authors thank Nicholas Byrne for suggesting the convention and providing a test code.
 
 
 ## Difference with the original version

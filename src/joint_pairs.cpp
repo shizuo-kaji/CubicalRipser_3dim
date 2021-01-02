@@ -117,7 +117,7 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 
 		if(u != v){
 			double birth;
-			int birth_ind,death_ind;
+			uint64_t birth_ind,death_ind;
 			if(dset.birthtime[u] >= dset.birthtime[v]){
 				birth = dset.birthtime[u]; // the younger component u is killed
 				if(current_dim==0){
