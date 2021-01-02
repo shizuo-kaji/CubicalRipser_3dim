@@ -17,7 +17,8 @@ struct Config {
 	calculation_method method = LINKFIND;
 	double threshold = DBL_MAX;
 	int maxdim=2;;  // compute PH for these dimensions
-	bool print = false; // flag for printing to std
+	bool print = false; // flag for printing parsistence pairs to stdout
+	bool verbose = false;
 	bool tconstruction = false; // T-construction or V-construction
 	bool embedded = false; // embed image in the sphere (for alexander duality)
 	output_location location = LOC_YES; // flag for saving location

@@ -20,6 +20,7 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <cstdint>
 #include <cassert>
+#include <chrono>
 
 using namespace std;
 
@@ -41,6 +42,7 @@ void print_usage_and_exit(int exit_code) {
 	      << "Options:" << endl
 	      << endl
 	      << "  --help, -h          print this screen" << endl
+	      << "  --verbose, -v       " << endl
 	      << "  --threshold <t>, -t compute cubical complexes up to birth time <t>" << endl
 		  << "  --maxdim <t>, -m    compute persistent homology up to dimension <t>" << endl
 	      << "  --algorithm, -a     algorithm to compute the 0-dim persistent homology:" << endl
@@ -68,8 +70,10 @@ int main(int argc, char** argv){
 	// command-line argument parsing
 	for (int i = 1; i < argc; ++i) {
 		const string arg(argv[i]);
-		if (arg == "--help") {
+		if (arg == "--help" || arg == "-h") {
 			print_usage_and_exit(0);
+		} else if (arg == "--verbose" || arg == "-v") {
+			config.verbose = true;
 		} else if (arg == "--threshold" || arg == "-t") {
 			string parameter = string(argv[++i]);
 			size_t next_pos;
@@ -147,6 +151,7 @@ int main(int argc, char** argv){
 		{
 			dcg->loadImage(config.embedded);
 			config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
+            auto start0 = std::chrono::system_clock::now();
 			JointPairs* jp = new JointPairs(dcg, writepairs, config);
 			if(dcg->dim==1){
 				jp -> enum_edges({0},ctr);
@@ -155,21 +160,39 @@ int main(int argc, char** argv){
 			}else{
 				jp -> enum_edges({0,1,2},ctr);
 			}
-			jp -> joint_pairs_main(ctr,0); // dim0
+            // dim0
+			jp -> joint_pairs_main(ctr,0);
+            auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start0).count();
             betti.push_back(writepairs.size());
             cout << "the number of pairs in dim 0: " << betti[0] << endl;
+			if(config.verbose){
+	            cout << "computation took " << msec << " [msec]" << endl;
+			}
+            // dim 1 and 2
 			if(config.maxdim>0){
+                auto start1 = std::chrono::system_clock::now();
 				ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
 				cp -> compute_pairs_main(ctr); // dim1
                 betti.push_back(writepairs.size() - betti[0]);
+                auto msec1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start1).count();
                 cout << "the number of pairs in dim 1: " << betti[1] << endl;
+				if(config.verbose){
+    	            cout << "computation took " << msec1 << " [msec]" << endl;
+				}
 				if(config.maxdim>1){
+                    auto start2 = std::chrono::system_clock::now();
 					cp -> assemble_columns_to_reduce(ctr,2);
 					cp -> compute_pairs_main(ctr); // dim2
+                    auto msec2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start2).count();
                     betti.push_back(writepairs.size() - betti[0] - betti[1]);
                     cout << "the number of pairs in dim 2: " << betti[2] << endl;
+					if(config.verbose){
+        	            cout << "computation took " << msec2 << " [msec]" << endl;
+					}
 				}
 			}
+            auto mseca = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start0).count();
+            cout << "the whole computation took " << mseca << " [msec]" << endl;
 		break;
 		}
 		
@@ -204,6 +227,7 @@ int main(int argc, char** argv){
 				exit(-9);
 			}
 			dcg->loadImage(config.embedded);
+            auto start0 = std::chrono::system_clock::now();
 			JointPairs* jp = new JointPairs(dcg, writepairs, config);
 			if(dcg->dim==1){
 				jp -> enum_edges({0},ctr);
@@ -218,6 +242,8 @@ int main(int argc, char** argv){
 				jp -> joint_pairs_main(ctr,2); // dim2
 				cout << "the number of pairs in dim 2: " << writepairs.size() << endl;
 			}
+            auto mseca = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now()-start0).count();
+            cout << "computation took " << mseca << " [msec]" << endl;
 		break;
 		}		
 	}

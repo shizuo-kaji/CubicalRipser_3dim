@@ -87,9 +87,6 @@ If you want to compute with the T-construction instead of the V-construction,
     import tcripser
     pd = tcripser.computePH(arr,maxdim=2)
     
-NOTE: Currently, the computation with the T-construction can be very slow when compiled with Apple's Clang 
-(it seems to be due to the implementation of std::unordered_map). 
-
 Look at the Jupyter notebook demo/cubicalripser.ipynb and https://github.com/shizuo-kaji/HomologyCNN for practical usage.
 
 ### Command-line executable

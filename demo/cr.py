@@ -5,7 +5,7 @@
 import struct
 import numpy as np
 import argparse
-import os
+import os,time
 import matplotlib.pyplot as plt
 import cripser,tcripser
 from PIL import Image
@@ -60,6 +60,7 @@ for ffn in args.input:
 img_arr = np.squeeze(np.stack(images,axis=-1))
 print("input shape: ",img_arr.shape)
 
+start = time.time()
 if args.software=="gudhi":
     try:
         import gudhi
@@ -80,6 +81,8 @@ else:
         res = tcripser.computePH(img_arr,maxdim=args.maxdim,top_dim=args.top_dim,embedded=args.embedded)
     print("Betti numbers: ", [res[res[:,0]==i].shape[0] for i in range(3)])
 #    print(res[:10])
+
+print ("computation took:{} [sec]".format(time.time() - start))
 
 if args.output is not None:
     np.save(args.output,res)

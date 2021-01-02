@@ -16,16 +16,6 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-Cube::Cube(){
-	birth = 0;
-	index = NONE;
-}
-
-Cube::Cube(const Cube& v){
-	birth = v.birth;
-	index = v.index;
-}
-
 void Cube::copyCube(const Cube& v){
 	birth = v.birth;
 	index = v.index;

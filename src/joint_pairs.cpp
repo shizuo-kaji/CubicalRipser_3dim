@@ -179,10 +179,8 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim){
 		wp -> push_back(WritePairs(current_dim, min_birth, dcg -> threshold, min_idx%(dcg->ax), (min_idx/(dcg->ax))%(dcg->ay), (min_idx/(dcg->axy))%(dcg->az), 0,0,0, config->print));
 	}
 
-//	cout << ctr.size() << endl;
-
 	// remove unnecessary edges
-	if( (config->method == ALEXANDER && dcg->dim == 2) || config->maxdim==0 || current_dim==2){
+	if(config->maxdim==0 || current_dim>0){
 		return;
 	}else{
 		auto new_end = std::remove_if(ctr.begin(), ctr.end(),
