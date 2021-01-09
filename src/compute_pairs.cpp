@@ -29,33 +29,37 @@ using namespace std;
 #include "write_pairs.h"
 #include "compute_pairs.h"
 
+
 ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, Config& _config){
 	dcg = _dcg;
 	dim = 1; //  default method is LINK_FIND, where we skip dim=0
 	wp = &_wp;
 	config = &_config;
-//	pivot_column_index.set_empty_key(0xffffffff); // for googlehash
+#ifdef GOOGLE_HASH
+	pivot_column_index.set_empty_key(0xffffffff); // for googlehash
+#endif
 }
 
 void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 	vector<Cube> coface_entries; // pivotIDs of cofaces
 	auto ctl_size = ctr.size();
 	if(config->verbose){
-	    cout << "the number of columns to reduce: " << ctl_size << endl;
+	    cout << "# columns to reduce: " << ctl_size << endl;
 	}
 	pivot_column_index.clear();
-	pivot_column_index.reserve(ctl_size);
-//	pivot_column_index.resize(ctl_size); // googlehash
+#ifdef GOOGLE_HASH
+	pivot_column_index.resize(ctl_size); // googlehash
+#else
+    pivot_column_index.reserve(ctl_size);
+#endif
 	CoboundaryEnumerator cofaces(dcg,dim);
 	unordered_map<uint32_t, CubeQue > recorded_wc;
-//	unordered_map<int, vector<Cube> > recorded_wc;   // for some unknown reasons, using vector directly with sorting when needed deteriorates performance.
 	queue<uint32_t> cached_column_idx;
-
 	recorded_wc.reserve(ctl_size);
+    int num_apparent_pairs = 0;
 
 	for(uint32_t i = 0; i < ctl_size; ++i){  // descending order of birth
-		CubeQue working_coboundary;   // non-zero entries of the column
-        //    vector<Cube> working_coboundary;
+        CubeQue working_coboundary;   // non-zero entries of the column
 		double birth = ctr[i].birth;
 //        cout << i << endl;  ctr[i].print();   // debug
 
@@ -70,22 +74,12 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
             if(i!=j){
                 auto findWc = recorded_wc.find(j);
                 if(findWc != recorded_wc.end()){ // If the reduced form of the pivot column is cached
+                    cache_hit = true;
                     auto wc = findWc -> second;
                     while(!wc.empty()){ // add the cached pivot column
                         working_coboundary.push(wc.top());
                         wc.pop();
                     }
-                    cache_hit = true;
-                    /// If we use vector container
-                    // for(auto e:wc){
-                    //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
-                    //     if(idx==working_coboundary.end()){
-                    //         working_coboundary.push_back(e);
-                    //     }else{
-                    //         working_coboundary.erase(idx);
-                    //     }
-                    // }
-                    /// working_coboundary.insert(working_coboundary.end(), wc.begin(), wc.end());
                 }
 //				assert(might_be_apparent_pair == false); // As there is always cell-coface pair with the same birthtime, the flag should be set by the next block.
 			}
@@ -108,37 +102,17 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                     }
                 }
                 if (found_persistence_pair) {
-                    double death = pivot.birth;
-                    if (birth != death) {
-//						wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), pivot.x(), pivot.y(), pivot.z(), config->print));
-						wp->push_back(WritePairs(dim, ctr[i], pivot, dcg, config->print));
-                    }
-    //                cout << pivot.index << ",ap," << i << endl;
                     //pivot_column_index.emplace(pivot.index, i);
                     pivot_column_index[pivot.index] = i;
+                    num_apparent_pairs++;
                     break;
                 }
                 for(auto e : coface_entries){
                     working_coboundary.push(e);
                 }
-                /// If we use vector container
-                // for(auto e:coface_entries){
-                //     auto idx = std::find(working_coboundary.begin(),working_coboundary.end(),e);
-                //     if(idx==working_coboundary.end()){
-                //         working_coboundary.push_back(e);
-                //     }else{
-                //         working_coboundary.erase(idx);
-                //     }
-                // }
-                /// working_coboundary.insert(working_coboundary.end(), coface_entries.begin(), coface_entries.end());
             }
-            
-            /// If we use vector container
-            // sort(working_coboundary.begin(),working_coboundary.end(),CubeComparator());
             pivot = get_pivot(working_coboundary);
-            if (pivot.index != NONE){
-//                if(!working_coboundary.empty()){
-//                    pivot = working_coboundary.back();
+            if (pivot.index != NONE){ // if the column is not reduced to zero
                 auto pair = pivot_column_index.find(pivot.index);
                 if (pair != pivot_column_index.end()) {	// found entry to reduce
                     j = pair -> second;
@@ -146,7 +120,6 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 //                        cout << i << " to " << j << " " << pivot.index << endl;
                     continue;
                 } else { // If the pivot is new
-//                    if((int)working_coboundary.size() >= config->min_cache_size){
                     if(num_recurse >= config->min_recursion_to_cache){
                         add_cache(i, working_coboundary, recorded_wc);
 						cached_column_idx.push(i);
@@ -159,7 +132,6 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 					pivot_column_index[pivot.index] = i;
                     double death = pivot.birth;
                     if (birth != death) {
-//						wp->push_back(WritePairs(dim, birth, death, ctr[i].x(), ctr[i].y(), ctr[i].z(), pivot.x(), pivot.y(), pivot.z(), config->print));
 						wp->push_back(WritePairs(dim, ctr[i], pivot, dcg, config->print));
                     }
 //                        cout << pivot.index << ",f," << i << endl;
@@ -171,12 +143,14 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                 }
                 break;
             }
-
-		};
+		}
 	}
+    if(config->verbose){
+        cout << "# apparent pairs: " << num_apparent_pairs << endl;
+    }
 }
 
-// cache newly found pivot after reducing by mod 2
+// cache a new reduced column after mod 2
 void ComputePairs::add_cache(uint32_t i, CubeQue &wc, unordered_map<uint32_t, CubeQue>& recorded_wc){
 	CubeQue clean_wc;
 	while(!wc.empty()){
@@ -191,53 +165,25 @@ void ComputePairs::add_cache(uint32_t i, CubeQue &wc, unordered_map<uint32_t, Cu
 	recorded_wc.emplace(i,clean_wc);
 }
 
-// mod 2 operation
-Cube ComputePairs::pop_pivot(vector<Cube>& column){
-	if (column.empty()) {
-		return Cube();
-	} else {
-		auto pivot = column.back();
-		column.pop_back();
-		while (!column.empty() && column.back().index == pivot.index) {
-			column.pop_back();
-			if (column.empty())
-				return Cube();
-			else {
-				pivot = column.back();
-			column.pop_back();
-			}
-		}
-		return pivot;
-	}
-}
-
-Cube ComputePairs::get_pivot(vector<Cube>& column) {
-	Cube result = pop_pivot(column);
-	if (result.index != NONE) {
-		column.push_back(result);
-	}
-	return result;
-}
-
-// the same mod 2 operation for vector
+// get the pivot from a column after mod 2
 Cube ComputePairs::pop_pivot(CubeQue& column){
-	if (column.empty()) {
-		return Cube();
-	} else {
-		auto pivot = column.top();
-		column.pop();
+    if (column.empty()) {
+        return Cube();
+    } else {
+        auto pivot = column.top();
+        column.pop();
 
-		while (!column.empty() && column.top().index == pivot.index) {
-			column.pop();
-			if (column.empty())
-				return Cube();
-			else {
-				pivot = column.top();
-				column.pop();
-			}
-		}
-		return pivot;
-	}
+        while (!column.empty() && column.top().index == pivot.index) {
+            column.pop();
+            if (column.empty())
+                return Cube();
+            else {
+                pivot = column.top();
+                column.pop();
+            }
+        }
+        return pivot;
+    }
 }
 
 Cube ComputePairs::get_pivot(CubeQue& column) {
@@ -253,40 +199,30 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
 	dim = _dim;
 	ctr.clear();
 	double birth;
+    uint8_t max_m = 3;
 	if (dim == 0) {
-		for (uint32_t z = 0; z < dcg->az ; ++z) {
-			for (uint32_t y = 0; y < dcg->ay; ++y) {
-				for (uint32_t x = 0; x < dcg->ax; ++x) {
-					birth = dcg->getBirth(x,y,z,0,0);
-					if (birth < dcg->threshold) {
-						ctr.push_back(Cube(birth, x,y,z,0));
-					}
-				}
-			}
-		}
-	}else{ 
-		for (uint8_t m = 0; m < 3; ++m) {
-			for(uint32_t z = 0; z < dcg->az; ++z){
-				for (uint32_t y = 0; y < dcg->ay; ++y) {
-					for (uint32_t x = 0; x < dcg->ax; ++x) {
-						birth = dcg -> getBirth(x,y,z,m, dim);
+        max_m = 1;
+        pivot_column_index.clear();
+    }
+    for (uint8_t m = 0; m < max_m; ++m) {
+        for(uint32_t z = 0; z < dcg->az; ++z){
+            for (uint32_t y = 0; y < dcg->ay; ++y) {
+                for (uint32_t x = 0; x < dcg->ax; ++x) {
+                    birth = dcg -> getBirth(x,y,z,m, dim);
 //                        cout << x << "," << y << "," << z << ", " << m << "," << birth << endl;
-						Cube v = Cube(birth,x,y,z,m);
-						if (pivot_column_index.find(v.index) == pivot_column_index.end()) {
-							if (birth < dcg -> threshold) {
-								ctr.push_back(v);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+                    Cube v = Cube(birth,x,y,z,m);
+                    if (birth < dcg -> threshold && pivot_column_index.find(v.index) == pivot_column_index.end()) {
+                        ctr.push_back(v);
+                    }
+                }
+            }
+        }
+    }
     clock_t start = clock();
     sort(ctr.begin(), ctr.end(), CubeComparator());
 	if(config->verbose){
 		clock_t end = clock();
 		const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
-		cout << "Sorting Time: " <<  time << endl;
+		cout << "Sorting took: " <<  time << endl;
 	}
 }

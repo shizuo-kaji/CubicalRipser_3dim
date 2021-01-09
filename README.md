@@ -269,7 +269,7 @@ Its parallelised algorithm offers faster computation on multi-core machines.
 Also, it reads the input image by chunks and reduces boundary matrix on disk, so it requires small memory footprint.
 However, with input data with a huge boundary matrix, the disk IO becomes a bottleneck.
 
--[HomcCube](https://i-obayashi.info/software.html) By Ippei Obayashi.
+- [HomcCube](https://i-obayashi.info/software.html) By Ippei Obayashi.
 
 It computes for the V-construction of the image.
 It is integrated into Homcloud developed by the same author.

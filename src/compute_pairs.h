@@ -15,7 +15,12 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <unordered_map>
 #include "config.h"
-//#include "sparsehash/dense_hash_map"
+
+// #define GOOGLE_HASH
+
+#ifdef GOOGLE_HASH
+#include "sparsehash/dense_hash_map"
+#endif
 
 using namespace std;
 
@@ -24,8 +29,11 @@ typedef priority_queue<Cube, vector<Cube>, CubeComparator> CubeQue;
 class ComputePairs{
 private:
 	DenseCubicalGrids* dcg;
-	unordered_map<uint64_t, uint32_t> pivot_column_index;
-//	google::dense_hash_map<uint64_t, uint32_t> pivot_column_index;
+#ifdef GOOGLE_HASH
+    google::dense_hash_map<uint64_t, uint32_t> pivot_column_index;
+#else
+    unordered_map<uint64_t, uint32_t> pivot_column_index;
+#endif
 	uint8_t dim;
 	vector<WritePairs> *wp;
 	Config* config;
