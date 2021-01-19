@@ -249,14 +249,6 @@ Note that when computed with the (--embedded) option, the roles of creator and d
 The authors thank Nicholas Byrne for suggesting the convention and providing a test code.
 
 
-## Difference with the original version
-- the old (original) version is available at https://github.com/CubicalRipser/CubicalRipser_3dim
-- cleaned up/optimised codes (much less memory footprint, much faster for certain data; sometimes more than 100 times.)
-- Python friendly: see the Jupyter Notebook example found under the demo directory.
-- virtually infinite input size (compared to 510x510x510)
-- cache control
-- option to use the Alexander duality for the highest degree persistent homology
-- output birth/death location
 
 ## Other software for persistent homology of cubical complexes
 We give a referece to various software for persistent homology of images.
@@ -294,3 +286,16 @@ It computes for the V-construction of the image.
 - [Perseus](http://people.maths.ox.ac.uk/nanda/perseus/) by Vidit Nanda
 
 It computes for the V-construction of the image.
+
+## Release Notes
+- (v0.0.8) fixed memory leak in Python bindings (pointed out by Nicholas Byrne)
+- (v0.0.7) slight speed up
+- (v0.0.6) changes in the [definition of birth/death location](#Creator-and-Destroyer-cells) (suggested by Nicholas Byrne)
+- (up to v0.0.5, difference from the [original version](https://github.com/CubicalRipser/CubicalRipser_3dim)
+    - optimised codes (much less memory footprint, much faster for certain data; sometimes more than 100 times.)
+    - Python friendly: see the Jupyter Notebook example found under the demo directory.
+    - virtually infinite input size (compared to 510x510x510)
+    - cache control
+    - option to use the Alexander duality for the highest degree persistent homology
+    - V and T construction for building cubical complexes from an image
+    - output birth/death location

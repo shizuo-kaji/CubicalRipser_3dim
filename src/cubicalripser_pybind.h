@@ -101,6 +101,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 			jp -> enum_edges({0,1,2,3,4,5,6,7,8,9,10,11,12},ctr);
 			jp -> joint_pairs_main(ctr,2); // dim2
 		}
+		delete jp;
 	}else{
 		ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
 		vector<uint32_t> betti(0);
@@ -123,7 +124,10 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 				betti.push_back(writepairs.size() - betti[0] - betti[1]);
 			}
 		}
+		delete jp;
+		delete cp;
 	}
+	delete dcg;
 
 	// result
 	// determine shift between dcg and the voxel coordinates
@@ -144,5 +148,6 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 		*data.mutable_data(i, 7) = writepairs[i].death_y-pad_y;
 		*data.mutable_data(i, 8) = writepairs[i].death_z-pad_z;
 	}
+
 	return data;
 }
