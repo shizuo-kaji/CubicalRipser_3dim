@@ -91,14 +91,19 @@ if __name__ == "__main__":
     print("loading {}".format(args.input[0]))
     for ffn in tqdm(args.input):
         fn,ext = os.path.splitext(ffn)
+        dtype = int
         if ext == ".npy":
-            im = np.load(ffn).astype(np.float64)
+            im = np.load(ffn)
+            dtype = im.dtype
+            im = im.astype(np.float64)
         elif ext == ".dcm":
             ref_dicom_in = dicom.read_file(ffn, force=True)
     #        ref_dicom_in.file_meta.TransferSyntaxUID = dicom.uid.ImplicitVRLittleEndian
             im = ref_dicom_in.pixel_array.astype(np.float64) +ref_dicom_in.RescaleIntercept
         elif ext == ".csv":
             im = np.loadtxt(ffn,delimiter=",")
+            dtype = im.dtype
+            im = im.astype(np.float64)
         else:
             im = np.array(Image.open(ffn).convert('L'),dtype=np.float64)
         images.append(im)
@@ -145,4 +150,7 @@ if __name__ == "__main__":
     print ("computation took:{} [sec]".format(time.time() - start))
 
     if args.output is not None:
-        np.save(args.output,res)
+        if args.output.endswith(".csv"):
+            np.savetxt(args.output,res,delimiter=',',fmt='%d,%18.10f,%18.10f,%d,%d,%d,%d,%d,%d')
+        else:
+            np.save(args.output,res)

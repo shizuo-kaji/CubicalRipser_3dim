@@ -90,6 +90,8 @@ If you want to compute with the T-construction instead of the V-construction,
 Look at the Jupyter notebook demo/cubicalripser.ipynb and https://github.com/shizuo-kaji/HomologyCNN for practical usage.
 
 ### Command-line executable
+(See also [2D Image file](#2D-Image-file) for a Python-based command-line utility.)
+
 To see the command-line options:
 
     % ./cubicalripser
@@ -108,15 +110,26 @@ Cubical Ripser accepts 1D/2D/3D Numpy arrays
 
 ## Input file format
 The python version accepts NUMPY arrays as input.
+A small utility is included that converts images in various formats into NUMPU arrays.
 
 The command-line version of CubicalRipser accepts three types of input files: NUMPY (.npy), Perseus TEXT (.txt), CSV (.csv), DIPHA (.complex).
 
 ### 2D Image file
-Given a JPEG image **input.jpg**, we can convert it into a 2D Numpy array **input.npy** by
+Given a JPEG image **input.jpg**, we can compute its persistent homology by
+
+    % python demo/cr.py input.jpg -o input.csv
+
+The result is saved in the CSV file **input.csv** whose rows look
+
+    dim birth   death   x1  y1  z1  x2  y2  z2
+
+where (x1,y1,z1) is the location of the creator cell of the cycle and (x2,y2,z2) is the location of the destroyer cell of the cycle.
+
+Alternatively, we can first convert the image into a 2D Numpy array **input.npy** by
 
     % python demo/img2npy.py input.jpg input.npy
 
-Then, we can compute its persistent homology by the python module:
+and compute its persistent homology by the python module:
 ```
 import numpy as np                                      # import the Numpy module
 import cripser                                          # import the Cubical Ripser python module
