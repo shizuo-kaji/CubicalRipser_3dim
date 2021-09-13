@@ -136,8 +136,8 @@ import cripser                                          # import the Cubical Rip
 arr = np.load("input.npy").astype(np.float64)           # load the image in the numpy array format
 result = cripser.computePH(arr,maxdim=1)   # compute the persistent homology up to degree 1
 ```
-Here, **result** is another 2D Numpy array of shape (M,6), where M is the number of cycles.
-The none numbers of each row indicate the dimension of the cycle, birth-time, death-time, location (x,y,z) of the cell giving birth to the cycle, and location (x,y,z) of the cell destroying the cycle.
+Here, **result** is another 2D Numpy array of shape (M,9), where M is the number of cycles.
+The none numbers of each row indicate the dimension of the cycle, birth-time, death-time, location (x1,y1,z1) of the cell giving birth to the cycle, and location (x2,y2,z2) of the cell destroying the cycle.
 
 ### 3D Volume file
 Given a series of DICOM files named **input00.dcm**, **input01.dcm**, **input02.dcm**...,
