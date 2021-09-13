@@ -259,7 +259,6 @@ The comments are based on our limited understanding and tests, and hence, could 
 It computes for the V-construction of the image.
 Its parallelised algorithm offers faster computation on multi-core machines.
 Also, it reads the input image by chunks and reduces boundary matrix on disk, so it requires small memory footprint.
-However, with input data with a huge boundary matrix, the disk IO becomes a bottleneck.
 
 - [HomcCube](https://i-obayashi.info/software.html) By Ippei Obayashi.
 

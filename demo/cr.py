@@ -14,12 +14,16 @@ from scipy.ndimage.morphology import distance_transform_edt
 from skimage.filters import threshold_otsu
 from multiprocessing import Pool
 from concurrent.futures import ThreadPoolExecutor,ProcessPoolExecutor
+from skimage.transform import rescale
+from tqdm import tqdm
 
-num = lambda val : int(re.sub("\\D", "", val))
+num = lambda val : int(re.sub("\\D", "", val+"0"))
 
-
-def dt(img):
-    bw_img = (img >= threshold_otsu(img))
+def dt(img, threshold):
+    if threshold is None:
+        bw_img = (img >= threshold_otsu(img))
+    else:
+        bw_img = (img >= threshold)
     dt_img = distance_transform_edt(bw_img)-distance_transform_edt(~bw_img)
     return(dt_img)
 
@@ -45,6 +49,9 @@ if __name__ == "__main__":
     parser.add_argument('--batch', '-b', type=int, default=0, help='batch computation (num of threads)')
     parser.add_argument('--imgtype', '-it', type=str, default=None)
     parser.add_argument('--distance_transform', '-dt', action="store_true", help="apply distance transform before computing PH")
+    parser.add_argument('--threshold', '-th', type=int, default=None, help='binarisation threshold for distance transform')
+    parser.add_argument('--scaling_factor','-sf', default=1,type=float, help="scale before computation for saving comutational cost")
+    parser.add_argument('--save_volume', '-sv', action="store_true", default=False)
     args = parser.parse_args()
 
     if args.batch>0:
@@ -63,6 +70,8 @@ if __name__ == "__main__":
         exit(0)
 
     if os.path.isdir(args.input[0]):
+        if args.output is None:
+            args.output = os.path.basename(os.path.normpath(args.input[0]))
         fns = os.listdir(args.input[0])
         args.input = [os.path.join(args.input[0],f) for f in fns]
 
@@ -76,11 +85,11 @@ if __name__ == "__main__":
         except:
             print("Install pydicom first by: pip install pydicom")
             exit()
-            
+
     images = []
 
-    for ffn in args.input:
-        print("processing {}".format(ffn))
+    print("loading {}".format(args.input[0]))
+    for ffn in tqdm(args.input):
         fn,ext = os.path.splitext(ffn)
         if ext == ".npy":
             im = np.load(ffn).astype(np.float64)
@@ -92,22 +101,33 @@ if __name__ == "__main__":
             im = np.loadtxt(ffn,delimiter=",")
         else:
             im = np.array(Image.open(ffn).convert('L'),dtype=np.float64)
-
         images.append(im)
 
     img_arr = np.squeeze(np.stack(images,axis=-1))
+
+    if args.save_volume:
+        import nrrd
+        nrrd.write(args.output+".nrrd", (img_arr >= args.threshold).astype(np.int8), index_order='C')
+
     if args.distance_transform:
-        img_arr = dt(img_arr)
+        print("computing distance transform {}".format(args.input[0]))
+        img_arr = dt(img_arr, args.threshold)
+
+    if args.scaling_factor != 1:
+        print("scaling {}".format(args.input[0]))
+        img_arr = rescale(img_arr,args.scaling_factor,order=1, mode="reflect",preserve_range=True)
+
     print("input shape: ",img_arr.shape)
+    print("computing PH {}".format(args.input[0]))
 
     start = time.time()
     if args.software=="gudhi":
         try:
             import gudhi
         except:
-            print("Install pydicom first by: conda install -c conda-forge gudhi")
+            print("Install gudhi first by: conda install -c conda-forge gudhi")
             exit()
-        
+
         print("Computing PH with GUDHI (T-construction)")
         gd = gudhi.CubicalComplex(top_dimensional_cells=img_arr)
     #    gd.compute_persistence()
