@@ -117,9 +117,9 @@ The command-line version of CubicalRipser accepts three types of input files: NU
 ### 2D Image file
 Given a JPEG image **input.jpg**, we can compute its persistent homology by
 
-    % python demo/cr.py input.jpg -o input.csv
+    % python demo/cr.py input.jpg -o output.csv
 
-The result is saved in the CSV file **input.csv** whose rows look
+The result is saved in the CSV file **output.csv** whose rows look
 
     dim birth   death   x1  y1  z1  x2  y2  z2
 
@@ -140,11 +140,17 @@ Here, **result** is another 2D Numpy array of shape (M,9), where M is the number
 The none numbers of each row indicate the dimension of the cycle, birth-time, death-time, location (x1,y1,z1) of the cell giving birth to the cycle, and location (x2,y2,z2) of the cell destroying the cycle.
 
 ### 3D Volume file
-Given a series of DICOM files named **input00.dcm**, **input01.dcm**, **input02.dcm**...,
-one can convert them to a single 3D Numpy array **volume.npy**
+Given a series of DICOM files named **input00.dcm**, **input01.dcm**, **input02.dcm**... under the directory **dicom**,
+we can compute its persistent homology by
+
+    % python demo/cr.py dicom  --sort -it dcm -o output.csv
+
+by reading .dcm files from the directry **dicom** in a sorted order.
+
+Alternatively, we can first convert the DICOM files to a single 3D Numpy array **volume.npy**
 that is compatible with Cubical Ripser by
 
-    % python demo/img2npy.py input*.dcm volume.npy 
+    % python demo/img2npy.py dicom/input*.dcm volume.npy 
 
 A series of image files such as JPEG and PNG files (as long as the Pillow library can handle them)
 can also be made into a volume in a similar way:

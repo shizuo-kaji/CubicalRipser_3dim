@@ -72,8 +72,11 @@ if __name__ == "__main__":
     if os.path.isdir(args.input[0]):
         if args.output is None:
             args.output = os.path.basename(os.path.normpath(args.input[0]))
-        fns = os.listdir(args.input[0])
-        args.input = [os.path.join(args.input[0],f) for f in fns]
+        if args.imgtype is not None:
+            args.input = glob.glob(os.path.join(args.input[0],"**/*.{}".format(args.imgtype)), recursive=True)
+        else:
+            fns = os.listdir(args.input[0])
+            args.input = [os.path.join(args.input[0],f) for f in fns]
 
     if args.sort:
         args.input.sort(key=num)
@@ -123,7 +126,7 @@ if __name__ == "__main__":
         img_arr = rescale(img_arr,args.scaling_factor,order=1, mode="reflect",preserve_range=True)
 
     print("input shape: ",img_arr.shape)
-    print("computing PH {}".format(args.input[0]))
+    print("computing PH..")
 
     start = time.time()
     if args.software=="gudhi":
