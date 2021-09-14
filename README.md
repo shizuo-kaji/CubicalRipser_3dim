@@ -277,7 +277,7 @@ The comments are based on our limited understanding and tests, and hence, could 
 
 It computes for the V-construction of the image.
 Its parallelised algorithm offers faster computation on multi-core machines.
-Also, it reads the input image so that it requires small memory footprint.
+Also, it reads the input image in small chunks so that it requires much less memory footprint.
 
 - [HomcCube](https://i-obayashi.info/software.html) By Ippei Obayashi.
 
