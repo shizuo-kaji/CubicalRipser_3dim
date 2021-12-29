@@ -15,17 +15,13 @@ from skimage.filters import threshold_otsu
 from multiprocessing import Pool
 from concurrent.futures import ThreadPoolExecutor,ProcessPoolExecutor
 from skimage.transform import rescale
-from tqdm import tqdm
+
+try:
+    from tqdm import tqdm
+except:
+    tqdm = lambda x: x
 
 num = lambda val : int(re.sub("\\D", "", val+"0"))
-
-def dt(img, threshold):
-    if threshold is None:
-        bw_img = (img >= threshold_otsu(img))
-    else:
-        bw_img = (img >= threshold)
-    dt_img = distance_transform_edt(bw_img)-distance_transform_edt(~bw_img)
-    return(dt_img)
 
 def comp_PH(fn):
     im = np.array(Image.open(fn).convert('L'),dtype=np.float64)
@@ -35,6 +31,105 @@ def comp_PH(fn):
     np.save(os.path.splitext(fn)[0],pd)
     return
 
+# load a series of files to form a volume
+def load_vol(fns,transform=None,shift_value=None, threshold=None,scaling_factor=1,negative=False,sort=False,origin=(0,0,0)):
+    print("loading {}".format(fns[0]))
+    if sort:
+        fns.sort(key=num)
+    images = []
+    for ffn in fns:
+        fn,ext = os.path.splitext(ffn)
+        ext = ext.lower()
+        dtype = int
+        if ext == ".npy":
+            im = np.load(ffn)
+            dtype = im.dtype
+        elif ext == ".dcm":
+            ref_dicom_in = dicom.read_file(ffn, force=True)
+    #        ref_dicom_in.file_meta.TransferSyntaxUID = dicom.uid.ImplicitVRLittleEndian
+            im = ref_dicom_in.pixel_array +ref_dicom_in.RescaleIntercept
+        elif ext == ".csv":
+            im = np.loadtxt(ffn,delimiter=",")
+            dtype = im.dtype
+        elif ext == ".nrrd":
+            im, header = nrrd.read(ffn, index_order='C')
+            dtype = im.dtype
+        elif ext == ".complex": # DIPHA
+            dat = open(ffn,'rb').read()
+            magic,tp,sz,dim = struct.unpack_from("qqqq",dat,0)
+            sp = struct.unpack_from("q"*dim,dat,8*4) # offset = 8byte x 4
+            im = np.array(struct.unpack_from("d"*sz,dat,8*(4+dim))).reshape(sp)
+        else:
+            im = np.array(Image.open(ffn).convert('L'))
+        images.append(im)
+
+    img_arr = np.squeeze(np.stack(images,axis=0)) #(z,y,x)
+
+    # pre-process
+    if transform is not None:
+        if threshold is None:
+            img_arr = (img_arr >= threshold_otsu(img_arr))
+        else:
+            img_arr = (img_arr >= threshold)
+
+        if 'distance' in transform: # distance from the background
+            if '_inv' in transform:
+                img_arr = ~img_arr
+            im = distance_transform_edt(img_arr)
+            if 'signed' in transform:
+                im -= distance_transform_edt(~img_arr)
+            img_arr = im
+        elif transform == 'signed_distance':
+            img_arr = distance_transform_edt(img_arr)-distance_transform_edt(~img_arr)
+        elif transform in ['downward','upward']:
+            null_idx = img_arr == 0
+            ## height transform
+            if len(img_arr.shape) == 3: #(z,y,x)
+                h = np.arange(img_arr.shape[0]).reshape(-1,1,1)
+            else:
+                h = np.arange(img_arr.shape[0]).reshape(-1,1)
+            if transform=='upward':
+                #h = np.max(h) - h
+                h = -h
+            img_arr = (img_arr * h)
+            img_arr[null_idx] = np.max(img_arr)
+        elif 'radial' in transform:
+            null_idx = img_arr == 0
+            h = np.linalg.norm(np.stack(np.meshgrid(*map(range,img_arr.shape),indexing='ij'),axis=-1)-np.array(origin), axis=-1)
+            img_arr = (img_arr * h)
+            if transform=='radial_inv':
+                #img_arr = np.max(img_arr) - img_arr
+                img_arr *= -1
+            else:
+                img_arr[null_idx] = np.max(h)
+        elif 'geodesic' in transform:
+            import skfmm
+            roi = np.ones(img_arr.shape)
+            if len(roi.shape)==3:
+                roi[origin[0],origin[1],origin[2]] = 0
+            else:
+                roi[origin[0],origin[1]] = 0
+            img_arr = skfmm.distance(np.ma.MaskedArray(roi,~img_arr))  # mask=True specifies the obstacle
+            if '_inv' in transform:
+                img_arr *= -1
+            img_arr = img_arr.filled(fill_value=img_arr.max())
+            #print(roi.min(),roi.max())
+
+    # data type
+    img_arr = img_arr.astype(np.float64)
+
+    if scaling_factor != 1:
+        img_arr = rescale(img_arr,scaling_factor,order=1, mode="reflect",preserve_range=True)
+
+    if negative:
+        img_arr *= -1
+
+    if shift_value:
+        img_arr += shift_value
+
+    print("input shape: ",img_arr.shape)
+    return(img_arr,dtype)
+
 #%%
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("")
@@ -42,20 +137,21 @@ if __name__ == "__main__":
     parser.add_argument('--output', '-o', default=None)
     parser.add_argument('--filtration', '-f', choices=['V','T'], default='V')
     parser.add_argument('--top_dim',action='store_true')
-    parser.add_argument('--embedded', '-e', action='store_true')
+    parser.add_argument('--embedded', '-e', action='store_true', help='compute for the Alexander dual complex')
+    parser.add_argument('--negative', '-n', action='store_true', help='negate the pixel values')
     parser.add_argument('--maxdim','-m', default=2,type=int)
     parser.add_argument('--sort','-s', action='store_true', help="Sort file names before stacking")
     parser.add_argument('--software',type=str,default="cubicalripser")
     parser.add_argument('--batch', '-b', type=int, default=0, help='batch computation (num of threads)')
     parser.add_argument('--imgtype', '-it', type=str, default=None)
-    parser.add_argument('--distance_transform', '-dt', action="store_true", help="apply distance transform before computing PH")
-    parser.add_argument('--threshold', '-th', type=int, default=None, help='binarisation threshold for distance transform')
+    parser.add_argument('--transform', '-tr', choices=[None,'distance','signed_distance','distance_inv','signed_distance_inv','radial','radial_inv','geodesic','geodesic_inv','upward','downward'], help="apply transform")
+    parser.add_argument('--origin', type=int, nargs='*', default=(0,0), help='origin for the radial transformation (z,y,x)')
+    parser.add_argument('--shift_value', '-sv', default=None, type=float, help='pixel values are shifted before computing PH')
+    parser.add_argument('--threshold', '-th', type=float, default=None, help='binarisation threshold for distance transform')
     parser.add_argument('--scaling_factor','-sf', default=1,type=float, help="scale before computation for saving comutational cost")
-    parser.add_argument('--save_volume', '-sv', action="store_true", default=False)
     args = parser.parse_args()
 
     if args.batch>0:
-        from tqdm import tqdm
         fns = []
         if args.imgtype is None:
             args.imgtype = "png"
@@ -73,61 +169,32 @@ if __name__ == "__main__":
         if args.output is None:
             args.output = os.path.basename(os.path.normpath(args.input[0]))
         if args.imgtype is not None:
-            args.input = glob.glob(os.path.join(args.input[0],"**/*.{}".format(args.imgtype)), recursive=True)
+            fns = glob.glob(os.path.join(args.input[0],"**/*.{}".format(args.imgtype)), recursive=True)
         else:
             fns = os.listdir(args.input[0])
-            args.input = [os.path.join(args.input[0],f) for f in fns]
+            fns = [os.path.join(args.input[0],f) for f in fns]
+    else:
+        fns = args.input
 
-    if args.sort:
-        args.input.sort(key=num)
-
-    fn,ext = os.path.splitext(args.input[0])
+    fn,ext = os.path.splitext(fns[0])
+    ext = ext.lower()
     if ext == ".dcm":
         try:
             import pydicom as dicom
         except:
             print("Install pydicom first by: pip install pydicom")
             exit()
+    if ext == ".nrrd":
+        try:
+            import nrrd
+        except:
+            print("Install nrrd first by: pip install pynrrd")
+            exit()
 
-    images = []
+    img_arr, dtype = load_vol(fns,args.transform,args.shift_value,args.threshold,args.scaling_factor,args.negative,args.sort,origin=args.origin)
 
-    print("loading {}".format(args.input[0]))
-    for ffn in tqdm(args.input):
-        fn,ext = os.path.splitext(ffn)
-        dtype = int
-        if ext == ".npy":
-            im = np.load(ffn)
-            dtype = im.dtype
-            im = im.astype(np.float64)
-        elif ext == ".dcm":
-            ref_dicom_in = dicom.read_file(ffn, force=True)
-    #        ref_dicom_in.file_meta.TransferSyntaxUID = dicom.uid.ImplicitVRLittleEndian
-            im = ref_dicom_in.pixel_array.astype(np.float64) +ref_dicom_in.RescaleIntercept
-        elif ext == ".csv":
-            im = np.loadtxt(ffn,delimiter=",")
-            dtype = im.dtype
-            im = im.astype(np.float64)
-        else:
-            im = np.array(Image.open(ffn).convert('L'),dtype=np.float64)
-        images.append(im)
-
-    img_arr = np.squeeze(np.stack(images,axis=-1))
-
-    if args.save_volume:
-        import nrrd
-        nrrd.write(args.output+".nrrd", (img_arr >= args.threshold).astype(np.int8), index_order='C')
-
-    if args.distance_transform:
-        print("computing distance transform {}".format(args.input[0]))
-        img_arr = dt(img_arr, args.threshold)
-
-    if args.scaling_factor != 1:
-        print("scaling {}".format(args.input[0]))
-        img_arr = rescale(img_arr,args.scaling_factor,order=1, mode="reflect",preserve_range=True)
-
-    print("input shape: ",img_arr.shape)
-    print("computing PH..")
-
+    # compute PH
+    print("computing PH for {}..".format(fns[0]))
     start = time.time()
     if args.software=="gudhi":
         try:
@@ -142,7 +209,7 @@ if __name__ == "__main__":
         res = np.array(gd.persistence(2,0)) # coeff = 2
         print("Betti numbers: ", gd.persistent_betti_numbers(np.inf,-np.inf))
 
-    else:
+    else: # cripser
         if args.filtration=='V':
             res = cripser.computePH(img_arr,maxdim=args.maxdim,top_dim=args.top_dim,embedded=args.embedded)
         else:
@@ -152,6 +219,7 @@ if __name__ == "__main__":
 
     print ("computation took:{} [sec]".format(time.time() - start))
 
+    # save results to file
     if args.output is not None:
         if args.output.endswith(".csv"):
             np.savetxt(args.output,res,delimiter=',',fmt='%d,%18.10f,%18.10f,%d,%d,%d,%d,%d,%d')

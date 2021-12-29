@@ -31,7 +31,7 @@ any later version.
 ### Recommended: pip
 Install the Python module only:
 
-    % pip install git+https://github.com/shizuo-kaji/CubicalRipser_3dim
+    % pip install -U git+https://github.com/shizuo-kaji/CubicalRipser_3dim
 
 ### Binary
 Precompiled Windows/Mac command-line binaries are found under win64/mac directories.
