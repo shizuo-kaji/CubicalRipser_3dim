@@ -46,12 +46,6 @@ To build the command-line executable from source:
     % cmake ..
     % make
 
-On Windows, you may get an error like "Python config failure: Python is 64-bit, chosen compiler is 32-bit".
-Then, you have to specify your compiler; for example
-
-    % cmake .. -G"Visual Studio 15 2017 Win64"
-
-
 The executable is "cubicalripser".
 
 If cmake is not available on your system, you can also do
@@ -64,6 +58,25 @@ but perhaps you have to manually modify "Makefile".
 To install Python module,
 
     % pip install .
+
+
+### Windows specifics
+On Windows, you may get an error like "Python config failure: Python is 64-bit, chosen compiler is 32-bit".
+Then, you have to specify your compiler; for example
+
+    % cmake .. -G"Visual Studio 15 2017 Win64"
+    % cmake --build . --target ALL_BUILD --config Release
+
+Also, due to the non-standard type used in pybind11, you may encounter an error 
+saying "the type ssize_t is undefined". This error may be resolved by adding
+
+    typedef SSIZE_T ssize_t;
+
+right after the first appearance of 
+
+    #if defined(_MSC_VER)
+
+in pybind11/include/pybind11/numpy.h
 
 
 ## How to use

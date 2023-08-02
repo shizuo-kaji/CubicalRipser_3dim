@@ -8,7 +8,7 @@ import os
 from PIL import Image
 import re,struct
 import shutil
-from scipy.ndimage.morphology import distance_transform_edt
+from scipy.ndimage import distance_transform_edt
 from skimage.filters import threshold_otsu
 from skimage.transform import rescale
 from skimage import io
@@ -30,10 +30,12 @@ parser.add_argument('output', help="output filename (.npy or .nrrd or .raw or .p
 parser.add_argument('--scaling_factor','-sf', type=float, default=1)
 parser.add_argument('--forceSpacing', '-fs', type=float, help='scale dicom to match the specified spacing (pixel size)')
 parser.add_argument('--tile','-tl', type=int, default=1)
-parser.add_argument('--transform', '-tr', choices=[None,'distance','signed_distance','distance_inv','signed_distance_inv','radial','radial_inv','geodesic','geodesic_inv','upward','downward'], help="apply transform")
+parser.add_argument('--transform', '-tr', choices=[None,'binarisation','distance','signed_distance','distance_inv','signed_distance_inv','radial','radial_inv','geodesic','geodesic_inv','upward','downward'], help="apply transform")
 parser.add_argument('--transpose', '-tp', type=int, nargs='*', default=None, help='axis order (argument to numpy.transpose)')
 parser.add_argument('--origin', '-o', type=int, nargs='*', default=(0,0), help='origin for the radial transformation (z,y,x)')
+parser.add_argument('--origin_mask', '-om', type=str, default=None, help='nrrd file of the same dimension with the input specifying the object from which the geodesic distance will be calculated in geodesic mode')
 parser.add_argument('--threshold', '-th', type=float, default=None, help='binarisation threshold for distance transform')
+parser.add_argument('--threshold_upper_limit', '-thu', type=float, default=None, help='binarisation threshold for distance transform')
 parser.add_argument('--shift_value', '-sv', default=0, type=int, help='pixel values are shifted before computing PH')
 parser.add_argument('--dtype','-d', type=str, default=None, choices=dtype.keys())
 parser.add_argument('--sort','-s', action='store_true', help="Sort file names before stacking")
@@ -127,10 +129,16 @@ if args.tile > 1:
 
 # thresholding and transform
 if args.transform is not None:
-    if args.threshold is None:
-        img_arr = (img_arr >= threshold_otsu(img_arr))
-    else:
-        img_arr = (img_arr >= args.threshold)
+    # binarisation
+    if args.threshold is not None:
+        if args.threshold_upper_limit is not None:
+            img_arr = np.logical_and(img_arr >= args.threshold,img_arr <= args.threshold_upper_limit)
+        else:    
+            img_arr = (img_arr >= args.threshold)
+    elif args.threshold_upper_limit is not None:
+        img_arr = (img_arr <= args.threshold_upper_limit)
+    else:        
+        img_arr = (img_arr >= args.threshold_otsu(img_arr))
 
     if 'distance' in args.transform: # distance from the background
         if '_inv' in args.transform:
@@ -151,7 +159,7 @@ if args.transform is not None:
         if args.transform=='upward':
             #h = np.max(h) - h
             h = -h
-        img_arr = (img_arr * h)
+        img_arr = (img_arr * h).astype(np.int32)
         img_arr[null_idx] = np.max(img_arr)
     elif 'radial' in args.transform:
         null_idx = img_arr == 0
@@ -169,11 +177,17 @@ if args.transform is not None:
             print("install skfmm by 'pip install scikit-fmm'")
             exit()
         roi = np.ones(img_arr.shape)
-        if len(roi.shape)==3:
-            roi[args.origin[0],args.origin[1],args.origin[2]] = 0
+        if args.origin_mask is not None:
+            skl, header = nrrd.read(args.origin_mask, index_order='C')
+            roi[skl>0]=0  # >0 specifies outside the object
+            #print(roi.size, roi.sum(), skl.sum(),skl.min(),skl.max())
         else:
-            roi[args.origin[0],args.origin[1]] = 0
-        img_arr = skfmm.distance(np.ma.MaskedArray(roi,~img_arr))  # mask=True specifies the obstacle
+            if len(roi.shape)==3:
+                roi[args.origin[0],args.origin[1],args.origin[2]] = 0
+            else:
+                roi[args.origin[0],args.origin[1]] = 0
+        # compute the signed distance from the 0-contour
+        img_arr = skfmm.distance(np.ma.MaskedArray(roi,~img_arr))  # outside the region (~img_arr) is masked
         if '_inv' in args.transform:
             img_arr *= -1
         img_arr = img_arr.filled(fill_value=img_arr.max())
@@ -187,10 +201,10 @@ if args.dtype is not None:
     img_arr = img_arr.astype(dtype[args.dtype])
 
 ### save
-print("output ",args.output, " shape: ",img_arr.shape, " dtype: ",img_arr.dtype, " values: {} -- {}".format(img_arr.min(),img_arr.max()))
-
 tofn,ext = os.path.splitext(args.output)
 ext = ext.lower()
+print("output ",args.output, " shape: ",img_arr.shape, " dtype: ",img_arr.dtype, " ftype: ",ext, "values: {} -- {}".format(img_arr.min(),img_arr.max()))
+
 if ext == ".raw":  # for use with cubicle
     data = img_arr.astype(np.uint16).flatten()
     with open(args.output, 'wb') as out:

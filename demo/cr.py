@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 import cripser,tcripser
 from PIL import Image
 import re, glob
-from scipy.ndimage.morphology import distance_transform_edt
-from skimage.filters import threshold_otsu
+from scipy.ndimage import distance_transform_edt
+from skimage.filters import threshold_otsu,threshold_niblack,threshold_sauvola
 from multiprocessing import Pool
 from concurrent.futures import ThreadPoolExecutor,ProcessPoolExecutor
 from skimage.transform import rescale
@@ -25,14 +25,14 @@ num = lambda val : int(re.sub("\\D", "", val+"0"))
 
 def comp_PH(fn):
     im = np.array(Image.open(fn).convert('L'),dtype=np.float64)
-    im = dt(im)
+    #im = dt(im)
     pd = cripser.computePH(im)
     #pd = cripser.computePH(im,maxdim=args.maxdim,top_dim=args.top_dim,embedded=args.embedded)
     np.save(os.path.splitext(fn)[0],pd)
     return
 
 # load a series of files to form a volume
-def load_vol(fns,transform=None,shift_value=None, threshold=None,scaling_factor=1,negative=False,sort=False,origin=(0,0,0)):
+def load_vol(fns,transform=None,shift_value=None, threshold=None,threshold_upper_limit=None,scaling_factor=1,negative=False,sort=False,origin=(0,0,0)):
     print("loading {}".format(fns[0]))
     if sort:
         fns.sort(key=num)
@@ -67,11 +67,17 @@ def load_vol(fns,transform=None,shift_value=None, threshold=None,scaling_factor=
 
     # pre-process
     if transform is not None:
-        if threshold is None:
+        # binarisation
+        if threshold is not None:
+            if threshold_upper_limit is not None:
+                img_arr = np.logical_and(img_arr >= threshold,img_arr <= threshold_upper_limit)
+            else:    
+                img_arr = (img_arr >= threshold)
+        elif threshold_upper_limit is not None:
+            img_arr = (img_arr <= threshold_upper_limit)
+        else:        
             img_arr = (img_arr >= threshold_otsu(img_arr))
-        else:
-            img_arr = (img_arr >= threshold)
-
+        
         if 'distance' in transform: # distance from the background
             if '_inv' in transform:
                 img_arr = ~img_arr
@@ -103,13 +109,23 @@ def load_vol(fns,transform=None,shift_value=None, threshold=None,scaling_factor=
             else:
                 img_arr[null_idx] = np.max(h)
         elif 'geodesic' in transform:
-            import skfmm
+            try:
+                import skfmm
+            except:
+                print("install skfmm by 'pip install scikit-fmm'")
+                exit()
             roi = np.ones(img_arr.shape)
-            if len(roi.shape)==3:
-                roi[origin[0],origin[1],origin[2]] = 0
+            if args.origin_mask is not None:
+                skl, header = nrrd.read(args.origin_mask, index_order='C')
+                roi[skl>0]=0  # >0 specifies outside the object
+                #print(roi.size, roi.sum(), skl.sum(),skl.min(),skl.max())
             else:
-                roi[origin[0],origin[1]] = 0
-            img_arr = skfmm.distance(np.ma.MaskedArray(roi,~img_arr))  # mask=True specifies the obstacle
+                if len(roi.shape)==3:
+                    roi[args.origin[0],args.origin[1],args.origin[2]] = 0
+                else:
+                    roi[args.origin[0],args.origin[1]] = 0
+            # compute the signed distance from the 0-contour
+            img_arr = skfmm.distance(np.ma.MaskedArray(roi,~img_arr))  # outside the region (~img_arr) is masked
             if '_inv' in transform:
                 img_arr *= -1
             img_arr = img_arr.filled(fill_value=img_arr.max())
@@ -146,8 +162,10 @@ if __name__ == "__main__":
     parser.add_argument('--imgtype', '-it', type=str, default=None)
     parser.add_argument('--transform', '-tr', choices=[None,'distance','signed_distance','distance_inv','signed_distance_inv','radial','radial_inv','geodesic','geodesic_inv','upward','downward'], help="apply transform")
     parser.add_argument('--origin', type=int, nargs='*', default=(0,0), help='origin for the radial transformation (z,y,x)')
+    parser.add_argument('--origin_mask', '-om', type=str, default=None, help='nrrd file of the same dimension with the input specifying the object from which the geodesic distance will be calculated in geodesic mode')
     parser.add_argument('--shift_value', '-sv', default=None, type=float, help='pixel values are shifted before computing PH')
     parser.add_argument('--threshold', '-th', type=float, default=None, help='binarisation threshold for distance transform')
+    parser.add_argument('--threshold_upper_limit', '-thu', type=float, default=None, help='binarisation threshold for distance transform')
     parser.add_argument('--scaling_factor','-sf', default=1,type=float, help="scale before computation for saving comutational cost")
     args = parser.parse_args()
 
@@ -191,7 +209,7 @@ if __name__ == "__main__":
             print("Install nrrd first by: pip install pynrrd")
             exit()
 
-    img_arr, dtype = load_vol(fns,args.transform,args.shift_value,args.threshold,args.scaling_factor,args.negative,args.sort,origin=args.origin)
+    img_arr, dtype = load_vol(fns,args.transform,args.shift_value,args.threshold,args.threshold_upper_limit,args.scaling_factor,args.negative,args.sort,origin=args.origin)
 
     # compute PH
     print("computing PH for {}..".format(fns[0]))
