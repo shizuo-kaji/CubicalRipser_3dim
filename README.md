@@ -31,12 +31,7 @@ any later version.
 ### Recommended: pip
 Install the Python module only:
 
-    % pip install -U git+https://github.com/shizuo-kaji/CubicalRipser_3dim
-
-### Binary
-Precompiled Windows/Mac command-line binaries are found under win64/mac directories.
-("cripser.cpython-37m-darwin.so" or "cripser.cp37-win_amd64.pyd" are python modules.
-You can simply copy them to the same directory as the python script, if you have the right version of Python.)
+    % pip install -U cripser
 
 ### Build from source
 The command-line executable should be easily build with C++11 compilers such as G++, Clang, or Microsoft C++.

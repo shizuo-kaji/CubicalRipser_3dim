@@ -3,6 +3,7 @@ import re
 import sys
 import platform
 import subprocess
+from pathlib import Path
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -60,14 +61,22 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
+
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name='cripser',
-    version='0.0.8',
+    version='0.0.10',
     author='Shizuo KAJI',
     author_email='skaji@imi.kyushu-u.ac.jp',
     description='Cubical Ripser Python binding',
-    long_description='Persistent homology calculation for 1D (scalar time series), 2D (image), and 3D (voxel) arrays',
+    long_description=long_description, # 'Persistent homology calculation for 1D (scalar time series), 2D (image), and 3D (voxel) arrays',
+    long_description_content_type='text/markdown',
     license='MIT',
+    url='https://github.com/shizuo-kaji/CubicalRipser_3dim',
+    keywords='persistent homology TDA topological image volume',
     ext_modules=[CMakeExtension('cripser'),CMakeExtension('tcripser')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
