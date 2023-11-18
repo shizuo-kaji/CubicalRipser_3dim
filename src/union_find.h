@@ -40,7 +40,7 @@ UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
 			for(uint32_t x = 0; x < _dcg->ax ; ++x){
 				parent[i] = i;
 				birthtime[i] = _dcg->getBirth(x,y,z);
-				time_max[i] = birthtime[i];
+				time_max[i] = birthtime[i]; // maximum filtration value for the group
 //				cout << x << "," << y << "," << z << ": " << birthtime[i] << endl;
 				i++;
 			}

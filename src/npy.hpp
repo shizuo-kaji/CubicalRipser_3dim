@@ -481,7 +481,7 @@ inline void SaveArrayAsNumpy( const std::string& filename, bool fortran_order, u
 
 
 template<typename Scalar>
-inline void LoadArrayFromNumpy(const std::string& filename, std::vector<unsigned long>& shape, std::vector<Scalar>& data)
+inline void LoadArrayFromNumpy(const std::string& filename, std::vector<unsigned long>& shape, bool& fortran_order, std::vector<Scalar>& data)
 {
     std::ifstream stream(filename, std::ifstream::binary);
     if(!stream) {
@@ -491,7 +491,6 @@ inline void LoadArrayFromNumpy(const std::string& filename, std::vector<unsigned
     std::string header = read_header(stream);
 
     // parse header
-    bool fortran_order;
     std::string typestr;
 
     parse_header(header, typestr, fortran_order, shape);

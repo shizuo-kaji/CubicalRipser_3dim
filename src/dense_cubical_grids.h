@@ -97,7 +97,7 @@ public:
 					arr.push_back(dou);
 				}
 				fin.close();
-				gridFromArray(&arr[0], embedded, false);
+				gridFromArray(&arr[0], embedded, true);
 				break;
 			}
 
@@ -135,7 +135,7 @@ public:
 					}
 				}
 				reading_file.close();
-				gridFromArray(&arr[0], embedded, false);
+				gridFromArray(&arr[0], embedded, true);
 				break;
 			}
 
@@ -158,7 +158,7 @@ public:
 					ay++;
 				}
 				az = 1;
-				gridFromArray(&arr[0], embedded, false);
+				gridFromArray(&arr[0], embedded, true);
 				break;
 			}
 
@@ -166,8 +166,9 @@ public:
 			{
 				vector<unsigned long> shape;
 				vector<double> arr;
+				bool fortran_order;
 				try{
-					npy::LoadArrayFromNumpy(config->filename.c_str(), shape, arr);
+					npy::LoadArrayFromNumpy(config->filename.c_str(), shape, fortran_order, arr);
 				} catch (...) {
 					cerr << "The data type of an numpy array should be numpy.float64." << endl;
 					exit(-2);
@@ -188,7 +189,7 @@ public:
 				}else {
 					az = 1;
 				}
-				gridFromArray(&arr[0], embedded, true);
+				gridFromArray(&arr[0], embedded, fortran_order);
 				break;
 			}
 		}	
@@ -206,7 +207,7 @@ public:
 	}
 
 	// construct volume with boundary
-	void gridFromArray(const double *arr, bool embedded, bool is_numpy){
+	void gridFromArray(const double *arr, bool embedded, bool fortran_order){
 		img_x = ax;
 		img_y = ay;
 		img_z = az;
@@ -224,21 +225,7 @@ public:
 			}
 		}
 		dense3 = alloc3d(ax + x_shift, ay + y_shift, az + z_shift);
-		if(is_numpy){
-			for (uint32_t x = 0; x < ax + x_shift; ++x) {
-				for (uint32_t y = 0; y < ay + y_shift; ++y) {
-					for (uint32_t z = 0; z < az + z_shift; ++z) {
-						if (x_shift/2-1 < x && x <= ax+x_shift/2-1 && y_shift/2-1 < y && y <= ay+y_shift/2-1 && z_shift/2-1 < z && z<= az + z_shift/2-1) {
-							dense3[x][y][z] = sgn * arr[i++];
-						}else if (0 == x || x == ax-1+y_shift || 0 == y || y == ay-1+y_shift || z==0 || z==az-1+z_shift) { // outer boundary
-							dense3[x][y][z] = config->threshold;
-						}else{  // only for embedded; inner boundary
-							dense3[x][y][z] = -config->threshold;
-						}
-					}
-				}
-			}
-		}else{
+		if(fortran_order){
 			for (uint32_t z = 0; z < az + z_shift; ++z) {
 				for (uint32_t y = 0; y < ay + y_shift; ++y) {
 					for (uint32_t x = 0; x < ax + x_shift; ++x) {
@@ -252,6 +239,20 @@ public:
 					}
 				}
 			}
+		}else{
+			for (uint32_t x = 0; x < ax + x_shift; ++x) {
+				for (uint32_t y = 0; y < ay + y_shift; ++y) {
+					for (uint32_t z = 0; z < az + z_shift; ++z) {
+						if (x_shift/2-1 < x && x <= ax+x_shift/2-1 && y_shift/2-1 < y && y <= ay+y_shift/2-1 && z_shift/2-1 < z && z<= az + z_shift/2-1) {
+							dense3[x][y][z] = sgn * arr[i++];
+						}else if (0 == x || x == ax-1+y_shift || 0 == y || y == ay-1+y_shift || z==0 || z==az-1+z_shift) { // outer boundary
+							dense3[x][y][z] = config->threshold;
+						}else{  // only for embedded; inner boundary
+							dense3[x][y][z] = -config->threshold;
+						}
+					}
+				}
+			}	
 		}
 		ax += x_shift-2;
 		ay += y_shift-2;
