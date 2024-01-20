@@ -25,7 +25,7 @@ any later version.
 ## Get Started
 - You can try Cubical Ripser on [Google Colaboratory](https://colab.research.google.com/github/shizuo-kaji/CubicalRipser_3dim/blob/master/demo/cubicalripser.ipynb)
 - You may also want to look at [A guide through TDA tools](https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb) giving a hands-on tutorial for various tools for topological data analysis including Cubical Ripser
-- How Deep-learning and Persistent homology can be combined is demonstrated at https://github.com/shizuo-kaji/HomologyCNN
+- How Deep-learning and Persistent homology can be combined is demonstrated: [Example 1](https://github.com/shizuo-kaji/HomologyCNN) and [Example 2](https://github.com/shizuo-kaji/PretrainCNNwithNoData)
 
 ## Installation
 ### Recommended: pip
