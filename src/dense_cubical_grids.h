@@ -196,7 +196,7 @@ public:
 		cout << "x : y : z = " << img_x << " : " << img_y << " : " << img_z << endl;
 		// T-construction (the number of vertices = that of the top cells in each dimension)
 		if(config->tconstruction){
-			if(az>1) az++;
+			if(dim>2) az++;
 			ax++;
 			ay++;
 		}

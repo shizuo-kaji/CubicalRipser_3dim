@@ -68,7 +68,7 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='cripser',
-    version='0.0.12',
+    version='0.0.13',
     author='Shizuo KAJI',
     author_email='skaji@imi.kyushu-u.ac.jp',
     description='Cubical Ripser Python binding',
