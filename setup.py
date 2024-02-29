@@ -67,15 +67,15 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='cripser',
+    name='cripser_test',
     version='0.0.13',
-    author='Shizuo KAJI',
-    author_email='skaji@imi.kyushu-u.ac.jp',
+    author='shingo-murakami',
+    author_email='murakami.shingo.098@s.kyushu-u.ac.jp',
     description='Cubical Ripser Python binding',
     long_description=long_description, # 'Persistent homology calculation for 1D (scalar time series), 2D (image), and 3D (voxel) arrays',
     long_description_content_type='text/markdown',
     license='MIT',
-    url='https://github.com/shizuo-kaji/CubicalRipser_3dim',
+    url='https://github.com/shingo-murakami/CubicalRipser_3dim',
     keywords='persistent homology TDA topological image volume',
     ext_modules=[CMakeExtension('cripser'),CMakeExtension('tcripser')],
     cmdclass=dict(build_ext=CMakeBuild),
