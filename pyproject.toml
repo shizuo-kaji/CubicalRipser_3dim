@@ -1,2 +1,11 @@
+[tool.poetry]
+name = "cripser_test"
+version = "0.0.13"
+description = 'Cubical Ripser Python binding'
+authors = ["shingo-murakami <murakami.shingo.098@s.kyushu-u.ac.jp>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
 [build-system]
 requires = ["setuptools", "wheel", "cmake>=3.5.0", "pybind11"]
