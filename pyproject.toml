@@ -1,8 +1,10 @@
 [tool.poetry]
-name = "cripser_test"
+name = "CubicalRipser_3dim"
 version = "0.0.13"
-description = 'Cubical Ripser Python binding'
+description = "Cubical Ripser Python binding"
 authors = ["shingo-murakami <murakami.shingo.098@s.kyushu-u.ac.jp>"]
+license = "MIT"
+repository = "https://github.com/shingo-murakami/CubicalRipser_3dim.git"
 
 [tool.poetry.dependencies]
 python = "^3.8"
