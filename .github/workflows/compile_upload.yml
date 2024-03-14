@@ -124,10 +124,4 @@ jobs:
       uses: pypa/gh-action-pypi-publish@v1.8.14
       with:
         user: __token__
-        password: ${{ secrets.PYPI_PASSWORD }} # パスワードをSecretsから取得
-        
-        
-        
-  
-        
-      
+        password: ${{ secrets.PYPI_TOKEN }}
