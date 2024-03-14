@@ -102,33 +102,31 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    
-    permissions:
-      id-token: write
-    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-  
+      
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.12'
-  
+        
     - name: Install dependencies
       run: |
         sudo apt-get update
         python -m pip install --upgrade pip
-  
+        pip install -r requirements.txt
+      
     - name: Compile on Ubuntu
       run: |
         # Compile commands for Ubuntu
-  
+      
     - name: Upload to PyPI
       uses: pypa/gh-action-pypi-publish@v1.8.14
       with:
         user: __token__
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ secrets.PYPI_PASSWORD }} # パスワードをSecretsから取得
+        
         
         
   
