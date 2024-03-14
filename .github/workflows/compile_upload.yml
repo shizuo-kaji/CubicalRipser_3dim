@@ -124,9 +124,10 @@ jobs:
         # Compile commands for Ubuntu
 
     - name: Upload to PyPI
-      uses: pypa/gh-action-pypi-publish@v2  # 最新バージョンを指定
+      uses: pypa/gh-action-pypi-publish@v3  # 最新バージョンを指定
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
+  
         
       
