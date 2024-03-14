@@ -16,13 +16,16 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.12'
 
+    - name: Install Poetry
+      run: curl -sSL https://install.python-poetry.org | python -
+      
     - name: Install dependencies
       run: |
         sudo apt-get update
         python -m pip install --upgrade pip
-        poetry install --no--root
+        poetry install --no-root
 
     - name: Compile on Ubuntu
       run: |

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "CubicalRipser_3dim"
-version = "0.0.13"
+version = "0.0.15"
 description = "Cubical Ripser Python binding"
 authors = ["shingo-murakami <murakami.shingo.098@s.kyushu-u.ac.jp>"]
 license = "MIT"
