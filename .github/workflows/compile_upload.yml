@@ -48,9 +48,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        # Install dependencies on macOS
+        sudo apt-get update
         python -m pip install --upgrade pip
-        poetry install --no-root
 
     - name: Compile on macOS
       run: |
@@ -73,9 +72,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        # Install dependencies on Windows
+        sudo apt-get update
         python -m pip install --upgrade pip
-        poetry install --no-root
 
     - name: Compile on Windows
       run: |
