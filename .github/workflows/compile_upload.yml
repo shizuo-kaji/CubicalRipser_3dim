@@ -48,8 +48,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
+        brew update  # macOS環境でのパッケージ更新
         python -m pip install --upgrade pip
+      
 
     - name: Compile on macOS
       run: |
@@ -57,7 +58,7 @@ jobs:
 
   build_windows:
     runs-on: windows-latest
-
+  
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -67,17 +68,14 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Install Poetry
-      run: curl -sSL https://install.python-poetry.org | python -
-
     - name: Install dependencies
       run: |
-        sudo apt-get update
         python -m pip install --upgrade pip
 
     - name: Compile on Windows
       run: |
         # Compile commands for Windows
+        
 
   test:
     runs-on: ubuntu-latest
