@@ -118,9 +118,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y <dependencies>
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
   
     - name: Compile on Ubuntu
       run: |
