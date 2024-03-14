@@ -102,7 +102,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-
+  
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -124,7 +124,9 @@ jobs:
         # Compile commands for Ubuntu
 
     - name: Upload to PyPI
-      uses: pypa/gh-action-pypi-publish@27
+      uses: pypa/gh-action-pypi-publish@v2  # 最新バージョンを指定
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
+        
+      
