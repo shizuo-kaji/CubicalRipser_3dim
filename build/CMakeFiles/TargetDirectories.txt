@@ -1,0 +1,10 @@
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/mylib.dir
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/vmylib.dir
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/tmylib.dir
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/cripser.dir
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/tcripser.dir
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/cubicalripser.dir
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/tcubicalripser.dir
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/ZERO_CHECK.dir
+C:/Users/shing/CubicalRipser_3dim/build/pybind11/CMakeFiles/ALL_BUILD.dir
