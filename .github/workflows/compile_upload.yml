@@ -102,6 +102,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -122,7 +123,7 @@ jobs:
 
     - name: Publish to PyPI
       env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        TWINE_USERNAME: __token__  # PyPIにログインするためのユーザー名
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}  # PyPIにログインするためのトークン
       run: |
-        python -m twine upload --repository testpypi dist/*
+        python -m twine upload --repository pypi dist/*
