@@ -87,7 +87,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/shing/AppData/Local/Programs/Python/Python312/include" /external:I "C:/Users/shing/CubicalRipser_3dim/pybind11/include" -O3 /bigobj</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/shing/CubicalRipser_3dim/pybind11/include" /external:I "C:/Users/shing/AppData/Local/Programs/Python/Python312/include" -O3 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -105,10 +105,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;CMAKE_INTDIR=\"Debug\";tcripser_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;C:\Users\shing\CubicalRipser_3dim\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\CubicalRipser_3dim\pybind11\include;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;C:\Users\shing\CubicalRipser_3dim\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\CubicalRipser_3dim\pybind11\include;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -132,7 +132,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/shing/AppData/Local/Programs/Python/Python312/include" /external:I "C:/Users/shing/CubicalRipser_3dim/pybind11/include" -O3 /bigobj</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/shing/CubicalRipser_3dim/pybind11/include" /external:I "C:/Users/shing/AppData/Local/Programs/Python/Python312/include" -O3 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -151,10 +151,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;NDEBUG;CMAKE_INTDIR=\"Release\";tcripser_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;C:\Users\shing\CubicalRipser_3dim\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\CubicalRipser_3dim\pybind11\include;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;C:\Users\shing\CubicalRipser_3dim\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\CubicalRipser_3dim\pybind11\include;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -178,7 +178,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/shing/AppData/Local/Programs/Python/Python312/include" /external:I "C:/Users/shing/CubicalRipser_3dim/pybind11/include" -O3 /bigobj</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/shing/CubicalRipser_3dim/pybind11/include" /external:I "C:/Users/shing/AppData/Local/Programs/Python/Python312/include" -O3 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -197,10 +197,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";tcripser_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;C:\Users\shing\CubicalRipser_3dim\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\CubicalRipser_3dim\pybind11\include;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;C:\Users\shing\CubicalRipser_3dim\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\CubicalRipser_3dim\pybind11\include;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -224,7 +224,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/shing/AppData/Local/Programs/Python/Python312/include" /external:I "C:/Users/shing/CubicalRipser_3dim/pybind11/include" -O3 /bigobj</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/shing/CubicalRipser_3dim/pybind11/include" /external:I "C:/Users/shing/AppData/Local/Programs/Python/Python312/include" -O3 /bigobj</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>
@@ -242,10 +242,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";tcripser_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;C:\Users\shing\CubicalRipser_3dim\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\CubicalRipser_3dim\pybind11\include;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;C:\Users\shing\CubicalRipser_3dim\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\shing\CubicalRipser_3dim\src;C:\Users\shing\CubicalRipser_3dim\pybind11\include;C:\Users\shing\AppData\Local\Programs\Python\Python312\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
