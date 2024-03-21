@@ -9,7 +9,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include_directories("src/")
 
 # Add pybind11 subdirectory
-add_subdirectory(pybind11)
+add_subdirectory(C:/Users/shing/CubicalRipser_3dim/pybind11)
 
 # Add libraries
 add_library(mylib STATIC src/compute_pairs.cpp src/cube.cpp src/joint_pairs.cpp)
