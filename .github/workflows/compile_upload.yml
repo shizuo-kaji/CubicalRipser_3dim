@@ -105,23 +105,24 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-      
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.12'
-        
+
     - name: Install dependencies
       run: |
-        sudo apt-get update
         python -m pip install --upgrade pip
-      
-    - name: Compile on Ubuntu
+        pip install wheel twine
+
+    - name: Build distribution
       run: |
-        # Compile commands for Ubuntu
-      
-    - name: Upload to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.8.14
-      with:
-        user: ${{ secrets.PYPI_TOKEN }}
-        password: ${{ secrets.PYPI_PASSWORD }}
+        python setup.py bdist_wheel
+
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |
+        python -m twine upload --repository testpypi dist/*

@@ -146,3 +146,81 @@ events:
       Microsoft (R) Incremental Linker Version 14.38.33135.0
       Copyright (C) Microsoft Corporation.  All rights reserved.
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.29/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.29/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "C:/Program Files/CMake/share/cmake-3.29/Modules/CheckCXXCompilerFlag.cmake:34 (cmake_check_compiler_flag)"
+      - "pybind11/tools/pybind11Common.cmake:283 (check_cxx_compiler_flag)"
+      - "pybind11/tools/pybind11Common.cmake:350 (_pybind11_return_if_cxx_and_linker_flags_work)"
+      - "pybind11/tools/pybind11Common.cmake:395 (_pybind11_generate_lto)"
+      - "pybind11/CMakeLists.txt:237 (include)"
+    checks:
+      - "Performing Test HAS_MSVC_GL_LTCG"
+    directories:
+      source: "C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/CMakeScratch/TryCompile-44m4wv"
+      binary: "C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/CMakeScratch/TryCompile-44m4wv"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "-O3"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_POSITION_INDEPENDENT_CODE: "ON"
+    buildResult:
+      variable: "HAS_MSVC_GL_LTCG"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/CMakeScratch/TryCompile-44m4wv'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_414c9.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild のバージョン 17.8.5+b5265ef37 (.NET Framework)
+        2024/03/21 16:28:04 にビルドを開始しました。
+        
+        ノード 1 上のプロジェクト "C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\cmTC_414c9.vcxproj" (既定のターゲット)。
+        PrepareForBuild:
+          ディレクトリ "cmTC_414c9.dir\\Debug\\" を作成しています。
+          構造化出力が有効になっています。コンパイラ診断の書式設定にはエラー階層が反映されます。詳細については、https://aka.ms/cpp/structured-output を参照してください。
+          ディレクトリ "C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\Debug\\" を作成しています。
+          ディレクトリ "cmTC_414c9.dir\\Debug\\cmTC_414c9.tlog\\" を作成しています。
+        InitializeBuildStatus:
+          "AlwaysCreate" が指定されたため "cmTC_414c9.dir\\Debug\\cmTC_414c9.tlog\\unsuccessfulbuild" を作成しています。
+          "cmTC_414c9.dir\\Debug\\cmTC_414c9.tlog\\unsuccessfulbuild" のタッチ タスクを実行しています。
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D HAS_MSVC_GL_LTCG /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_414c9.dir\\Debug\\\\" /Fd"cmTC_414c9.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue  -O3 "C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\src.cxx"
+          Microsoft(R) C/C++ Optimizing Compiler Version 19.38.33135 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D HAS_MSVC_GL_LTCG /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_414c9.dir\\Debug\\\\" /Fd"cmTC_414c9.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue  -O3 "C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\src.cxx"
+        cl : コマンド ライン  warning D9002: 不明なオプション '-O3' を無視します。 [C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\cmTC_414c9.vcxproj]
+          src.cxx
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\Debug\\cmTC_414c9.exe" /INCREMENTAL /ILK:"cmTC_414c9.dir\\Debug\\cmTC_414c9.ilk" /NOLOGO "-LTCG" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/CMakeScratch/TryCompile-44m4wv/Debug/cmTC_414c9.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/CMakeScratch/TryCompile-44m4wv/Debug/cmTC_414c9.lib" /MACHINE:X64  /machine:x64 cmTC_414c9.dir\\Debug\\src.obj
+        LINK : warning LNK4075: /INCREMENTAL は /LTCG の指定によって無視されます。 [C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\cmTC_414c9.vcxproj]
+          コード生成しています。
+          コード生成が終了しました。
+          cmTC_414c9.vcxproj -> C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\Debug\\cmTC_414c9.exe
+        FinalizeBuildStatus:
+          ファイル "cmTC_414c9.dir\\Debug\\cmTC_414c9.tlog\\unsuccessfulbuild" を削除しています。
+          "cmTC_414c9.dir\\Debug\\cmTC_414c9.tlog\\cmTC_414c9.lastbuildstate" のタッチ タスクを実行しています。
+        プロジェクト "C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\cmTC_414c9.vcxproj" (既定のターゲット) のビルドが完了しました。
+        
+        ビルドに成功しました。
+        
+        "C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\cmTC_414c9.vcxproj" (既定のターゲット) (1) ->
+        (ClCompile ターゲット) -> 
+          cl : コマンド ライン  warning D9002: 不明なオプション '-O3' を無視します。 [C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\cmTC_414c9.vcxproj]
+        
+        
+        "C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\cmTC_414c9.vcxproj" (既定のターゲット) (1) ->
+        (Link ターゲット) -> 
+          LINK : warning LNK4075: /INCREMENTAL は /LTCG の指定によって無視されます。 [C:\\Users\\shing\\CubicalRipser_3dim\\build\\temp.win-amd64-cpython-312\\Release\\CMakeFiles\\CMakeScratch\\TryCompile-44m4wv\\cmTC_414c9.vcxproj]
+        
+            2 個の警告
+            0 エラー
+        
+        経過時間 00:00:00.69
+        
+      exitCode: 0
+...

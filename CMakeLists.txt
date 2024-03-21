@@ -8,6 +8,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include_directories("src/")
 
+# Add pybind11 subdirectory
+add_subdirectory(pybind11)
 
 ADD_LIBRARY(mylib STATIC src/compute_pairs.cpp src/cube.cpp src/joint_pairs.cpp)
 
@@ -18,10 +20,10 @@ ADD_LIBRARY(vmylib STATIC src/coboundary_enumerator.cpp src/dense_cubical_grids.
 ADD_LIBRARY(tmylib STATIC src/coboundary_enumerator_T.cpp src/dense_cubical_grids_T.cpp)
 
 ## Pytno modules
-add_subdirectory(pybind11)
 pybind11_add_module(cripser src/cubicalripser_pybind.cpp)
 target_link_libraries(cripser PRIVATE mylib)
 target_link_libraries(cripser PRIVATE vmylib)
+
 pybind11_add_module(tcripser src/cubicalripser_pybind_T.cpp)
 target_link_libraries(tcripser PRIVATE mylib)
 target_link_libraries(tcripser PRIVATE tmylib)
