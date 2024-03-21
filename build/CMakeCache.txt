@@ -451,16 +451,15 @@ _Python_DEVELOPMENT_EMBED_SIGNATURE:INTERNAL=18c9021159dd4159983116dd829ef753
 _Python_DEVELOPMENT_MODULE_SIGNATURE:INTERNAL=18c9021159dd4159983116dd829ef753
 //Development reason failure
 _Python_Development_REASON_FAILURE:INTERNAL=
-//Path to a program.
 _Python_EXECUTABLE:INTERNAL=C:/Users/shing/AppData/Local/Programs/Python/Python312/python.exe
-//Path to a file.
 _Python_INCLUDE_DIR:INTERNAL=C:/Users/shing/AppData/Local/Programs/Python/Python312/include
 //Python Properties
 _Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;12;2;64;;cp312-win_amd64;;C:\Users\shing\AppData\Local\Programs\Python\Python312\Lib;C:\Users\shing\AppData\Local\Programs\Python\Python312\Lib;C:\Users\shing\AppData\Local\Programs\Python\Python312\Lib\site-packages;C:\Users\shing\AppData\Local\Programs\Python\Python312\Lib\site-packages
 _Python_INTERPRETER_SIGNATURE:INTERNAL=c0a63a8b78fb9260e855d1befad63e23
+//Interpreter reason failure
+_Python_Interpreter_REASON_FAILURE:INTERNAL=
 //Path to a library.
 _Python_LIBRARY_DEBUG:INTERNAL=_Python_LIBRARY_DEBUG-NOTFOUND
-//Path to a library.
 _Python_LIBRARY_RELEASE:INTERNAL=C:/Users/shing/AppData/Local/Programs/Python/Python312/libs/python312.lib
 //NumPy reason failure
 _Python_NumPy_REASON_FAILURE:INTERNAL=

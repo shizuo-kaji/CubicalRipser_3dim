@@ -1,0 +1,10 @@
+^C:\USERS\SHING\CUBICALRIPSER_3DIM\BUILD\CMAKEFILES\6E4B1589ADAB14A973AFAC41AC5DD462\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/shing/CubicalRipser_3dim -BC:/Users/shing/CubicalRipser_3dim/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/shing/CubicalRipser_3dim/build/cripser.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

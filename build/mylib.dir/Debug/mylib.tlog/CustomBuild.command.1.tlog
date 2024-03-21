@@ -1,0 +1,10 @@
+^C:\USERS\SHING\CUBICALRIPSER_3DIM\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/shing/CubicalRipser_3dim -BC:/Users/shing/CubicalRipser_3dim/build --check-stamp-file C:/Users/shing/CubicalRipser_3dim/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
