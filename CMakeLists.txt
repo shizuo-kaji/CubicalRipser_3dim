@@ -11,27 +11,21 @@ include_directories("src/")
 # Add pybind11 subdirectory
 add_subdirectory(pybind11)
 
-ADD_LIBRARY(mylib STATIC src/compute_pairs.cpp src/cube.cpp src/joint_pairs.cpp)
+# Add libraries
+add_library(mylib STATIC src/compute_pairs.cpp src/cube.cpp src/joint_pairs.cpp)
+add_library(vmylib STATIC src/coboundary_enumerator.cpp src/dense_cubical_grids.cpp)
+add_library(tmylib STATIC src/coboundary_enumerator_T.cpp src/dense_cubical_grids_T.cpp)
 
-## V-construction
-ADD_LIBRARY(vmylib STATIC src/coboundary_enumerator.cpp src/dense_cubical_grids.cpp)
-
-## T-construction
-ADD_LIBRARY(tmylib STATIC src/coboundary_enumerator_T.cpp src/dense_cubical_grids_T.cpp)
-
-## Pytno modules
+# Add pybind11 modules
 pybind11_add_module(cripser src/cubicalripser_pybind.cpp)
-target_link_libraries(cripser PRIVATE mylib)
-target_link_libraries(cripser PRIVATE vmylib)
+target_link_libraries(cripser PRIVATE mylib vmylib)
 
 pybind11_add_module(tcripser src/cubicalripser_pybind_T.cpp)
-target_link_libraries(tcripser PRIVATE mylib)
-target_link_libraries(tcripser PRIVATE tmylib)
+target_link_libraries(tcripser PRIVATE mylib tmylib)
 
-## command-line executables
+# Add executables
 add_executable(cubicalripser src/cubicalripser.cpp)
+target_link_libraries(cubicalripser PRIVATE mylib vmylib)
+
 add_executable(tcubicalripser src/cubicalripser.cpp)
-target_link_libraries(cubicalripser PRIVATE mylib)
-target_link_libraries(cubicalripser PRIVATE vmylib)
-target_link_libraries(tcubicalripser PRIVATE mylib)
-target_link_libraries(tcubicalripser PRIVATE tmylib)
+target_link_libraries(tcubicalripser PRIVATE mylib tmylib)
