@@ -121,14 +121,20 @@ jobs:
       run: |
         pip install pybind11
         pip install "pybind11[global]"
-
-    - name: Build distribution
-      run: |
-        python setup.py bdist_wheel
-
+    
+    - name: Build wheel for Linux
+      run: python setup.py bdist_wheel
+  
+    - name: Build wheel for macOS
+      if: runner.os == 'macOS'
+      run: python setup.py bdist_wheel
+  
+    - name: Build wheel for Windows
+      if: runner.os == 'Windows'
+      run: python setup.py bdist_wheel --plat-name=win_amd64
+    
     - name: Build and upload
       run: |
-        python setup.py bdist_wheel
         twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
       env:
         TWINE_USERNAME: __token__
