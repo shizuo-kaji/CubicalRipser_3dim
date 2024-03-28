@@ -6,19 +6,10 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_PREFIX_PATH "C:/Users/shing/CubicalRipser_3dim/")
-set(pybind11_DIR "/home/shing/.local/lib/python3.12/site-packages/pybind11/share/cmake/pybind11")
-
-
-list(APPEND CMAKE_PREFIX_PATH "/home/shing/.local/lib/python3.12/site-packages")
-list(APPEND CMAKE_MODULE_PATH "${pybind11_DIR}")
+set(pybind11_DIR "/home/shing/.local/lib/python3.12/site-packages/pybind11/share/cmake/")
 
 # Find pybind11 package
 find_package(pybind11 CONFIG REQUIRED)
-
-# Add pybind11 subdirectory
-add_subdirectory(/home/runner/work/CubicalRipser_3dim/CubicalRipser_3dim/pybind11)
-
-include_directories("src/")
 
 # Add libraries
 add_library(mylib STATIC src/compute_pairs.cpp src/cube.cpp src/joint_pairs.cpp)
@@ -27,10 +18,10 @@ add_library(tmylib STATIC src/coboundary_enumerator_T.cpp src/dense_cubical_grid
 
 # Add pybind11 modules
 pybind11_add_module(cripser src/cubicalripser_pybind.cpp)
-target_link_libraries(cripser PRIVATE mylib vmylib)
+target_link_libraries(cripser PRIVATE mylib vmylib pybind11::module)
 
 pybind11_add_module(tcripser src/cubicalripser_pybind_T.cpp)
-target_link_libraries(tcripser PRIVATE mylib tmylib)
+target_link_libraries(tcripser PRIVATE mylib tmylib pybind11::module)
 
 # Add executables
 add_executable(cubicalripser src/cubicalripser.cpp)
@@ -40,4 +31,4 @@ add_executable(tcubicalripser src/cubicalripser.cpp)
 target_link_libraries(tcubicalripser PRIVATE mylib tmylib)
 
 # Include pybind11 directory
-include_directories("${pybind11_INCLUDE_DIR}")
+include_directories(${pybind11_INCLUDE_DIRS})
