@@ -7,4 +7,3 @@ C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMake
 C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/tcubicalripser.dir
 C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/ALL_BUILD.dir
 C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/ZERO_CHECK.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/pybind11/CMakeFiles/ALL_BUILD.dir

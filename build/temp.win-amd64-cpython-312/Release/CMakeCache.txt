@@ -249,14 +249,21 @@ PYBIND11_INTERNALS_VERSION:STRING=
 //Disable search for Python
 PYBIND11_NOPYTHON:BOOL=OFF
 
+//Overwrite cached values read from Python library (classic search).
+// Turn off if cross-compiling and manually setting these values.
+PYBIND11_PYTHONLIBS_OVERWRITE:BOOL=ON
+
+//Python version to use for compiling modules
+PYBIND11_PYTHON_VERSION:STRING=
+
 //Use simpler GIL management logic that does not support disassociation
 PYBIND11_SIMPLE_GIL_MANAGEMENT:BOOL=OFF
 
 //Build pybind11 test suite?
 PYBIND11_TEST:BOOL=OFF
 
-//No help, variable specified on the command line.
-PYTHON_EXECUTABLE:UNINITIALIZED=C:\Users\shing\AppData\Local\Programs\Python\Python312\python.exe
+//Path to a program.
+PYTHON_EXECUTABLE:FILEPATH=C:/Users/shing/AppData/Local/Programs/Python/Python312/python.exe
 
 //Python Interpreter
 Python_EXECUTABLE:FILEPATH=C:/Users/shing/AppData/Local/Programs/Python/Python312/python.exe
@@ -273,17 +280,26 @@ cripser_BINARY_DIR:STATIC=C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64
 //Value Computed by CMake
 cripser_IS_TOP_LEVEL:STATIC=ON
 
+//Dependencies for the target
+cripser_LIB_DEPENDS:STATIC=general;mylib;general;vmylib;
+
 //Value Computed by CMake
 cripser_SOURCE_DIR:STATIC=C:/Users/shing/CubicalRipser_3dim
 
 //Value Computed by CMake
 pybind11_BINARY_DIR:STATIC=C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/pybind11
 
+//The directory containing a CMake configuration file for pybind11.
+pybind11_DIR:PATH=C:/Users/shing/AppData/Local/Programs/Python/Python312/share/cmake/pybind11
+
 //Value Computed by CMake
 pybind11_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
 pybind11_SOURCE_DIR:STATIC=C:/Users/shing/CubicalRipser_3dim/pybind11
+
+//Dependencies for the target
+tcripser_LIB_DEPENDS:STATIC=general;mylib;general;tmylib;
 
 
 ########################
@@ -390,7 +406,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MT
 CMAKE_MT-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=2
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
 //Platform information initialized
 CMAKE_PLATFORM_INFO_INITIALIZED:INTERNAL=1
 //noop for ranlib
@@ -436,24 +452,36 @@ CMAKE_STATIC_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding PYTHON
+FIND_PACKAGE_MESSAGE_DETAILS_PYTHON:INTERNAL=C:/Users/shing/AppData/Local/Programs/Python/Python312/python.exe3.12.2
 //Details about finding Python
 FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[C:/Users/shing/AppData/Local/Programs/Python/Python312/python.exe][C:/Users/shing/AppData/Local/Programs/Python/Python312/libs/python312.lib][C:/Users/shing/AppData/Local/Programs/Python/Python312/include][cfound components: Interpreter Development.Module Development.Embed ][v3.12.2(3.6)]
+//Details about finding PythonInterp
+FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[C:/Users/shing/AppData/Local/Programs/Python/Python312/python.exe][v3.12.2(3.6)]
 //Test HAS_MSVC_GL_LTCG
 HAS_MSVC_GL_LTCG:INTERNAL=
 PYBIND11_INCLUDE_DIR:INTERNAL=C:/Users/shing/CubicalRipser_3dim/pybind11/include
 //Python executable during the last CMake run
 PYBIND11_PYTHON_EXECUTABLE_LAST:INTERNAL=C:/Users/shing/AppData/Local/Programs/Python/Python312/python.exe
-//Python debug status
+//ADVANCED property for variable: PYTHON_EXECUTABLE
+PYTHON_EXECUTABLE-ADVANCED:INTERNAL=1
+PYTHON_INCLUDE_DIRS:INTERNAL=C:/Users/shing/AppData/Local/Programs/Python/Python312/Include
 PYTHON_IS_DEBUG:INTERNAL=0
+PYTHON_LIBRARIES:INTERNAL=C:/Users/shing/AppData/Local/Programs/Python/Python312/libs/python312.lib
 PYTHON_MODULE_DEBUG_POSTFIX:INTERNAL=
 PYTHON_MODULE_EXTENSION:INTERNAL=.cp312-win_amd64.pyd
+PYTHON_MODULE_PREFIX:INTERNAL=
+PYTHON_VERSION:INTERNAL=3.12.2
+PYTHON_VERSION_MAJOR:INTERNAL=3
+PYTHON_VERSION_MINOR:INTERNAL=12
+Python_ADDITIONAL_VERSIONS:INTERNAL=3.11;3.10;3.9;3.8;3.7;3.6
 Python_VERSION:INTERNAL=3.12.2
 Python_VERSION_MAJOR:INTERNAL=3
 Python_VERSION_MINOR:INTERNAL=12
 Python_VERSION_PATCH:INTERNAL=2
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=C:/Program Files/cripser
-_Python:INTERNAL=Python
+_Python:INTERNAL=PYTHON
 //Compiler reason failure
 _Python_Compiler_REASON_FAILURE:INTERNAL=
 _Python_DEVELOPMENT_EMBED_SIGNATURE:INTERNAL=18c9021159dd4159983116dd829ef753
@@ -479,5 +507,5 @@ pybind11_FOUND:INTERNAL=TRUE
 //Directory where pybind11 headers are located
 pybind11_INCLUDE_DIR:INTERNAL=C:/Users/shing/CubicalRipser_3dim/pybind11/include
 //Directories where pybind11 and possibly Python headers are located
-pybind11_INCLUDE_DIRS:INTERNAL=C:/Users/shing/CubicalRipser_3dim/pybind11/include;C:/Users/shing/AppData/Local/Programs/Python/Python312/include
+pybind11_INCLUDE_DIRS:INTERNAL=C:/Users/shing/AppData/Local/Programs/Python/Python312/include;C:/Users/shing/AppData/Local/Programs/Python/Python312/Include
 
