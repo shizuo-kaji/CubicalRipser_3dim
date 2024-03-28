@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# pybind11 パッケージを検索して必要に応じてインクルードする
+find_package(pybind11 REQUIRED)
+
 include_directories("src/")
 
 # Add pybind11 subdirectory
@@ -29,3 +32,6 @@ target_link_libraries(cubicalripser PRIVATE mylib vmylib)
 
 add_executable(tcubicalripser src/cubicalripser.cpp)
 target_link_libraries(tcubicalripser PRIVATE mylib tmylib)
+
+# pybind11のインクルードディレクトリを指定
+include_directories("C:/Users/shing/CubicalRipser_3dim/pybind11/include")
