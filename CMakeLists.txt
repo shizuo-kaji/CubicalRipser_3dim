@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0028 NEW)
 
+# Set pybind11_DIR
+set(pybind11_DIR /home/runner/work/CubicalRipser_3dim/CubicalRipser_3dim/pybind11)
+
+# Add pybind11 subdirectory
+add_subdirectory(/home/runner/work/CubicalRipser_3dim/CubicalRipser_3dim/pybind11)
+
 project(cripser CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-# Add pybind11 subdirectory
-add_subdirectory(/home/runner/work/CubicalRipser_3dim/CubicalRipser_3dim/pybind11)
 
 # Find pybind11 package
 find_package(pybind11 REQUIRED)
@@ -34,4 +37,4 @@ add_executable(tcubicalripser src/cubicalripser.cpp)
 target_link_libraries(tcubicalripser PRIVATE mylib tmylib)
 
 # pybind11のインクルードディレクトリを指定
-include_directories("C:/Users/shing/CubicalRipser_3dim/pybind11/include")
+include_directories("/home/runner/work/CubicalRipser_3dim/CubicalRipser_3dim/pybind11/include")
