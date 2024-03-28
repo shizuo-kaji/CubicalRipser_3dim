@@ -36,4 +36,5 @@ add_executable(tcubicalripser src/cubicalripser.cpp)
 target_link_libraries(tcubicalripser PRIVATE mylib tmylib)
 
 # pybind11のインクルードディレクトリを指定
-include_directories("C:/Users/shing/CubicalRipser_3dim/pybind11/include")
+# pybind11のインクルードディレクトリを指定
+include_directories("/home/runner/work/CubicalRipser_3dim/CubicalRipser_3dim/pybind11/include")
