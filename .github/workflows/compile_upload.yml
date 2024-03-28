@@ -118,8 +118,9 @@ jobs:
         pip install wheel twine setuptools
     
     - name: Install pybind11
-      run: pip install pybind11
-      run: pip install "pybind11[global]"
+      run: |
+        pip install pybind11
+        pip install "pybind11[global]"
 
     - name: Build distribution
       run: |
