@@ -126,9 +126,11 @@ jobs:
       run: |
         python setup.py bdist_wheel
 
-    - name: Publish to PyPI
+    - name: Build and upload
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: |
-        twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+    
