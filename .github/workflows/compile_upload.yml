@@ -135,6 +135,7 @@ jobs:
     
     - name: Build and upload
       run: |
+        python setup.py bdist_wheel --plat-name manylinux_3_x86_64
         twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
       env:
         TWINE_USERNAME: __token__
