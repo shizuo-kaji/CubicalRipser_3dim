@@ -5,9 +5,11 @@ project(cripser CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(pybind11_DIR /home/shing/.local/lib/python3.12/site-packages)
+set(pybind11_DIR "/home/shing/.local/lib/python3.12/site-packages/pybind11/share/cmake/pybind11")
+
 
 list(APPEND CMAKE_PREFIX_PATH "/home/shing/.local/lib/python3.12/site-packages")
+
 
 # Find pybind11 package
 find_package(pybind11 REQUIRED)
