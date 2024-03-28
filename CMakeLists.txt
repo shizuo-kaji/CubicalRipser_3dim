@@ -37,6 +37,5 @@ target_link_libraries(cubicalripser PRIVATE mylib vmylib)
 add_executable(tcubicalripser src/cubicalripser.cpp)
 target_link_libraries(tcubicalripser PRIVATE mylib tmylib)
 
-# pybind11のインクルードディレクトリを指定
-# pybind11のインクルードディレクトリを指定
-include_directories("/home/runner/work/CubicalRipser_3dim/CubicalRipser_3dim/pybind11/include")
+# Include pybind11 directory
+include_directories("${pybind11_INCLUDE_DIR}")
