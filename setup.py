@@ -3,7 +3,7 @@ import re
 import sys
 import platform
 import subprocess
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
@@ -49,6 +49,14 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
 
+        # プラットフォームタグを取得
+        platform_tag = platform.system().lower()
+        if platform_tag == 'linux':
+            platform_tag = 'manylinux_3_x86_64'
+
+        # 既存のcmake_argsに--plat-nameオプションを追加
+        cmake_args += ['-DCMAKE_BUILD_PLATFORM=' + platform_tag]
+
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
                                                               self.distribution.get_version())
@@ -74,7 +82,7 @@ setup(
     license='MIT',
     url='https://github.com/shingo-murakami/CubicalRipser_3dim',
     keywords='persistent homology TDA topological image volume',
-    ext_modules=[CMakeExtension('cripser'),CMakeExtension('tcripser')],
+    ext_modules=[CMakeExtension('cripser'), CMakeExtension('tcripser')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )
