@@ -69,7 +69,7 @@ setup(
     description='Cubical Ripser Python binding',
     python_requires='>=3.6, <4',
     platforms='any',
-    py_modules=['cripser-test'],
+    # py_modules=['cripser-test'],
     long_description=long_description, # 'Persistent homology calculation for 1D (scalar time series), 2D (image), and 3D (voxel) arrays',
     long_description_content_type='text/markdown',
     license='MIT',
