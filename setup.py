@@ -68,7 +68,7 @@ setup(
     author_email='murakami.shingo.098@s.kyushu-u.ac.jp',
     description='Cubical Ripser Python binding',
     python_requires='>=3.6, <4',
-    platforms=['linux_3_x86_64'],
+    platforms=['manylinux_3_x86_64'],
     long_description=long_description, # 'Persistent homology calculation for 1D (scalar time series), 2D (image), and 3D (voxel) arrays',
     long_description_content_type='text/markdown',
     license='MIT',

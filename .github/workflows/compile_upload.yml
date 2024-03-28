@@ -123,7 +123,7 @@ jobs:
         pip install "pybind11[global]"
     
     - name: Build wheel for Linux
-      run: python setup.py bdist_wheel
+      run: python setup.py bdist_wheel --plat-name=manylinux_3_x86_64
   
     - name: Build wheel for macOS
       if: runner.os == 'macOS'
@@ -135,9 +135,7 @@ jobs:
     
     - name: Build and upload
       run: |
-        python setup.py bdist_wheel --plat-name linux_3_x86_64
         twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      
