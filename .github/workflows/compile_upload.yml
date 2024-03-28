@@ -119,7 +119,7 @@ jobs:
     
     - name: Install pybind11
       run: pip install pybind11
-      
+      run: pip install "pybind11[global]"
 
     - name: Build distribution
       run: |
