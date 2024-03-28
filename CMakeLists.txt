@@ -5,13 +5,12 @@ project(cripser CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(pybind11_DIR "/home/shing/.local/lib/python3.12/site-packages/pybind11/share/cmake/pybind11")
 
 list(APPEND CMAKE_PREFIX_PATH "/home/shing/.local/lib/python3.12/site-packages")
 list(APPEND CMAKE_MODULE_PATH "${pybind11_DIR}")
 
 # Find pybind11 package
-find_package(pybind11 REQUIRED)
+find_package(pybind11 CONFIG REQUIRED)
 
 # Add pybind11 subdirectory
 add_subdirectory(/home/runner/work/CubicalRipser_3dim/CubicalRipser_3dim/pybind11)

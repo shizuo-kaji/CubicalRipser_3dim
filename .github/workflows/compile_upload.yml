@@ -116,6 +116,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel twine setuptools
+    
+    - name: Install pybind11
+      run: pip install pybind11
+      
 
     - name: Build distribution
       run: |
