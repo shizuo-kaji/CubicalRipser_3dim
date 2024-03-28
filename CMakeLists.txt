@@ -5,6 +5,8 @@ project(cripser CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_PREFIX_PATH "/C:/Users/shing/CubicalRipser_3dim/")
+
 
 list(APPEND CMAKE_PREFIX_PATH "/home/shing/.local/lib/python3.12/site-packages")
 list(APPEND CMAKE_MODULE_PATH "${pybind11_DIR}")
