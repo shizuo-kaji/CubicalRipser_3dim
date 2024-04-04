@@ -30,6 +30,7 @@ jobs:
     - name: Compile on Ubuntu
       run: |
         # Compile commands for Ubuntu
+        python setup.py sdist bdist_wheel --plat-name manylinux1_x86_64
 
   build_mac:
     runs-on: macos-latest
@@ -64,11 +65,7 @@ jobs:
     
     - name: Compile on macOS
       run: |
-        python setup.py sdist
-        python setup.py bdist_wheel
-      
-      
-
+        python setup.py sdist bdist_wheel
 
   build_windows:
     runs-on: windows-latest
@@ -99,34 +96,8 @@ jobs:
 
     - name: Compile on Windows
       run: |
-        python setup.py sdist
-        python setup.py bdist_wheel
-        
+        python setup.py sdist bdist_wheel
 
-  test:
-    runs-on: ubuntu-latest
-  
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-  
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.12'
-  
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        python -m pip install --upgrade pip
-        python -m pip install poetry
-        python -m poetry install
-  
-    - name: Run tests
-      run: |
-        # Test commands
-
-    
   deploy:
     runs-on: ubuntu-latest
     
@@ -137,7 +108,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.11'
+        python-version: '3.12'
   
     - name: Install dependencies
       run: |
@@ -151,7 +122,6 @@ jobs:
   
     - name: Build and upload
       run: |
-        python setup.py bdist_wheel --plat-name manylinux1_x86_64
         twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
       env:
         TWINE_USERNAME: __token__
