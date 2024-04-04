@@ -126,6 +126,7 @@ jobs:
       run: |
         # Test commands
 
+    
   deploy:
     runs-on: ubuntu-latest
     
@@ -150,9 +151,8 @@ jobs:
   
     - name: Build and upload
       run: |
-        python setup.py bdist_wheel
+        python setup.py bdist_wheel --plat-name manylinux1_x86_64
         twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-    
