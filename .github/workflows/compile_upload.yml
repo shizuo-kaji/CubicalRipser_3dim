@@ -55,6 +55,9 @@ jobs:
     - name: Compile on macOS
       run: |
         # Compile commands for macOS
+    - name: Compile on macOS
+      run: |
+        python setup.py bdist_wheel
 
   build_windows:
     runs-on: windows-latest
@@ -75,6 +78,9 @@ jobs:
     - name: Compile on Windows
       run: |
         # Compile commands for Windows
+    - name: Compile on Windows
+      run: |
+        python setup.py bdist_wheel
         
 
   test:
@@ -129,4 +135,3 @@ jobs:
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      
