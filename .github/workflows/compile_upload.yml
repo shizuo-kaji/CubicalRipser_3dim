@@ -29,9 +29,11 @@ jobs:
   
     - name: Compile on Ubuntu
       run: |
-        python setup.py sdist bdist_wheel --plat-name manylinux1_x86_64
-  
-
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_PREFIX_PATH="C:\\Users\\shing\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python311\\site-packages"
+        cmake --build .
+      
   build_mac:
     runs-on: macos-latest
 
