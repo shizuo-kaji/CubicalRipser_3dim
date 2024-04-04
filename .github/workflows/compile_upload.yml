@@ -27,6 +27,9 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install setuptools wheel
   
+    - name: Install pybind11
+      run: pip install pybind11
+  
     - name: Compile on Ubuntu
       run: |
         mkdir build
