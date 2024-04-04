@@ -7,7 +7,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Checkout repository
@@ -19,19 +23,33 @@ jobs:
         python-version: '3.12'
 
     - name: Install Poetry
-      run: curl -sSL https://install.python-poetry.org | python -
+      run: |
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          curl -sSL https://install.python-poetry.org | python -
+        else
+          curl -sSL https://install.python-poetry.org | POETRY_HOME=$HOME/.poetry python -
+          export PATH="$HOME/.poetry/bin:$PATH"
+        fi
       
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        python -m pip install --upgrade pip
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          python -m pip install --upgrade pip
+        else
+          sudo apt-get update
+          python -m pip install --upgrade pip
+        fi
 
     - name: Compile
       run: |
         python setup.py bdist_wheel
 
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+  
+    runs-on: ${{ matrix.os }}
   
     steps:
     - name: Checkout repository
@@ -54,7 +72,11 @@ jobs:
         # Test commands
 
   deploy:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    
+    runs-on: ${{ matrix.os }}
     
     steps:
     - name: Checkout repository
