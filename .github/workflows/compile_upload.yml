@@ -29,6 +29,7 @@ jobs:
   
     - name: Install pybind11
       run: pip install pybind11
+      
   
     - name: Compile on Ubuntu
       run: |
@@ -36,6 +37,7 @@ jobs:
         cd build
         cmake .. -DCMAKE_PREFIX_PATH="C:/Users/shing/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0/LocalCache/local-packages/Python311/site-packages"
         cmake --build .
+    
       
   build_mac:
     runs-on: macos-latest
