@@ -1,9 +1,0 @@
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/mylib.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/vmylib.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/tmylib.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/cripser.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/tcripser.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/cubicalripser.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/tcubicalripser.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/ALL_BUILD.dir
-C:/Users/shing/CubicalRipser_3dim/build/temp.win-amd64-cpython-312/Release/CMakeFiles/ZERO_CHECK.dir
