@@ -82,7 +82,7 @@ setup(
     license='MIT',
     url='https://github.com/shingo-murakami/CubicalRipser_3dim',
     keywords='persistent homology TDA topological image volume',
-    ext_modules=[CMakeExtension('cripser'), CMakeExtension('tcripser')],
+    ext_modules=[CMakeExtension('cripser_test'), CMakeExtension('tcripser_test')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )
