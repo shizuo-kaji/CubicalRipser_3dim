@@ -8,16 +8,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+  
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
+  
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.12'
-
+  
     - name: Install Poetry
       run: curl -sSL https://install.python-poetry.org | python -
       
@@ -25,12 +25,12 @@ jobs:
       run: |
         sudo apt-get update
         python -m pip install --upgrade pip
-        
-
+        python -m pip install setuptools wheel
+  
     - name: Compile on Ubuntu
       run: |
-        # Compile commands for Ubuntu
         python setup.py sdist bdist_wheel --plat-name manylinux1_x86_64
+  
 
   build_mac:
     runs-on: macos-latest
