@@ -25,57 +25,10 @@ jobs:
       run: |
         sudo apt-get update
         python -m pip install --upgrade pip
-        
 
-    - name: Compile on Ubuntu
+    - name: Compile
       run: |
-        # Compile commands for Ubuntu
-
-  build_mac:
-    runs-on: macos-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.12'
-    
-    - name: Install Poetry
-      run: curl -sSL https://install.python-poetry.org | python -
-
-    - name: Install dependencies
-      run: |
-        brew update  # macOS環境でのパッケージ更新
-        python -m pip install --upgrade pip
-      
-
-    - name: Compile on macOS
-      run: |
-        # Compile commands for macOS
-
-  build_windows:
-    runs-on: windows-latest
-  
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.12'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-
-    - name: Compile on Windows
-      run: |
-        # Compile commands for Windows
-        
+        python setup.py bdist_wheel
 
   test:
     runs-on: ubuntu-latest
@@ -129,4 +82,3 @@ jobs:
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      
