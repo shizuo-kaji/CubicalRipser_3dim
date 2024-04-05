@@ -28,7 +28,9 @@ jobs:
         python -m pip install setuptools wheel
   
     - name: Install pybind11
-      run: pip install pybind11
+      run: |
+        pip install pybind11
+        pip install "pybind11[global]"
       
   
     - name: Compile on Ubuntu
