@@ -33,6 +33,11 @@ Install the Python module only:
 
     % pip install -U cripser
 
+If there is some trouble (such as "an incompatible architecture" error), please try the following:
+
+    % pip uninstall cripser
+    % pip install --no-binary cripser cripser
+
 ### Build from source
 The command-line executable should be easily build with C++11 compilers such as G++, Clang, or Microsoft C++.
 To build the command-line executable from source:
