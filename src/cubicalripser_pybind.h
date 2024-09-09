@@ -45,9 +45,10 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	config.format = NUMPY;
 
 	vector<WritePairs> writepairs; // (dim birth death x y z)
-	writepairs.clear();
+	writepairs.reserve(1000);
+	//writepairs.clear();
 	
-	DenseCubicalGrids* dcg = new DenseCubicalGrids(config);
+	auto dcg = std::make_unique<DenseCubicalGrids>(config);
 	vector<Cube> ctr;
 
     const auto &buff_info = img.request();
@@ -64,23 +65,14 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 
 	dcg->ax = shape[0];
 	dcg->img_x = shape[0];
-	if (dcg->dim>1) {
-		dcg->ay = shape[1];
-		dcg->img_y = shape[1];
-	}else {
-		dcg->ay = 1;
-		dcg->img_y = 1;
-	}
-	if (dcg->dim>2) {
-		dcg->az = shape[2];
-		dcg->img_z = shape[2];
-	}else {
-		dcg->az = 1;
-		dcg->img_z = 1;
-	}
+    dcg->ay = (dcg->dim > 1) ? shape[1] : 1;
+    dcg->img_y = dcg->ay;
+    dcg->az = (dcg->dim > 2) ? shape[2] : 1;
+    dcg->img_z = dcg->az;
 	dcg -> gridFromArray(&img.data()[0], embedded, fortran_order);
 //	dense3[x][y][z] = -(*img.data(x-2, y-2, z-2));
 
+	// padded boundary
     if(config.tconstruction){
         if(dcg->az>1) dcg->az++;
         dcg->ax++;
@@ -95,7 +87,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	// compute PH
 	if(config.method==ALEXANDER){
 		// compute PH
-		JointPairs* jp = new JointPairs(dcg, writepairs, config);
+		auto jp = std::make_unique<JointPairs>(dcg.get(), writepairs, config);
 		if(dcg->dim==1){
 			jp -> enum_edges({0},ctr);
 			jp -> joint_pairs_main(ctr,0); // dim0
@@ -106,11 +98,11 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 			jp -> enum_edges({0,1,2,3,4,5,6,7,8,9,10,11,12},ctr);
 			jp -> joint_pairs_main(ctr,2); // dim2
 		}
-		delete jp;
+//		delete jp;
 	}else{
-		ComputePairs* cp = new ComputePairs(dcg, writepairs, config);
-		vector<uint32_t> betti(0);
-		JointPairs* jp = new JointPairs(dcg, writepairs, config);
+        auto cp = std::make_unique<ComputePairs>(dcg.get(), writepairs, config);
+        auto jp = std::make_unique<JointPairs>(dcg.get(), writepairs, config);
+        std::vector<uint32_t> betti;
 		if(dcg->dim==1){
 			jp -> enum_edges({0},ctr);
 		}else if(dcg->dim==2){
@@ -129,10 +121,10 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 				betti.push_back(writepairs.size() - betti[0] - betti[1]);
 			}
 		}
-		delete jp;
-		delete cp;
+		// delete jp;
+		// delete cp;
 	}
-	delete dcg;
+//	delete dcg;
 
 	// result
 	// determine shift between dcg and the voxel coordinates
@@ -142,17 +134,17 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	int64_t p = writepairs.size();
 	vector<ssize_t> result_shape{p,9};
 	py::array_t<double> data{result_shape};
+	auto data_ptr = data.mutable_data();
 	for(int64_t i = 0; i < p; ++i){
-		*data.mutable_data(i, 0) = writepairs[i].dim;
-		*data.mutable_data(i, 1) = writepairs[i].birth;
-		*data.mutable_data(i, 2) = writepairs[i].death;
-		*data.mutable_data(i, 3) = writepairs[i].birth_x-pad_x;
-		*data.mutable_data(i, 4) = writepairs[i].birth_y-pad_y;
-		*data.mutable_data(i, 5) = writepairs[i].birth_z-pad_z;
-		*data.mutable_data(i, 6) = writepairs[i].death_x-pad_x;
-		*data.mutable_data(i, 7) = writepairs[i].death_y-pad_y;
-		*data.mutable_data(i, 8) = writepairs[i].death_z-pad_z;
+        data_ptr[i * 9 + 0] = writepairs[i].dim;
+        data_ptr[i * 9 + 1] = writepairs[i].birth;
+        data_ptr[i * 9 + 2] = writepairs[i].death;
+        data_ptr[i * 9 + 3] = writepairs[i].birth_x - pad_x;
+        data_ptr[i * 9 + 4] = writepairs[i].birth_y - pad_y;
+        data_ptr[i * 9 + 5] = writepairs[i].birth_z - pad_z;
+        data_ptr[i * 9 + 6] = writepairs[i].death_x - pad_x;
+        data_ptr[i * 9 + 7] = writepairs[i].death_y - pad_y;
+        data_ptr[i * 9 + 8] = writepairs[i].death_z - pad_z;
 	}
-
 	return data;
 }

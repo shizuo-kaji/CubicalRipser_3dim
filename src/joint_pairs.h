@@ -11,22 +11,31 @@ You should have received a copy of the GNU Lesser General Public License along
 with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #pragma once
+
 #include <vector>
 #include <cstdint>
 #include "config.h"
 
-using namespace std;
+// Avoid using `using namespace std;` in headers to prevent namespace pollution
+// Instead, use explicit namespace prefixes
 
-class JointPairs{
+class JointPairs {
 private:
-	vector<WritePairs> *wp;
-	Config* config;
+    std::vector<WritePairs>* wp;  // Pointer to vector of WritePairs for storing results
+    Config* config;               // Pointer to configuration settings
+    DenseCubicalGrids* dcg;        // Pointer to the dense cubical grids object
+
 public:
-	DenseCubicalGrids* dcg;
-	JointPairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, Config&);
-	void enum_edges(std::vector<uint8_t>,vector<Cube>&);
-	void enum_edges_alex(std::vector<uint8_t>,vector<Cube>&);
-	void joint_pairs_main( vector<Cube>& ctr, int current_dim);
+    // Constructor for initializing JointPairs
+    JointPairs(DenseCubicalGrids* _dcg, std::vector<WritePairs>& _wp, Config& _config);
+
+    // Method to enumerate all edges based on provided types
+    void enum_edges(const std::vector<uint8_t>& types, std::vector<Cube>& ctr);
+
+    // Method to enumerate all edges (alternate method)
+    //void enum_edges_alex(const std::vector<uint8_t>& types, std::vector<Cube>& ctr);
+
+    // Main method for computing PH0
+    void joint_pairs_main(std::vector<Cube>& ctr, int current_dim);
 };

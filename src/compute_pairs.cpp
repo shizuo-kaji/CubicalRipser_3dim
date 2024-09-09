@@ -30,15 +30,14 @@ using namespace std;
 #include "compute_pairs.h"
 
 
-ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, vector<WritePairs> &_wp, Config& _config){
-	dcg = _dcg;
-	dim = 1; //  default method is LINK_FIND, where we skip dim=0
-	wp = &_wp;
-	config = &_config;
+ComputePairs::ComputePairs(DenseCubicalGrids* _dcg, std::vector<WritePairs> &_wp, Config& _config)
+    : dcg(_dcg), wp(&_wp), config(&_config), dim(1) { // Initialize dim to 1 (default method is LINK_FIND, where we skip dim=0)
+
 #ifdef GOOGLE_HASH
-	pivot_column_index.set_empty_key(0xffffffff); // for googlehash
+    pivot_column_index.set_empty_key(0xffffffff); // for Google hash
 #endif
 }
+
 
 void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 	vector<Cube> coface_entries; // pivotIDs of cofaces
@@ -107,7 +106,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                     num_apparent_pairs++;
                     break;
                 }
-                for(auto e : coface_entries){
+                for(const auto e : coface_entries){
                     working_coboundary.push(e);
                 }
             }
@@ -132,14 +131,14 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 					pivot_column_index[pivot.index] = i;
                     double death = pivot.birth;
                     if (birth != death) {
-						wp->push_back(WritePairs(dim, ctr[i], pivot, dcg, config->print));
+						wp->emplace_back(WritePairs(dim, ctr[i], pivot, dcg, config->print));
                     }
 //                        cout << pivot.index << ",f," << i << endl;
                     break;
                 }
             } else { // the column is reduced to zero, which means it corresponds to a permanent cycle
                 if (birth != dcg->threshold) {
-					wp->push_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(),  0, 0, 0, config->print));
+					wp->emplace_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(),  0, 0, 0, config->print));
                 }
                 break;
             }
@@ -210,7 +209,7 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
                 for (uint32_t x = 0; x < dcg->ax; ++x) {
                     birth = dcg -> getBirth(x,y,z,m, dim);
 //                        cout << x << "," << y << "," << z << ", " << m << "," << birth << endl;
-                    Cube v = Cube(birth,x,y,z,m);
+                    Cube v(birth,x,y,z,m);
                     if (birth < dcg -> threshold && pivot_column_index.find(v.index) == pivot_column_index.end()) {
                         ctr.push_back(v);
                     }

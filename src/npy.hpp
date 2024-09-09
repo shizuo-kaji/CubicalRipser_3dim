@@ -102,7 +102,8 @@ struct Typestring {
     inline std::string str() {
       const size_t max_buflen = 16;
       char buf[max_buflen];
-      std::sprintf(buf, "%c%c%u", c_endian, c_type, len);
+      //std::sprintf(buf, "%c%c%u", c_endian, c_type, len);
+      std::snprintf(buf, sizeof(buf), "%c%c%u", c_endian, c_type, len);
       return std::string(buf);
     }
 

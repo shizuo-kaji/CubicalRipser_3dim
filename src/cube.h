@@ -12,48 +12,66 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
-#define NONE 0xffffffffffffffff
-#include <stdint.h>
+#include <cstdint>
+#include <iostream>
 
-class Cube
-{
+constexpr uint64_t NONE = 0xffffffffffffffff;
+
+class Cube {
 public:
-	double birth;
-	uint64_t index;
+    double birth{0};
+    uint64_t index{NONE};
 
-	Cube(){
-        birth = 0;
-        index = NONE;
+    // Default constructor
+    Cube() = default;
+
+    // Copy constructor
+    Cube(const Cube& other) = default;
+
+    // Constructor with detailed initialization
+    Cube(double _birth, uint32_t _x, uint32_t _y, uint32_t _z, uint8_t _m)
+        : birth(_birth), 
+          index(static_cast<uint64_t>(_x) 
+                | (static_cast<uint64_t>(_y) << 20) 
+                | (static_cast<uint64_t>(_z) << 40) 
+                | (static_cast<uint64_t>(_m) << 60)) {}
+
+    // Constructor with index
+    Cube(double _birth, uint64_t _index)
+        : birth(_birth), index(_index) {}
+
+    // Accessor methods
+    uint32_t x() const { return index & 0xfffff; }
+    uint32_t y() const { return (index >> 20) & 0xfffff; }
+    uint32_t z() const { return (index >> 40) & 0xfffff; }
+    uint8_t m() const { return (index >> 60) & 0xf; }
+
+    // Copy method
+    void copyCube(const Cube& other) {
+        birth = other.birth;
+        index = other.index;
     }
 
-    Cube(const Cube& v){
-        birth = v.birth;
-        index = v.index;
+    // Print method
+    void print() const {
+        std::cout << "Cube(birth: " << birth << ", x: " << x() << ", y: " << y() 
+                  << ", z: " << z() << ", m: " << static_cast<int>(m()) << ")\n";
     }
 
-
-    // change the followings for bigger volume size
-    Cube(double _b, uint32_t _x, uint32_t _y, uint32_t _z, uint8_t _m){
-        birth = _b;
-        index = (uint64_t)_x | ((uint64_t)_y<<20) | ((uint64_t)_z<<40) | ((uint64_t)_m<<60);
-    };
-    Cube(double _b, uint64_t _index){
-        birth = _b;
-        index = _index;
-    };
-    uint32_t x(){return( (index) & 0xfffff);}
-    uint32_t y(){return( (index >> 20) & 0xfffff);}
-    uint32_t z(){return( (index >> 40) & 0xfffff);}
-    uint8_t m(){return( (index >> 60) & 0xf);}
-    
-	void copyCube(const Cube&);
-	void print();
-
-    
-	bool operator==(const Cube& rhs) const;
+    // Equality operator
+    bool operator==(const Cube& rhs) const {
+        return index == rhs.index;
+    }
 };
 
-// using function object is much faster than using function for sorting
-struct CubeComparator{
-	bool operator()(const Cube& o1, const Cube& o2) const;
+// Comparator for sorting cubes
+// true when b1>b2 (tie break i1<i2)
+struct CubeComparator {
+    bool operator()(const Cube& o1, const Cube& o2) const {
+        if(o1.birth == o2.birth){
+            return(o1.index < o2.index);
+        } else {
+            return(o1.birth > o2.birth);
+        }
+    }
 };

@@ -20,11 +20,8 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-CoboundaryEnumerator::CoboundaryEnumerator(DenseCubicalGrids* _dcg, uint8_t _dim){
-	nextCoface = Cube();
-	dcg = _dcg;
-    dim = _dim;
-}
+CoboundaryEnumerator::CoboundaryEnumerator(DenseCubicalGrids* _dcg, uint8_t _dim)
+    : dcg(_dcg), dim(_dim), nextCoface(Cube()) {}
 	
 void CoboundaryEnumerator::setCoboundaryEnumerator(Cube& _s) {
 	cube = _s;
