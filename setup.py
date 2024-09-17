@@ -3,18 +3,14 @@ import re
 import sys
 import platform
 import subprocess
-from pathlib import Path
-
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
-
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
-
 
 class CMakeBuild(build_ext):
     def run(self):
@@ -53,6 +49,14 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
 
+        # プラットフォームタグを取得
+        platform_tag = platform.system().lower()
+        if platform_tag == 'linux':
+            platform_tag = 'manylinux_3_x86_64'
+
+        # 既存のcmake_argsに--plat-nameオプションを追加
+        cmake_args += ['-DCMAKE_BUILD_PLATFORM=' + platform_tag]
+
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
                                                               self.distribution.get_version())
@@ -61,23 +65,24 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
-
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='cripser',
-    version='0.0.13',
-    author='Shizuo KAJI',
-    author_email='skaji@imi.kyushu-u.ac.jp',
+    name='cripser_test',
+    version='0.0.20',
+    author='shingo-murakami',
+    author_email='murakami.shingo.098@s.kyushu-u.ac.jp',
     description='Cubical Ripser Python binding',
+    python_requires='>=3.6, <4',
+    platforms=['manylinux_3_x86_64'],
     long_description=long_description, # 'Persistent homology calculation for 1D (scalar time series), 2D (image), and 3D (voxel) arrays',
     long_description_content_type='text/markdown',
     license='MIT',
-    url='https://github.com/shizuo-kaji/CubicalRipser_3dim',
+    url='https://github.com/shingo-murakami/CubicalRipser_3dim',
     keywords='persistent homology TDA topological image volume',
-    ext_modules=[CMakeExtension('cripser'),CMakeExtension('tcripser')],
+    ext_modules=[CMakeExtension('cripser_test'), CMakeExtension('tcripser_test')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )
