@@ -1,2 +1,23 @@
+[project]
+name = "cripser"
+version = "0.0.14"
+description = "Cubical Ripser Python binding"
+license = { file = "LICENSE" }
+urls = { "Homepage" = "https://github.com/shizuo-kaji/CubicalRipser_3dim" } 
+keywords = ["persistent homology", "TDA", "cubical complex"]
+readme = "README.md"
+authors = [
+    { name = "Shizuo Kaji", email = "shizuo.kaji@gmail.com"}
+    ]
+    
 [build-system]
-requires = ["setuptools", "wheel", "cmake>=3.5.0", "pybind11"]
+requires = ["setuptools>=61.0", "wheel", "scikit-build>=0.13", "cmake>=3.15", "pybind11"]
+
+[tool.scikit-build]
+cmake.minimum_required = "3.15" # Minimum CMake version
+cmake.configure-args = [
+    "-DCMAKE_CXX_STANDARD=14",
+    "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
+    "-DCMAKE_CXX_FLAGS=-O3", # Or "-DCMAKE_CXX_FLAGS_RELEASE=-O3" for Release builds
+    "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+]
