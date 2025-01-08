@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
-find_package(pybind11 CONFIG REQUIRED)
+#find_package(pybind11 CONFIG REQUIRED)
 
 # Include directories
 include_directories("src/")
@@ -32,6 +32,9 @@ add_library(tmylib STATIC
     src/coboundary_enumerator_T.cpp
     src/dense_cubical_grids_T.cpp
 )
+
+# Python modules using pybind11
+add_subdirectory(pybind11)
 
 pybind11_add_module(cripser src/cubicalripser_pybind.cpp)
 target_link_libraries(cripser PRIVATE mylib vmylib)
