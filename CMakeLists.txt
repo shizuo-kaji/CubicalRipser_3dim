@@ -9,6 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+find_package(pybind11 REQUIRED) # Find pybind11
+
 # Include directories
 include_directories("src/")
 
