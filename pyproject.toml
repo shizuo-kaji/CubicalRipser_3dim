@@ -14,10 +14,12 @@ authors = [
 requires = ["setuptools", "wheel", "scikit-build>=0.13", "cmake>=3.15", "pybind11"]
 
 [tool.scikit-build]
-cmake.minimum_required = "3.15" # Minimum CMake version
+wheel.expand-macos-universal-tags = true
+minimum-version = "build-system.requires"
 cmake.configure-args = [
     "-DCMAKE_CXX_STANDARD=14",
     "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
     "-DCMAKE_CXX_FLAGS=-O3", # Or "-DCMAKE_CXX_FLAGS_RELEASE=-O3" for Release builds
     "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
 ]
+
