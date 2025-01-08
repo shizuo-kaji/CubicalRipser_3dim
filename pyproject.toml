@@ -11,7 +11,7 @@ authors = [
     ]
     
 [build-system]
-requires = ["setuptools", "wheel", "scikit-build>=0.13", "cmake>=3.15", "pybind11[global]"]
+requires = ["setuptools", "wheel", "scikit-build>=0.13", "cmake>=3.15", "pybind11[cmake]"]
 
 [tool.cibuildwheel]
 archs = "x86_64 arm64" # Build for both architectures
