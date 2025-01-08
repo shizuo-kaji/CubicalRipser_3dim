@@ -33,9 +33,6 @@ add_library(tmylib STATIC
     src/dense_cubical_grids_T.cpp
 )
 
-# Python modules using pybind11
-add_subdirectory(pybind11)
-
 pybind11_add_module(cripser src/cubicalripser_pybind.cpp)
 target_link_libraries(cripser PRIVATE mylib vmylib)
 
