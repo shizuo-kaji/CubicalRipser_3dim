@@ -7,47 +7,88 @@ on:
   pull_request:
     branches: [main, test-workflow]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  build_sdist:
+    name: Build SDist
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Build SDist
+      run: pipx run build --sdist
+
+    - name: Check metadata
+      run: pipx run twine check dist/*
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: cibw-sdist
+        path: dist/*.tar.gz
+
+
+  build_wheels:
+    name: Wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.11"]
+        os: [ubuntu-latest, macos-13, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
 
-      - name: Install dependencies
-        run: python -m pip install -U pip setuptools wheel scikit-build pybind11
+    - uses: astral-sh/setup-uv@v4
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.12.1
-        env:
-          CIBUILDWHEEL_BUILD: cp${{ matrix.python-version }}-*
+    - uses: pypa/cibuildwheel@v2.22
+      env:
+        CIBW_ENABLE: cpython-prerelease
+        CIBW_ARCHS_WINDOWS: auto ARM64
 
-      - name: Upload wheels
-        uses: actions/upload-artifact@v3
-        with:
-          name: wheels
-          path: ./wheelhouse/*.whl
+    - name: Verify clean directory
+      run: git diff --exit-code
+      shell: bash
 
-  publish:
-    needs: build
-    if: github.ref == 'refs/heads/main'
+    - uses: actions/upload-artifact@v4
+      with:
+        name: cibw-wheels-${{ matrix.os }}
+        path: wheelhouse/*.whl
+
+
+  upload_all:
+    name: Upload if release
+    needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: pypi
     permissions:
-      contents: read
       id-token: write
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: wheels
-          path: dist
+      attestations: write
 
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+    steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: cibw-*
+        merge-multiple: true
+        path: dist
+
+    - name: Generate artifact attestation for sdist and wheels
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: "dist/*"
+
+    - uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        attestations: true
+        
