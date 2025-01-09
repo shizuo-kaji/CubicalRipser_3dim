@@ -40,7 +40,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
         include:
           - os: ubuntu-latest
-            archs: auto # or aarch64, x86_64, i686, ppc64le, s390x as needed
+            archs: "aarch64 x86_64"
           - os: macos-latest
             archs: universal2
           - os: windows-latest
