@@ -53,7 +53,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.22
         env:
           CIBW_ARCHS_LINUX: auto aarch64
-          CIBW_ARCHS_MACOS: x86_64 universal2 arm64
+          CIBW_ARCHS_MACOS: universal2
           CIBW_ARCHS_WINDOWS: x86 AMD64
           CIBW_SKIP: pp*
           
