@@ -50,7 +50,8 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: auto aarch64
           CIBW_ARCHS_MACOS: x86_64 universal2 arm64
-          CIBW_ARCHS_WINDOWS: AMD64 
+          CIBW_ARCHS_WINDOWS: AMD64
+          CIBW_ENVIRONMENT_MACOS: ARCHFLAGS='-arch arm64 -arch x86_64'
           CIBW_SKIP: pp*
           
       - name: Upload wheels
