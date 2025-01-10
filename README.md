@@ -1,181 +1,189 @@
-# CubicalRipser : Persistent homology for 2D image and 3D voxel data (and 1D scalar timeseries)
+# CubicalRipser: Persistent Homology for 2D Image, 3D Voxel Data, and 1D Scalar Time Series
 
-copyright by Takeki Sudo and Kazushi Ahara, Meiji University, 2018
+Written by 
+- Takeki Sudo and Kazushi Ahara, Meiji University
+- Shizuo Kaji, Kyushu University.
 
-modified by Shizuo Kaji, Kyushu University, 2019
+---
 
-## Description
-CubicalRipser is an adaptation of [Ripser](http://ripser.org) by Ulrich Bauer to computation of persistent homology of weighted cubical complexes.
+## Overview
 
-- For 2 and 3 dimensional cubical complexes, CubicalRipser is among the fastest programs for computing persistent homology 
-- Cubical Ripser implements both the V- and the T- constructions for the filtration of cubical complexes (see [V and T constructions](#V-and-T-constructions)).
-- The coefficients are taken in the field with two elements.
-- See [Other software for persistent homology of cubical complexes](#Other-software-for-persistent-homology-of-cubical-complexes)
+CubicalRipser is an extension of [Ripser](http://ripser.org) by Ulrich Bauer, tailored for the efficient computation of persistent homology of cubical complexes.
 
-For details, please look at our paper
-[Cubical Ripser: Software for computing persistent homology of image and volume data](https://arxiv.org/abs/2005.12692)
-by Shizuo Kaji, Takeki Sudo, Kazushi Ahara.
+### Key Features:
+- **High Performance**: Among the fastest tools for computing persistent homology of 2D and 3D cubical complexes.
+- **Flexible Filtrations**: Supports both **V-construction** and **T-construction** for cubical complexes ([details](#v-and-t-constructions)).
+- **Binary Coefficients**: Computations are performed over the field with two elements.
+- **Cross-Platform**: Python module and standalone command-line executable available.
+
+For description, refer to the paper:  
+*[Cubical Ripser: Software for Computing Persistent Homology of Image and Volume Data](https://arxiv.org/abs/2005.12692)*  
+by Shizuo Kaji, Takeki Sudo, and Kazushi Ahara.
+
+---
 
 ## License
-CubicalRipser is free software: you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the
-Free Software Foundation, either version 3 of the License, or (at your option)
-any later version.
 
-## Get Started
-- You can try Cubical Ripser on [Google Colaboratory](https://colab.research.google.com/github/shizuo-kaji/CubicalRipser_3dim/blob/master/demo/cubicalripser.ipynb)
-- You may also want to look at [A guide through TDA tools](https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb) giving a hands-on tutorial for various tools for topological data analysis including Cubical Ripser
-- How Deep-learning and Persistent homology can be combined is demonstrated: [Example 1](https://github.com/shizuo-kaji/HomologyCNN) and [Example 2](https://github.com/shizuo-kaji/PretrainCNNwithNoData)
+CubicalRipser is open-source software licensed under the GNU Lesser General Public License v3.0 or later.  
+Refer to the [LICENSE](LICENSE) file for more details.
 
-## Installation
-### Recommended: pip
-Install the Python module only:
+---
 
-    % pip install -U cripser
+## Getting Started
 
-If there is some trouble (such as "an incompatible architecture" error), please try the following:
+### Try Online
+- **Google Colab Demo**: [CubicalRipser in Action](https://colab.research.google.com/github/shizuo-kaji/CubicalRipser_3dim/blob/master/demo/cubicalripser.ipynb)  
+- **Topological Data Analysis (TDA) Tutorial**: [Hands-On Guide](https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb)  
+- **Applications in Deep Learning**:  
+  - [Example 1: Homology-enhanced CNNs](https://github.com/shizuo-kaji/HomologyCNN)  
+  - [Example 2: Pretraining CNNs without Data](https://github.com/shizuo-kaji/PretrainCNNwithNoData)  
 
-    % pip uninstall cripser
-    % pip install --no-binary cripser cripser
+### Installation
 
-### Build from source
-The command-line executable should be easily build with C++11 compilers such as G++, Clang, or Microsoft C++.
-To build the command-line executable from source:
+#### Using `pip` (Recommended)
+Install the Python module directly:  
+```bash
+pip install -U cripser
+```
 
-    % cd build
-    % cmake ..
-    % make
+If you encounter architecture compatibility issues, try:  
+```bash
+pip uninstall cripser
+pip install --no-binary cripser cripser
+```
 
-The executable is "cubicalripser".
+#### Building from Source
+Requires a C++11-compatible compiler (e.g., GCC, Clang, MSVC).
 
-If cmake is not available on your system, you can also do
+1. Build the command-line executable:  
+   ```bash
+   cd build
+   cmake ..
+   make
+   ```
+   The executable `cubicalripser` will be created.
 
-    % cd src
-    % make all
+2. Alternatively, without `cmake`:  
+   ```bash
+   cd src
+   make all
+   ```
+   Modify the `Makefile` if needed.
 
-but perhaps you have to manually modify "Makefile".
+3. Install the Python module:  
+   ```bash
+   pip install .
+   ```
 
-To install Python module,
+#### Windows Notes
+- Use a 64-bit compiler to match Python's architecture, e.g.:  
+  ```bash
+  cmake .. -G"Visual Studio 15 2017 Win64"
+  cmake --build . --target ALL_BUILD --config Release
+  ```
+- Fix potential `ssize_t` issues in `pybind11` by adding:  
+  ```cpp
+  typedef SSIZE_T ssize_t;
+  ```
+  in `pybind11/include/pybind11/numpy.h` after `#if defined(_MSC_VER)`.
 
-    % pip install .
+---
 
+## Usage
 
-### Windows specifics
-On Windows, you may get an error like "Python config failure: Python is 64-bit, chosen compiler is 32-bit".
-Then, you have to specify your compiler; for example
+### Python Module
 
-    % cmake .. -G"Visual Studio 15 2017 Win64"
-    % cmake --build . --target ALL_BUILD --config Release
+Cubical Ripser accepts 1D/2D/3D Numpy arrays.
 
-Also, due to the non-standard type used in pybind11, you may encounter an error 
-saying "the type ssize_t is undefined". This error may be resolved by adding
+```python
+import cripser
+import numpy as np
 
-    typedef SSIZE_T ssize_t;
+arr = np.load("input.npy").astype(np.float64)
+pd = cripser.computePH(arr, maxdim=2)
+```
+**Result**: A NumPy array of shape `(n, 9)` where each row contains:  
+`dim, birth, death, x1, y1, z1, x2, y2, z2`.
 
-right after the first appearance of 
+They indicate the dimension of the cycle, birth-time, death-time, location (x1,y1,z1) of the cell giving birth to the cycle, and location (x2,y2,z2) of the cell destroying the cycle.
 
-    #if defined(_MSC_VER)
+- To use the **T-construction**:  
+  ```python
+  import tcripser
+  pd = tcripser.computePH(arr, maxdim=2)
+  ```
 
-in pybind11/include/pybind11/numpy.h
+### Command-Line Executable
+```bash
+./cubicalripser --print --maxdim 2 --output out.csv demo/3dimsample.txt
+```
+**Result**: `out.csv` with rows formatted as:  
+`dim, birth, death, x1, y1, z1, x2, y2, z2`.
 
-
-## How to use
-### Python module
-To use from python,
-
-    import cripser
-    pd = cripser.computePH(arr,maxdim=2)
-
-where arr is a 2D or 3D numpy array of type numpy.float64.
-The result is stored in (n,9)-array, where n is the number of cycles.
-Each row consists of
-
-    dim birth   death   x1  y1  z1  x2  y2  z2
-
-where (x1,y1,z1) is the location of the creator cell of the cycle and (x2,y2,z2) is the location of the destroyer cell of the cycle.
-See also [Creator and Destroyer cells](#Creator-and-Destroyer-cells).
-
-If you want to compute with the T-construction instead of the V-construction,
-
-    import tcripser
-    pd = tcripser.computePH(arr,maxdim=2)
-    
-Look at the Jupyter notebook demo/cubicalripser.ipynb and https://github.com/shizuo-kaji/HomologyCNN for practical usage.
-
-### Command-line executable
-(See also [2D Image file](#2D-Image-file) for a Python-based command-line utility.)
-
-To see the command-line options:
-
-    % ./cubicalripser
-
-Example:
-
-    % ./cubicalripser --print --maxdim 2 --output out.csv demo/3dimsample.txt
-
-The results are recorded in **result.csv**.
-Each line in the output **result.csv** consists of nine numbers indicating
+Each line consists of nine numbers indicating
 the dimension of the cycle, birth-time, death-time, the creator location (x,y,z), and the destroyer location (x,y,z). 
 
-Cubical Ripser accepts 1D/2D/3D Numpy arrays
-
-    % ./cubicalripser --output result.csv input.npy
-
-## Input file format
-The python version accepts NUMPY arrays as input.
-A small utility is included that converts images in various formats into NUMPU arrays.
-
-The command-line version of CubicalRipser accepts three types of input files: NUMPY (.npy), Perseus TEXT (.txt), CSV (.csv), DIPHA (.complex).
-
-### 2D Image file
-Given a JPEG image **input.jpg**, we can compute its persistent homology by
-
-    % python demo/cr.py input.jpg -o output.csv
-
-The result is saved in the CSV file **output.csv** whose rows look
-
-    dim birth   death   x1  y1  z1  x2  y2  z2
-
-where (x1,y1,z1) is the location of the creator cell of the cycle and (x2,y2,z2) is the location of the destroyer cell of the cycle.
-
-Alternatively, we can first convert the image into a 2D Numpy array **input.npy** by
-
-    % python demo/img2npy.py input.jpg input.npy
-
-and compute its persistent homology by the python module:
+For **Numpy arrays**:  
+```bash
+./cubicalripser --output result.csv input.npy
 ```
-import numpy as np                                      # import the Numpy module
-import cripser                                          # import the Cubical Ripser python module
-arr = np.load("input.npy").astype(np.float64)           # load the image in the numpy array format
-result = cripser.computePH(arr,maxdim=1)   # compute the persistent homology up to degree 1
-```
-Here, **result** is another 2D Numpy array of shape (M,9), where M is the number of cycles.
-The none numbers of each row indicate the dimension of the cycle, birth-time, death-time, location (x1,y1,z1) of the cell giving birth to the cycle, and location (x2,y2,z2) of the cell destroying the cycle.
 
-### 3D Volume file
-Given a series of DICOM files named **input00.dcm**, **input01.dcm**, **input02.dcm**... under the directory **dicom**,
-we can compute its persistent homology by
+---
 
-    % python demo/cr.py dicom  --sort -it dcm -o output.csv
+## Input Formats
 
-by reading .dcm files from the directry **dicom** in a sorted order.
+### Supported Formats (command-line version)
+- **NUMPY (.npy)**: Native format for both Python and CLI.  
+- **Perseus Text (.txt)**: [Specification](http://people.maths.ox.ac.uk/nanda/perseus/).  
+- **CSV (.csv)**: Simplified input for 2D images.
+- **DIPHA (.complex)**: [Specification](https://github.com/DIPHA/dipha#file-formats).
 
-Alternatively, we can first convert the DICOM files to a single 3D Numpy array **volume.npy**
-that is compatible with Cubical Ripser by
-
-    % python demo/img2npy.py dicom/input*.dcm volume.npy 
-
-A series of image files such as JPEG and PNG files (as long as the Pillow library can handle them)
+### Image to Array Conversion
+A small utility is included that converts images in various formats into NUMPY arrays.
+- Convert images to `.npy`:  
+  ```bash
+  python demo/img2npy.py input.jpg output.npy
+  ```
+  A series of image files such as JPEG and PNG files (as long as the Pillow library can handle them)
 can also be made into a volume in a similar way:
+  ```bash
+    python demo/img2npy.py input*.jpg volume.npy 
+  ```
+    Note that here we rely on the shell's path expansion. If your shell does not support it, you can manually specify file names as in the following:
+  ```bash
+    python demo/img2npy.py input00.dcm input01.dcm input02.dcm volume.npy 
+  ```
 
-    % python demo/img2npy.py input*.jpg volume.npy 
+- Handle DICOM volumes:
+Given a series of DICOM files named **input00.dcm**, **input01.dcm**, **input02.dcm**... under the directory **dicom**,
+we can convert the DICOM files to a single 3D Numpy array **volume.npy**
+that is compatible with Cubical Ripser by
+  ```bash
+  python demo/img2npy.py dicom/*.dcm output.npy
+  ```
+  Or, we can compute persistent homology directly by
+  ```bash
+    python demo/cr.py dicom  --sort -it dcm -o output.csv
+  ```
+  by reading .dcm files from the directry **dicom** in a sorted order.
 
-Note that here we rely on the shell's path expansion.
-If your shell does not support it,
-you can manually specify file names as in the following:
+### DIPHA file
+The filename should end with ".complex".
+Look at [DIPHA binary format](https://github.com/DIPHA/dipha#file-formats) for specification.
 
-    % python demo/img2npy.py input00.dcm input01.dcm input02.dcm volume.npy 
-
+We can convert input and output files between Cubical Ripser and DIPHA.
+- to convert an Numpy array **img.npy** into DIPHA's format **img.complex**
+  ```bash
+    python dipha2npy.py img.npy img.complex 
+  ```
+- the other way around
+  ```bash
+    python dipha2npy.py img.complex img.npy
+  ```
+- convert DIPHA's output **result.output** into an Numpy array **result.npy**
+  ```bash
+    python dipha2npy.py result.output result.npy 
+  ```
 ### 1D time series
 A scalar time-series can be considered as a 1D image,
 so Cubical Ripser can compute its persistent homology.
@@ -184,71 +192,16 @@ Note that other software would be more efficient for this purpose.
 An example of regressing the frequency of noisy sine curves
 is demonstrated [here](https://github.com/shizuo-kaji/TutorialTopologicalDataAnalysis).
 
+---
 
-### Deep Learning X Persistent homology
+## V and T Constructions
 
-*Lifetime enhanced image* is a way to feed the topological features obtained by persistent homology
-into convolutional neural networks (CNNs).
+- **V-Construction**: Pixels represent 0-cells (4-neighbor connectivity in 2D).  
+- **T-Construction**: Pixels represent top-cells (8-neighbor connectivity in 2D).
 
-    % ./cubicalripser --output result.npy input.npy
-    % python demo/stackPH.py result.npy -o lifetime_image.npy -i input.npy
-
-In **lifetime_image.npy**, persistent homology is encoded as the extra channels so that it can be used as input for CNNs.
-
-Please look at the example section of [our paper](https://arxiv.org/abs/2005.12692)
-and the [demonstration](https://github.com/shizuo-kaji/HomologyCNN) for details.
-
-Similarly, the *persistent histogram image* can be obtained by
-
-    % python demo/stackPH.py result.npy -o lifetime_image.npy -t hist -i input.npy
-
-
-### CSV file (only for 2D image)
-The filename should end with ".csv".
-
-### Text file (Perseus)
-The filename should end with ".txt".
-Please look at [Perseus Dense Cubical Grids format](http://people.maths.ox.ac.uk/nanda/perseus/) for specification.
-
-```
-3
-max_x
-max_y
-max_z
-val[1,1,1]
-val[2,1,1]
-...
-val[max_x,max_y,max_z]
-```
-
-### DIPHA file
-The filename should end with ".complex".
-Look at [DIPHA binary format](https://github.com/DIPHA/dipha#file-formats) for specification.
-
-We can convert input and output files between Cubical Ripser and DIPHA.
-- to convert an Numpy array **img.npy** into DIPHA's format **img.complex**
-
-    % python dipha2npy.py img.npy img.complex 
-
-- the other way around
-
-    % python dipha2npy.py img.complex img.npy
-
-- convert DIPHA's output **result.output** into an Numpy array **result.npy**
-
-    % python dipha2npy.py result.output result.npy 
-
-## V and T constructions
-There are two major ways to build a filtred cubical complex from an image (that is, a function over a grid).
-- In the V-construction, each pixel in the image corresponds to the 0 cell. 
-- In the T-construction, each pixel in the image corresponds to the top cell.
-
-In the 2D setting, the V-construction amounts to considering 4-neighbour pixel connectivity,
-whereas the T-construction amounts to considering 8-neighbour pixel connectivity.
-
-Cubical Ripser provides two versions of executables: 
-- for the V-construction: cubicalripser, cripser (python module)
-- for the T-construction: tcubicalripser (no python module provided)
+Use the appropriate executable for your needs:  
+- **V-construction**: `cubicalripser` (Python module: `cripser`).  
+- **T-construction**: `tcubicalripser` (Python module: `tcripser`).
 
 By the Alexander duality, the following two give essentially the same results:
 
@@ -258,9 +211,10 @@ By the Alexander duality, the following two give essentially the same results:
 The difference is in the sign of the filtration and the permanent cycle.
 Here, (--embedded) converts the input I to -I^\infty described in the paper below.
 
-Look at the following paper for details:
-[Duality in Persistent Homology of Images by
-Adélie Garin, Teresa Heiss, Kelly Maggs, Bea Bleile, Vanessa Robins](https://arxiv.org/abs/2005.04597)
+For more details, see 
+*[Duality in Persistent Homology of Images](https://arxiv.org/abs/2005.04597)* by Adélie Garin et al.
+
+---
 
 ## Creator and Destroyer cells
 The creator of a cycle is the cell which gives birth to the cycle. 
@@ -279,6 +233,32 @@ Note that when computed with the (--embedded) option, the roles of creator and d
 
 
 The authors thank Nicholas Byrne for suggesting the convention and providing a test code.
+
+
+---
+
+## Deep Learning Integration
+
+- **Lifetime Enhanced Image**: Adds topological features as additional channels for CNNs.  
+  ```bash
+  ./cubicalripser --output result.npy input.npy
+  python demo/stackPH.py result.npy -o lifetime_image.npy -i input.npy
+  ```
+  In **lifetime_image.npy**, persistent homology is encoded as the extra channels so that it can be used as input for CNNs.
+
+  Please look at the example section of [our paper](https://arxiv.org/abs/2005.12692).
+
+- **Persistent Histogram Image**:  
+  Similarly, the *persistent histogram image* can be obtained by
+  ```bash
+  python demo/stackPH.py result.npy -o hist_image.npy -t hist -i input.npy
+  ```
+
+  For practical examples, see [HomologyCNN](https://github.com/shizuo-kaji/HomologyCNN).
+
+---
+
+
 
 
 
@@ -306,7 +286,7 @@ The memory footprint is relatively large.
 
 - [GUDHI](http://gudhi.gforge.inria.fr/) developed at INRIA
 
-It computes for the T-construction of the image.
+It computes for the V- and T-construction of an array of any dimension.
 It is well-documented and offers a well-organised and easy to use interface.
 It focuses more on usability than performance.
 

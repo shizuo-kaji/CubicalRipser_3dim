@@ -12,7 +12,6 @@ set(CMAKE_OSX_ARCHITECTURES arm64;x86_64)
 
 find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 #find_package(pybind11 CONFIG REQUIRED)
-find_package(PythonExtensions REQUIRED)
 
 
 # Include directories
