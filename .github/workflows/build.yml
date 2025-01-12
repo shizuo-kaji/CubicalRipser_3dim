@@ -71,7 +71,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     environment:
       name: testpypi #
-      url: https://pypi.org/p/cripser
+      url: https://test.pypi.org/p/cripser/ # https://pypi.org/p/cripser
     permissions:
       id-token: write
 
