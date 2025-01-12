@@ -39,7 +39,7 @@ using namespace std;
 namespace py = pybind11;
 
 /////////////////////////////////////////////
-py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_dim=false, bool embedded=false, bool fortran_order=false, const std::string &location="yes"){
+py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_dim=false, bool embedded=false, const std::string &location="yes"){
 	// we ignore "location" argument
 	Config config;
 	config.format = NUMPY;
@@ -69,6 +69,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
     dcg->img_y = dcg->ay;
     dcg->az = (dcg->dim > 2) ? shape[2] : 1;
     dcg->img_z = dcg->az;
+	bool fortran_order = img.flags() & py::array::f_style;
 	dcg -> gridFromArray(&img.data()[0], embedded, fortran_order);
 //	dense3[x][y][z] = -(*img.data(x-2, y-2, z-2));
 

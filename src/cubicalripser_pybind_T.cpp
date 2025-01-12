@@ -31,7 +31,7 @@ PYBIND11_MODULE(tcripser, m) {
     )pbdoc";
 
     m.def("computePH", &computePH, R"pbdoc(Compute Persistent Homology
-    )pbdoc", py::arg("arr"),  py::arg("maxdim")=2, py::arg("top_dim")=false, py::arg("embedded")=false, py::arg("fortran_order")=false, py::arg("location")="yes");
+    )pbdoc", py::arg("arr"),  py::arg("maxdim")=2, py::arg("top_dim")=false, py::arg("embedded")=false, py::arg("location")="yes");
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;
