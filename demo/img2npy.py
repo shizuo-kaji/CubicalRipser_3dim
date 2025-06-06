@@ -133,12 +133,12 @@ if args.transform is not None:
     if args.threshold is not None:
         if args.threshold_upper_limit is not None:
             img_arr = np.logical_and(img_arr >= args.threshold,img_arr <= args.threshold_upper_limit)
-        else:    
+        else:
             img_arr = (img_arr >= args.threshold)
     elif args.threshold_upper_limit is not None:
         img_arr = (img_arr <= args.threshold_upper_limit)
-    else:        
-        img_arr = (img_arr >= args.threshold_otsu(img_arr))
+    else:
+        img_arr = (img_arr >= threshold_otsu(img_arr))
 
     if 'distance' in args.transform: # distance from the background
         if '_inv' in args.transform:

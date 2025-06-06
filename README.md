@@ -7,7 +7,7 @@ modified by Shizuo Kaji, Kyushu University, 2019
 ## Description
 CubicalRipser is an adaptation of [Ripser](http://ripser.org) by Ulrich Bauer to computation of persistent homology of weighted cubical complexes.
 
-- For 2 and 3 dimensional cubical complexes, CubicalRipser is among the fastest programs for computing persistent homology 
+- For 2 and 3 dimensional cubical complexes, CubicalRipser is among the fastest programs for computing persistent homology
 - Cubical Ripser implements both the V- and the T- constructions for the filtration of cubical complexes (see [V and T constructions](#V-and-T-constructions)).
 - The coefficients are taken in the field with two elements.
 - See [Other software for persistent homology of cubical complexes](#Other-software-for-persistent-homology-of-cubical-complexes)
@@ -67,12 +67,12 @@ Then, you have to specify your compiler; for example
     % cmake .. -G"Visual Studio 15 2017 Win64"
     % cmake --build . --target ALL_BUILD --config Release
 
-Also, due to the non-standard type used in pybind11, you may encounter an error 
+Also, due to the non-standard type used in pybind11, you may encounter an error
 saying "the type ssize_t is undefined". This error may be resolved by adding
 
     typedef SSIZE_T ssize_t;
 
-right after the first appearance of 
+right after the first appearance of
 
     #if defined(_MSC_VER)
 
@@ -99,7 +99,7 @@ If you want to compute with the T-construction instead of the V-construction,
 
     import tcripser
     pd = tcripser.computePH(arr,maxdim=2)
-    
+
 Look at the Jupyter notebook demo/cubicalripser.ipynb and https://github.com/shizuo-kaji/HomologyCNN for practical usage.
 
 ### Command-line executable
@@ -115,7 +115,7 @@ Example:
 
 The results are recorded in **result.csv**.
 Each line in the output **result.csv** consists of nine numbers indicating
-the dimension of the cycle, birth-time, death-time, the creator location (x,y,z), and the destroyer location (x,y,z). 
+the dimension of the cycle, birth-time, death-time, the creator location (x,y,z), and the destroyer location (x,y,z).
 
 Cubical Ripser accepts 1D/2D/3D Numpy arrays
 
@@ -163,18 +163,18 @@ by reading .dcm files from the directry **dicom** in a sorted order.
 Alternatively, we can first convert the DICOM files to a single 3D Numpy array **volume.npy**
 that is compatible with Cubical Ripser by
 
-    % python demo/img2npy.py dicom/input*.dcm volume.npy 
+    % python demo/img2npy.py dicom/input*.dcm volume.npy
 
 A series of image files such as JPEG and PNG files (as long as the Pillow library can handle them)
 can also be made into a volume in a similar way:
 
-    % python demo/img2npy.py input*.jpg volume.npy 
+    % python demo/img2npy.py input*.jpg volume.npy
 
 Note that here we rely on the shell's path expansion.
 If your shell does not support it,
 you can manually specify file names as in the following:
 
-    % python demo/img2npy.py input00.dcm input01.dcm input02.dcm volume.npy 
+    % python demo/img2npy.py input00.dcm input01.dcm input02.dcm volume.npy
 
 ### 1D time series
 A scalar time-series can be considered as a 1D image,
@@ -226,27 +226,27 @@ The filename should end with ".complex".
 Look at [DIPHA binary format](https://github.com/DIPHA/dipha#file-formats) for specification.
 
 We can convert input and output files between Cubical Ripser and DIPHA.
-- to convert an Numpy array **img.npy** into DIPHA's format **img.complex**
+- to convert a Numpy array **img.npy** into DIPHA's format **img.complex**
 
-    % python dipha2npy.py img.npy img.complex 
+    % python dipha2npy.py img.npy img.complex
 
 - the other way around
 
     % python dipha2npy.py img.complex img.npy
 
-- convert DIPHA's output **result.output** into an Numpy array **result.npy**
+- convert DIPHA's output **result.output** into a Numpy array **result.npy**
 
-    % python dipha2npy.py result.output result.npy 
+    % python dipha2npy.py result.output result.npy
 
 ## V and T constructions
 There are two major ways to build a filtred cubical complex from an image (that is, a function over a grid).
-- In the V-construction, each pixel in the image corresponds to the 0 cell. 
+- In the V-construction, each pixel in the image corresponds to the 0 cell.
 - In the T-construction, each pixel in the image corresponds to the top cell.
 
 In the 2D setting, the V-construction amounts to considering 4-neighbour pixel connectivity,
 whereas the T-construction amounts to considering 8-neighbour pixel connectivity.
 
-Cubical Ripser provides two versions of executables: 
+Cubical Ripser provides two versions of executables:
 - for the V-construction: cubicalripser, cripser (python module)
 - for the T-construction: tcubicalripser (no python module provided)
 
@@ -263,7 +263,7 @@ Look at the following paper for details:
 Adélie Garin, Teresa Heiss, Kelly Maggs, Bea Bleile, Vanessa Robins](https://arxiv.org/abs/2005.04597)
 
 ## Creator and Destroyer cells
-The creator of a cycle is the cell which gives birth to the cycle. 
+The creator of a cycle is the cell which gives birth to the cycle.
 For example, the voxel in a connected component with the lowest filtration value creates a 0-dimensional cycle,
 and the voxel which connects two separate connected components destroys the component with a higher birth time.
 The creator and the destroyer cells are not uniquely determined, but they provide useful information to localise the cycle.
@@ -300,7 +300,7 @@ It is integrated into Homcloud developed by the same author.
 - [DIPHA](https://github.com/DIPHA/dipha) by Ulrich Bauer and Michael Kerber
 
 It computes for the V-construction of the image.
-It is parallelised with MPI so it works on a cluster. 
+It is parallelised with MPI so it works on a cluster.
 The software has been used in various projects.
 The memory footprint is relatively large.
 
