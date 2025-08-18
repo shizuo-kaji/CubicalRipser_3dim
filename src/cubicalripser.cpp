@@ -211,9 +211,10 @@ bool file_exists(const std::string& filename) {
 void write_output(const std::vector<WritePairs>& writepairs,
                  const DenseCubicalGrids* dcg,
                  const Config& config) {
-    const uint32_t pad_x = (dcg->ax - dcg->img_x)/2;
-    const uint32_t pad_y = (dcg->ay - dcg->img_y)/2;
-    const uint32_t pad_z = (dcg->az - dcg->img_z)/2;
+    const uint32_t pad_x = (dcg->ax - dcg->img_x) / 2;
+    const uint32_t pad_y = (dcg->ay - dcg->img_y) / 2;
+    const uint32_t pad_z = (dcg->az - dcg->img_z) / 2;
+    const uint32_t pad_w = (dcg->dim < 4) ? 0u : (dcg->aw - dcg->img_w) / 2;
 
     const auto num_pairs = writepairs.size();
     std::cout << "Total number of pairs: " << num_pairs << std::endl;
@@ -226,33 +227,55 @@ void write_output(const std::vector<WritePairs>& writepairs,
         }
 
         for (const auto& pair : writepairs) {
-            out << pair.dim << "," << pair.birth << "," << pair.death;
+            out << static_cast<unsigned int>(pair.dim) << "," << pair.birth << "," << pair.death;
             if (config.location != LOC_NONE) {
-                out << "," << pair.birth_x - pad_x
-                    << "," << pair.birth_y - pad_y
-                    << "," << pair.birth_z - pad_z
-                    << "," << pair.death_x - pad_x
-                    << "," << pair.death_y - pad_y
-                    << "," << pair.death_z - pad_z;
+                if (dcg->dim < 4) {
+                    out << "," << pair.birth_x - pad_x
+                        << "," << pair.birth_y - pad_y
+                        << "," << pair.birth_z - pad_z
+                        << "," << pair.death_x - pad_x
+                        << "," << pair.death_y - pad_y
+                        << "," << pair.death_z - pad_z;
+                } else {
+                    out << "," << pair.birth_x - pad_x
+                        << "," << pair.birth_y - pad_y
+                        << "," << pair.birth_z - pad_z
+                        << "," << pair.birth_w - pad_w
+                        << "," << pair.death_x - pad_x
+                        << "," << pair.death_y - pad_y
+                        << "," << pair.death_z - pad_z
+                        << "," << pair.death_w - pad_w;
+                }
             }
             out << '\n';
         }
     }
     else if (ext == ".npy") {
-        const std::array<long unsigned, 2> shape = {num_pairs, 9};
-        std::vector<double> data(9 * num_pairs);
+        const size_t ncols = (dcg->dim < 4) ? 9 : 11; // dim,birth,death,(x1,y1,z1[,w1]),(x2,y2,z2[,w2])
+        const std::array<long unsigned, 2> shape = {num_pairs, static_cast<long unsigned>(ncols)};
+        std::vector<double> data(ncols * num_pairs, 0.0);
 
         for (size_t i = 0; i < num_pairs; ++i) {
             const auto& pair = writepairs[i];
-            data[6*i]     = pair.dim;
-            data[6*i + 1] = pair.birth;
-            data[6*i + 2] = pair.death;
-            data[6*i + 3] = pair.birth_x - pad_x;
-            data[6*i + 4] = pair.birth_y - pad_y;
-            data[6*i + 5] = pair.birth_z - pad_z;
-            data[6*i + 6] = pair.death_x - pad_x;
-            data[6*i + 7] = pair.death_y - pad_y;
-            data[6*i + 8] = pair.death_z - pad_z;
+            const size_t base = ncols * i;
+            data[base + 0] = static_cast<double>(pair.dim);
+            data[base + 1] = pair.birth;
+            data[base + 2] = pair.death;
+            // birth coords
+            data[base + 3] = static_cast<double>(pair.birth_x) - pad_x;
+            data[base + 4] = static_cast<double>(pair.birth_y) - pad_y;
+            data[base + 5] = static_cast<double>(pair.birth_z) - pad_z;
+            size_t idx = 6;
+            if (dcg->dim >= 4) {
+                data[base + idx++] = static_cast<double>(pair.birth_w) - pad_w; // base+6
+            }
+            // death coords
+            data[base + idx++] = static_cast<double>(pair.death_x) - pad_x;
+            data[base + idx++] = static_cast<double>(pair.death_y) - pad_y;
+            data[base + idx++] = static_cast<double>(pair.death_z) - pad_z;
+            if (dcg->dim >= 4) {
+                data[base + idx++] = static_cast<double>(pair.death_w) - pad_w; // base+10
+            }
         }
 
         try {
@@ -310,21 +333,26 @@ int main(int argc, char** argv) {
                 config.maxdim = std::min<uint8_t>(config.maxdim, dcg.dim - 1);
 
                 Timer timer;
-                JointPairs jp(&dcg, writepairs, config);
-
-                // Enumerate edges based on dimension
-                if (dcg.dim == 1) {
-                    jp.enum_edges({0}, ctr);
+                // For 4D, fall back to general algorithm for H0
+                if (dcg.dim >= 4) {
+                    ComputePairs cp0(&dcg, writepairs, config);
+                    cp0.assemble_columns_to_reduce(ctr, 0);
+                    cp0.compute_pairs_main(ctr);
+                } else {
+                    JointPairs jp(&dcg, writepairs, config);
+                    // Enumerate edges based on dimension (1D/2D/3D)
+                    if (dcg.dim == 1) {
+                        jp.enum_edges({0}, ctr);
+                    }
+                    else if (dcg.dim == 2) {
+                        jp.enum_edges({0, 1}, ctr);
+                    }
+                    else { // 3D
+                        jp.enum_edges({0, 1, 2}, ctr);
+                    }
+                    // Compute dimension 0 via union-find
+                    jp.joint_pairs_main(ctr, 0);
                 }
-                else if (dcg.dim == 2) {
-                    jp.enum_edges({0, 1}, ctr);
-                }
-                else {
-                    jp.enum_edges({0, 1, 2}, ctr);
-                }
-
-                // Compute dimension 0
-                jp.joint_pairs_main(ctr, 0);
                 const auto msec = timer.milliseconds();
 
                 betti.push_back(writepairs.size());
@@ -356,6 +384,18 @@ int main(int argc, char** argv) {
                         std::cout << "Number of pairs in dim 2: " << betti[2] << std::endl;
                         if (config.verbose) {
                             std::cout << "Computation took " << msec2 << " [msec]" << std::endl;
+                        }
+                        if (config.maxdim > 2) {
+                            Timer timer3;
+                            cp.assemble_columns_to_reduce(ctr, 3);
+                            cp.compute_pairs_main(ctr);  // dim3
+
+                            const auto msec3 = timer3.milliseconds();
+                            betti.push_back(writepairs.size() - betti[0] - betti[1] - betti[2]);
+                            std::cout << "Number of pairs in dim 3: " << betti[3] << std::endl;
+                            if (config.verbose) {
+                                std::cout << "Computation took " << msec3 << " [msec]" << std::endl;
+                            }
                         }
                     }
                 }
@@ -390,6 +430,14 @@ int main(int argc, char** argv) {
                         cp.compute_pairs_main(ctr);
                         betti.push_back(writepairs.size() - betti[0] - betti[1]);
                         std::cout << "Number of pairs in dim 2: " << betti[2] << std::endl;
+
+                        if (config.maxdim > 2) {
+                            // Dimension 3
+                            cp.assemble_columns_to_reduce(ctr, 3);
+                            cp.compute_pairs_main(ctr);
+                            betti.push_back(writepairs.size() - betti[0] - betti[1] - betti[2]);
+                            std::cout << "Number of pairs in dim 3: " << betti[3] << std::endl;
+                        }
                     }
                 }
                 break;

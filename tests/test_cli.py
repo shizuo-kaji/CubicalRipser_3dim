@@ -22,7 +22,7 @@ def get_exec(name):
 def test_cubicalripser_cli(tmp_path):
     exe = get_exec('cubicalripser')
     out = tmp_path / 'out.csv'
-    subprocess.run([exe, '--output', str(out), 'demo/3dimsample.txt'], check=True)
+    subprocess.run([exe, '--output', str(out), 'sample/3dimsample.txt'], check=True)
     with out.open() as f:
         lines = f.readlines()
     assert len(lines) == 18
@@ -30,7 +30,7 @@ def test_cubicalripser_cli(tmp_path):
 def test_tcubicalripser_cli(tmp_path):
     exe = get_exec('tcubicalripser')
     out = tmp_path / 'out.csv'
-    subprocess.run([exe, '--output', str(out), 'demo/3dimsample.txt'], check=True)
+    subprocess.run([exe, '--output', str(out), 'sample/3dimsample.txt'], check=True)
     with out.open() as f:
         lines = f.readlines()
     assert len(lines) == 14
