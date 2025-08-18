@@ -23,6 +23,7 @@ with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdexcept>
 #include <memory>
 #include <sstream>
+#include <array>
 
 #include "cube.h"
 #include "dense_cubical_grids.h"
@@ -184,22 +185,22 @@ std::string get_file_extension(const std::string& filename) {
 }
 
 void determine_file_format(Config& config) {
-    const std::string ext = get_file_extension(config.filename);
-    if (ext == ".txt") {
-        config.format = PERSEUS;
+    static const std::unordered_map<std::string, file_format> format_map{{".txt", PERSEUS},
+                                                                        {".npy", NUMPY},
+                                                                        {".csv", CSV},
+                                                                        {".complex", DIPHA}};
+
+    std::string ext = get_file_extension(config.filename);
+    // Convert to lowercase
+    std::transform(ext.begin(), ext.end(), ext.begin(),
+                  [](unsigned char c){ return std::tolower(c); });
+
+    auto it = format_map.find(ext);
+    if (it == format_map.end()) {
+        throw std::runtime_error(
+            "Unknown input file format (supported: .npy, .txt, .csv, .complex)");
     }
-    else if (ext == ".npy") {
-        config.format = NUMPY;
-    }
-    else if (ext == ".csv") {
-        config.format = CSV;
-    }
-    else if (ext == ".complex") {
-        config.format = DIPHA;
-    }
-    else {
-        throw std::runtime_error("Unknown input file format (supported: .npy, .txt, .csv, .complex)");
-    }
+    config.format = it->second;
 }
 
 bool file_exists(const std::string& filename) {

@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #include <cfloat>
+#include <cstdint>
 #include <string>
 
 enum calculation_method { LINKFIND, COMPUTEPAIRS, ALEXANDER};
