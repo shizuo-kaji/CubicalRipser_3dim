@@ -39,10 +39,10 @@ void JointPairs::enum_edges(const vector<uint8_t>& types, vector<Cube>& ctr) {
         for (uint32_t z = 0; z < dcg->az; ++z) {
             for (uint32_t y = 0; y < dcg->ay; ++y) {
                 for (uint32_t x = 0; x < dcg->ax; ++x) {
-                    double birth = dcg->getBirth(x, y, z, m, 1);
+                    double birth = dcg->getBirth(x, y, z, 0, m, 1);
                     // If birth value is below the threshold, add to the list
                     if (birth < config->threshold) {
-                        ctr.emplace_back(birth, x, y, z, m);
+                        ctr.emplace_back(birth, x, y, z, 0, m);
                     }
                 }
             }
@@ -115,11 +115,11 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
             // Record the birth-death pair if they are not equal
             if (birth != death) {
                 if (config->tconstruction) {
-                    wp->emplace_back(current_dim, Cube(birth, birth_ind % dcg->ax, (birth_ind / dcg->ax) % dcg->ay, (birth_ind / dcg->axy) % dcg->az, 0),
-                                     Cube(death, death_ind % dcg->ax, (death_ind / dcg->ax) % dcg->ay, (death_ind / dcg->axy) % dcg->az, 0), dcg, config->print);
+                    wp->emplace_back(current_dim, Cube(birth, birth_ind % dcg->ax, (birth_ind / dcg->ax) % dcg->ay, (birth_ind / dcg->axy) % dcg->az, 0, 0),
+                                     Cube(death, death_ind % dcg->ax, (death_ind / dcg->ax) % dcg->ay, (death_ind / dcg->axy) % dcg->az, 0, 0), dcg, config->print);
                 } else {
-                    wp->emplace_back(current_dim, birth, death, birth_ind % dcg->ax, (birth_ind / dcg->ax) % dcg->ay, (birth_ind / dcg->axy) % dcg->az,
-                                     death_ind % dcg->ax, (death_ind / dcg->ax) % dcg->ay, (death_ind / dcg->axy) % dcg->az, config->print);
+                    wp->emplace_back(current_dim, birth, death, birth_ind % dcg->ax, (birth_ind / dcg->ax) % dcg->ay, (birth_ind / dcg->axy) % dcg->az, 0,
+                                     death_ind % dcg->ax, (death_ind / dcg->ax) % dcg->ay, (death_ind / dcg->axy) % dcg->az, 0, config->print);
                 }
             }
             e->index = NONE;  // Mark edge as processed
@@ -128,7 +128,7 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
 
     // Handle the base point component for H_0
     if (current_dim == 0) {
-        wp->emplace_back(current_dim, min_birth, dcg->threshold, min_idx % dcg->ax, (min_idx / dcg->ax) % dcg->ay, (min_idx / dcg->axy) % dcg->az, 0, 0, 0, config->print);
+        wp->emplace_back(current_dim, min_birth, dcg->threshold, min_idx % dcg->ax, (min_idx / dcg->ax) % dcg->ay, (min_idx / dcg->axy) % dcg->az, 0, 0, 0, 0, config->print);
     }
 
     // Remove unnecessary edges and optimize storage

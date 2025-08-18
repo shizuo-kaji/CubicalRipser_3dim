@@ -29,11 +29,12 @@ public:
     Cube(const Cube& other) = default;
 
     // Constructor with detailed initialization
-    Cube(double _birth, uint32_t _x, uint32_t _y, uint32_t _z, uint8_t _m)
-        : birth(_birth), 
-          index(static_cast<uint64_t>(_x) 
-                | (static_cast<uint64_t>(_y) << 20) 
-                | (static_cast<uint64_t>(_z) << 40) 
+    Cube(double _birth, uint32_t _x, uint32_t _y, uint32_t _z, uint32_t _w, uint8_t _m)
+        : birth(_birth),
+          index(static_cast<uint64_t>(_x)
+                | (static_cast<uint64_t>(_y) << 15)
+                | (static_cast<uint64_t>(_z) << 30)
+                | (static_cast<uint64_t>(_w) << 45)
                 | (static_cast<uint64_t>(_m) << 60)) {}
 
     // Constructor with index
@@ -41,9 +42,10 @@ public:
         : birth(_birth), index(_index) {}
 
     // Accessor methods
-    uint32_t x() const { return index & 0xfffff; }
-    uint32_t y() const { return (index >> 20) & 0xfffff; }
-    uint32_t z() const { return (index >> 40) & 0xfffff; }
+    uint32_t x() const { return index & 0x7fff; }
+    uint32_t y() const { return (index >> 15) & 0x7fff; }
+    uint32_t z() const { return (index >> 30) & 0x7fff; }
+    uint32_t w() const { return (index >> 45) & 0x7fff; }
     uint8_t m() const { return (index >> 60) & 0xf; }
 
     // Copy method
@@ -54,8 +56,8 @@ public:
 
     // Print method
     void print() const {
-        std::cout << "Cube(birth: " << birth << ", x: " << x() << ", y: " << y() 
-                  << ", z: " << z() << ", m: " << static_cast<int>(m()) << ")\n";
+        std::cout << "Cube(birth: " << birth << ", x: " << x() << ", y: " << y()
+                  << ", z: " << z() << ", w: " << w() << ", m: " << static_cast<int>(m()) << ")\n";
     }
 
     // Equality operator

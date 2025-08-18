@@ -46,33 +46,33 @@ bool CoboundaryEnumerator::hasNextCoface() {
 		for (uint8_t i = position; i < 6; ++i) {
 			switch (i){
 			case 0:
-				birth = dcg->getBirth(cx,cy,cz,2,1);
-				nextCoface = Cube(birth, cx, cy, cz, 2);
+				birth = dcg->getBirth(cx,cy,cz,0,2,1);
+				nextCoface = Cube(birth, cx, cy, cz, 0, 2);
 				break;
 
 			case 1:
-				birth = dcg->getBirth(cx,cy,cz-1,2,1);
-				nextCoface = Cube(birth, cx, cy, cz - 1, 2);
+				birth = dcg->getBirth(cx,cy,cz-1,0,2,1);
+				nextCoface = Cube(birth, cx, cy, cz - 1, 0, 2);
 				break;
 
 			case 2:
-				birth = dcg->getBirth(cx,cy,cz,1,1);
-				nextCoface = Cube(birth, cx, cy, cz, 1);
+				birth = dcg->getBirth(cx,cy,cz,0,1,1);
+				nextCoface = Cube(birth, cx, cy, cz, 0, 1);
 				break;
 
 			case 3:
-				birth = dcg->getBirth(cx,cy-1,cz,1,1);
-				nextCoface = Cube(birth, cx, cy - 1, cz, 1);
+				birth = dcg->getBirth(cx,cy-1,cz,0,1,1);
+				nextCoface = Cube(birth, cx, cy - 1, cz, 0, 1);
 				break;
 
 			case 4:
-				birth = dcg->getBirth(cx,cy,cz,0,1);
-				nextCoface = Cube(birth, cx, cy, cz, 0);
+				birth = dcg->getBirth(cx,cy,cz,0,0,1);
+				nextCoface = Cube(birth, cx, cy, cz, 0, 0);
 				break;
 
 			case 5:
-				birth = dcg->getBirth(cx-1,cy,cz,0,1);
-				nextCoface = Cube(birth, cx - 1, cy, cz, 0);
+				birth = dcg->getBirth(cx-1,cy,cz,0,0,1);
+				nextCoface = Cube(birth, cx - 1, cy, cz, 0, 0);
 				break;
 			}
 
@@ -89,23 +89,23 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 				case 0:
-					birth = dcg->getBirth(cx,cy,cz,1,2);
-					nextCoface = Cube(birth, cx, cy, cz, 1);
+					birth = dcg->getBirth(cx,cy,cz,0,1,2);
+					nextCoface = Cube(birth, cx, cy, cz, 0, 1);
 					break;
 
 				case 1:
-					birth = dcg->getBirth(cx,cy,cz-1,1,2);
-					nextCoface = Cube(birth, cx, cy, cz - 1, 1);
+					birth = dcg->getBirth(cx,cy,cz-1,0,1,2);
+					nextCoface = Cube(birth, cx, cy, cz - 1, 0, 1);
 					break;
 
 				case 2:
-					birth = dcg->getBirth(cx,cy,cz,0,2);
-					nextCoface = Cube(birth, cx, cy, cz, 0);
+					birth = dcg->getBirth(cx,cy,cz,0,0,2);
+					nextCoface = Cube(birth, cx, cy, cz, 0, 0);
 					break;
 
 				case 3:
-					birth = dcg->getBirth(cx,cy-1,cz,0,2);
-					nextCoface = Cube(birth, cx, cy - 1, cz, 0);
+					birth = dcg->getBirth(cx,cy-1,cz,0,0,2);
+					nextCoface = Cube(birth, cx, cy - 1, cz, 0, 0);
 					break;
 				}
 				if (birth != dcg->threshold) {
@@ -119,23 +119,23 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 				case 0:
-					birth = dcg->getBirth(cx,cy,cz,2,2);
-					nextCoface = Cube(birth, cx, cy, cz, 2);
+					birth = dcg->getBirth(cx,cy,cz,0,2,2);
+					nextCoface = Cube(birth, cx, cy, cz, 0, 2);
 					break;
 
 				case 1:
-					birth = dcg->getBirth(cx,cy,cz-1,2,2);
-					nextCoface = Cube(birth, cx, cy, cz - 1, 2);
+					birth = dcg->getBirth(cx,cy,cz-1,0,2,2);
+					nextCoface = Cube(birth, cx, cy, cz - 1, 0, 2);
 					break;
 
 				case 2:
-					birth = dcg->getBirth(cx,cy,cz,0,2);
-					nextCoface = Cube(birth, cx, cy, cz, 0);
+					birth = dcg->getBirth(cx,cy,cz,0,0,2);
+					nextCoface = Cube(birth, cx, cy, cz, 0, 0);
 					break;
 
 				case 3:
-					birth = dcg->getBirth(cx-1,cy,cz,0,2);
-					nextCoface = Cube(birth, cx - 1, cy, cz, 0);
+					birth = dcg->getBirth(cx-1,cy,cz,0,0,2);
+					nextCoface = Cube(birth, cx - 1, cy, cz, 0, 0);
 					break;
 				}
 
@@ -150,23 +150,23 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 4; ++i){
 				switch(i){
 					case 0:
-						birth = dcg->getBirth(cx,cy,cz,2,2);
-						nextCoface = Cube(birth, cx, cy, cz, 2);
+						birth = dcg->getBirth(cx,cy,cz,0,2,2);
+						nextCoface = Cube(birth, cx, cy, cz, 0, 2);
 						break;
 
 					case 1:
-						birth = dcg->getBirth(cx,cy-1,cz,2,2);
-						nextCoface = Cube(birth, cx, cy - 1, cz, 2);
+						birth = dcg->getBirth(cx,cy-1,cz,0,2,2);
+						nextCoface = Cube(birth, cx, cy - 1, cz, 0, 2);
 						break;
 
 					case 2:
-						birth = dcg->getBirth(cx,cy,cz,1,2);
-						nextCoface = Cube(birth, cx, cy, cz, 1);
+						birth = dcg->getBirth(cx,cy,cz,0,1,2);
+						nextCoface = Cube(birth, cx, cy, cz, 0, 1);
 						break;
 
 					case 3:
-						birth = dcg->getBirth(cx-1,cy,cz,1,2);
-						nextCoface = Cube(birth, cx - 1, cy, cz, 1);
+						birth = dcg->getBirth(cx-1,cy,cz,0,1,2);
+						nextCoface = Cube(birth, cx - 1, cy, cz, 0, 1);
 						break;
 				}
 
@@ -185,13 +185,13 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 					case 0: // upper
-						birth = dcg->getBirth(cx,cy,cz,0,3);
-						nextCoface = Cube(birth, cx, cy, cz, 0);
+						birth = dcg->getBirth(cx,cy,cz,0,0,3);
+						nextCoface = Cube(birth, cx, cy, cz, 0, 0);
 						break;
 
 					case 1: // lower
-						birth = dcg->getBirth(cx,cy,cz-1,0,3);
-						nextCoface = Cube(birth, cx, cy, cz - 1, 0);
+						birth = dcg->getBirth(cx,cy,cz-1,0,0,3);
+						nextCoface = Cube(birth, cx, cy, cz - 1, 0, 0);
 						break;
 				}
 
@@ -206,13 +206,13 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 					case 0: // left
-						birth = dcg->getBirth(cx,cy,cz,0,3);
-						nextCoface = Cube(birth, cx, cy, cz, 0);
+						birth = dcg->getBirth(cx,cy,cz,0,0,3);
+						nextCoface = Cube(birth, cx, cy, cz, 0, 0);
 						break;
 
 					case 1: //right
-						birth = dcg->getBirth(cx,cy-1,cz,0,3);
-						nextCoface = Cube(birth, cx, cy - 1, cz, 0);
+						birth = dcg->getBirth(cx,cy-1,cz,0,0,3);
+						nextCoface = Cube(birth, cx, cy - 1, cz, 0, 0);
 						break;
 				}
 
@@ -227,13 +227,13 @@ bool CoboundaryEnumerator::hasNextCoface() {
 			for(uint8_t i = position; i < 2; ++i){
 				switch(i){
 				case 0: // left
-					birth = dcg->getBirth(cx,cy,cz,0,3);
-					nextCoface = Cube(birth, cx, cy, cz, 0);
+					birth = dcg->getBirth(cx,cy,cz,0,0,3);
+					nextCoface = Cube(birth, cx, cy, cz, 0, 0);
 					break;
 
 				case 1: //right
-					birth = dcg->getBirth(cx-1,cy,cz,0,3);
-					nextCoface = Cube(birth, cx - 1, cy, cz, 0);
+					birth = dcg->getBirth(cx-1,cy,cz,0,0,3);
+					nextCoface = Cube(birth, cx - 1, cy, cz, 0, 0);
 					break;
 				}
 

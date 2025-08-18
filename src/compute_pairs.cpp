@@ -138,7 +138,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                 }
             } else { // the column is reduced to zero, which means it corresponds to a permanent cycle
                 if (birth != dcg->threshold) {
-					wp->emplace_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(),  0, 0, 0, config->print));
+					wp->emplace_back(WritePairs(dim, birth, dcg->threshold, ctr[i].x(), ctr[i].y(), ctr[i].z(), ctr[i].w(), 0, 0, 0, 0, config->print));
                 }
                 break;
             }
@@ -204,14 +204,16 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
         pivot_column_index.clear();
     }
     for (uint8_t m = 0; m < max_m; ++m) {
-        for(uint32_t z = 0; z < dcg->az; ++z){
-            for (uint32_t y = 0; y < dcg->ay; ++y) {
-                for (uint32_t x = 0; x < dcg->ax; ++x) {
-                    birth = dcg -> getBirth(x,y,z,m, dim);
+        for(uint32_t w = 0; w < dcg->aw; ++w){
+            for(uint32_t z = 0; z < dcg->az; ++z){
+                for (uint32_t y = 0; y < dcg->ay; ++y) {
+                    for (uint32_t x = 0; x < dcg->ax; ++x) {
+                        birth = dcg -> getBirth(x,y,z,w,m, dim);
 //                        cout << x << "," << y << "," << z << ", " << m << "," << birth << endl;
-                    Cube v(birth,x,y,z,m);
-                    if (birth < dcg -> threshold && pivot_column_index.find(v.index) == pivot_column_index.end()) {
-                        ctr.push_back(v);
+                        Cube v(birth,x,y,z,w,m);
+                        if (birth < dcg -> threshold && pivot_column_index.find(v.index) == pivot_column_index.end()) {
+                            ctr.push_back(v);
+                        }
                     }
                 }
             }
