@@ -114,22 +114,21 @@ They indicate the dimension of the cycle, birth-time, death-time, location (x1,y
     ```
 
 #### GUDHI Conversion Helpers
-For convenience, a small utility package `cripser.utils` is included to convert
+For convenience, a small utility package is included to convert
 the raw output into GUDHI-compatible formats.
 
 ```python
 import numpy as np
 import cripser
-from cripser.utils import to_gudhi_diagrams, to_gudhi_persistence
 
 arr = np.load("input.npy").astype(np.float64)
 ph = cripser.computePH(arr, maxdim=2)
 
 # List of diagrams per dimension, each an array of shape (k, 2)
-dgms = to_gudhi_diagrams(ph)
+dgms = cripser.to_gudhi_diagrams(ph)
 
 # Or, GUDHI SimplexTree-like list of (dim, (birth, death))
-persistence = to_gudhi_persistence(ph)
+persistence = cripser.to_gudhi_persistence(ph)
 
 # Example: plot using GUDHI
 import gudhi as gd
