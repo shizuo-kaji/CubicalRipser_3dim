@@ -39,36 +39,19 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 		switch (dim) {
 			case 0:
 				return dense3[cx+1][cy+1][cz+1];
-			case 1:
-				switch (cm) {
-				case 0:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 1][cz + 1]);
-				case 1:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 2][cz + 1]);
-				case 2:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 1][cz + 2]);
-				case 3:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 2][cz + 1]);
-				case 4:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 0][cz + 1]);
-				// for 3d dual only
-				case 5:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 0][cz + 2]);
-				case 6:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 1][cy + 2][cz + 2]);
-				case 7:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 0][cz + 2]);
-				case 8:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 1][cz + 2]);
-				case 9:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 2][cz + 2]);
-				case 10:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 0][cz + 0]);
-				case 11:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 1][cz + 0]);
-				case 12:
-					return max(dense3[cx+1][cy+1][cz+1], dense3[cx + 2][cy + 2][cz + 0]);
+			case 1: {
+				static const int off[13][3] = {
+					{1,0,0},{0,1,0},{0,0,1},{1,1,0},{1,-1,0},
+					{0,-1,1},{0,1,1},{1,-1,1},{1,0,1},{1,1,1},
+					{1,-1,-1},{1,0,-1},{1,1,-1}
+				};
+				if (cm < 13) {
+					const double b = dense3[cx+1][cy+1][cz+1];
+					const int *o = off[cm];
+					return max(b, dense3[cx+1+o[0]][cy+1+o[1]][cz+1+o[2]]);
 				}
+				// fallthrough on invalid cm
+			}
 			case 2:
 				switch (cm) {
 				case 0: // x - y (fix z)
@@ -143,82 +126,31 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 }
 
 
-// (x,y,z) of the voxel which defines the birthtime of the cube
+// (x,y,z) or (x,y,z,w) of the voxel which defines the birthtime of the cube
 vector<uint32_t> DenseCubicalGrids::ParentVoxel(uint8_t _dim, Cube &c){
-	uint32_t cx = c.x();
-	uint32_t cy = c.y();
-	uint32_t cz = c.z();
-	uint32_t cw = c.w();
+	(void)_dim;
+	uint32_t cx = c.x(), cy = c.y(), cz = c.z(), cw = c.w();
 
 	if (dim < 4) {
-		if(c.birth == dense3[cx+1][cy+1][cz+1]){
-			return {cx,cy,cz};
-		}else if(c.birth == dense3[cx+2][cy+1][cz+1]){
-			return {cx+1,cy,cz};
-		}else if(c.birth == dense3[cx+2][cy+2][cz+1]){
-			return {cx+1,cy+1,cz};
-		}else if(c.birth == dense3[cx+1][cy+2][cz+1]){
-			return {cx,cy+1,cz};
-		}else if(c.birth == dense3[cx+1][cy+1][cz+2]){
-			return {cx,cy,cz+1};
-		}else if(c.birth == dense3[cx+2][cy+1][cz+2]){
-			return {cx+1,cy,cz+1};
-		}else if(c.birth == dense3[cx+1][cy+2][cz+2]){
-			return {cx,cy+1,cz+1};
-		}else if(c.birth == dense3[cx+2][cy+2][cz+2]){
-			return {cx+1,cy+1,cz+1};
-		}else if(c.birth == dense3[cx+2][cy+0][cz+1]){			// for 3d dual only
-			return { cx + 1,cy - 1,cz };
-		}else if(c.birth == dense3[cx+1][cy+0][cz+2]){
-			return { cx,cy - 1,cz + 1 };
-		}else if(c.birth == dense3[cx+2][cy+0][cz+2]){
-			return { cx + 1,cy - 1,cz + 1 };
-		}else if(c.birth == dense3[cx+2][cy+0][cz+0]){
-			return { cx + 1,cy - 1,cz - 1 };
-		}else if(c.birth == dense3[cx+2][cy+1][cz+0]){
-			return { cx + 1,cy,cz - 1 };
-		}else if(c.birth == dense3[cx+2][cy+2][cz+0]){
-			return { cx + 1,cy + 1,cz - 1 };
-		}else{
-			cerr << "parent voxel not found!" << endl;
-			return { 0,0,0 };
+		static const int rel[][3] = {
+			{0,0,0},{1,0,0},{1,1,0},{0,1,0},{0,0,1},{1,0,1},{0,1,1},{1,1,1},
+			{1,-1,0},{0,-1,1},{1,-1,1},{1,-1,-1},{1,0,-1},{1,1,-1}
+		};
+		for (auto &r : rel) {
+			int dx=r[0], dy=r[1], dz=r[2];
+			if (c.birth == dense3[cx+1+dx][cy+1+dy][cz+1+dz])
+				return {cx+dx, cy+dy, cz+dz};
 		}
-	} else { // dim == 4
-		if(c.birth == dense4[cx+1][cy+1][cz+1][cw+1]){
-			return {cx,cy,cz,cw};
-		} else if(c.birth == dense4[cx+2][cy+1][cz+1][cw+1]){
-			return {cx+1,cy,cz,cw};
-		} else if(c.birth == dense4[cx+1][cy+2][cz+1][cw+1]){
-			return {cx,cy+1,cz,cw};
-		} else if(c.birth == dense4[cx+2][cy+2][cz+1][cw+1]){
-			return {cx+1,cy+1,cz,cw};
-		} else if(c.birth == dense4[cx+1][cy+1][cz+2][cw+1]){
-			return {cx,cy,cz+1,cw};
-		} else if(c.birth == dense4[cx+2][cy+1][cz+2][cw+1]){
-			return {cx+1,cy,cz+1,cw};
-		} else if(c.birth == dense4[cx+1][cy+2][cz+2][cw+1]){
-			return {cx,cy+1,cz+1,cw};
-		} else if(c.birth == dense4[cx+2][cy+2][cz+2][cw+1]){
-			return {cx+1,cy+1,cz+1,cw};
-		} else if(c.birth == dense4[cx+1][cy+1][cz+1][cw+2]){
-			return {cx,cy,cz,cw+1};
-		} else if(c.birth == dense4[cx+2][cy+1][cz+1][cw+2]){
-			return {cx+1,cy,cz,cw+1};
-		} else if(c.birth == dense4[cx+1][cy+2][cz+1][cw+2]){
-			return {cx,cy+1,cz,cw+1};
-		} else if(c.birth == dense4[cx+2][cy+2][cz+1][cw+2]){
-			return {cx+1,cy+1,cz,cw+1};
-		} else if(c.birth == dense4[cx+1][cy+1][cz+2][cw+2]){
-			return {cx,cy,cz+1,cw+1};
-		} else if(c.birth == dense4[cx+2][cy+1][cz+2][cw+2]){
-			return {cx+1,cy,cz+1,cw+1};
-		} else if(c.birth == dense4[cx+1][cy+2][cz+2][cw+2]){
-			return {cx,cy+1,cz+1,cw+1};
-		} else if(c.birth == dense4[cx+2][cy+2][cz+2][cw+2]){
-			return {cx+1,cy+1,cz+1,cw+1};
-		} else {
-			cerr << "parent voxel not found!" << endl;
-			return {0,0,0,0};
-		}
+		cerr << "parent voxel not found!" << endl;
+		return {0,0,0};
+	} else {
+		for (int dx=0; dx<=1; ++dx)
+			for (int dy=0; dy<=1; ++dy)
+				for (int dz=0; dz<=1; ++dz)
+					for (int dw=0; dw<=1; ++dw)
+						if (c.birth == dense4[cx+1+dx][cy+1+dy][cz+1+dz][cw+1+dw])
+							return {cx+dx, cy+dy, cz+dz, cw+dw};
+		cerr << "parent voxel not found!" << endl;
+		return {0,0,0,0};
 	}
 }

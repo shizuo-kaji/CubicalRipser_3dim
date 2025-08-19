@@ -65,23 +65,15 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
         uint64_t uind = e->x() + dcg->ax * e->y() + dcg->axy * e->z();
         uint64_t vind;
 
-        // Determine the corresponding neighbor based on the cube's type
-        switch (e->m()) {
-            case 0: vind = uind + 1; break;                        // x+1
-            case 1: vind = uind + dcg->ax; break;                  // y+1
-            case 2: vind = uind + dcg->axy; break;                 // z+1
-            case 3: vind = uind + 1 + dcg->ax; break;              // x+1, y+1
-            case 4: vind = uind + 1 - dcg->ax; break;              // x+1, y-1
-            case 5: vind = uind - dcg->ax + dcg->axy; break;       // y-1, z+1
-            case 6: vind = uind + dcg->ax + dcg->axy; break;       // y+1, z+1
-            case 7: vind = uind + 1 - dcg->ax + dcg->axy; break;   // x+1, y-1, z+1
-            case 8: vind = uind + 1 + dcg->axy; break;             // x+1, z+1
-            case 9: vind = uind + 1 + dcg->ax + dcg->axy; break;   // x+1, y+1, z+1
-            case 10: vind = uind + 1 - dcg->ax - dcg->axy; break;  // x+1, y-1, z-1
-            case 11: vind = uind + 1 - dcg->axy; break;            // x+1, z-1
-            case 12: vind = uind + 1 + dcg->ax - dcg->axy; break;  // x+1, y+1, z-1
-            default: exit(-1);  // Invalid type, exit with error
-        }
+        static const int8_t dx[13]={1,0,0,1,1 ,0, 0,1, 1,1,1, 1, 1};
+        static const int8_t dy[13]={0,1,0,1,-1,-1,1,-1,0,1,-1,0, 1};
+        static const int8_t dz[13]={0,0,1,0,0, 1, 1,1, 1,1,-1,-1,-1};
+        int m = e->m();
+        if (m < 0 || m >= 13) std::exit(-1);
+        vind = static_cast<uint64_t>( (int64_t)uind +
+                          dx[m] +
+                          (int64_t)dcg->ax * dy[m] +
+                          (int64_t)dcg->axy * dz[m] );
 
         u = dset.find(uind);
         v = dset.find(vind);

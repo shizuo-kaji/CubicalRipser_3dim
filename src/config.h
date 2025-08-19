@@ -14,10 +14,9 @@ struct Config {
 	std::string filename = "";
 	std::string output_filename = "output.csv"; //default output filename
 	file_format format;
-//    calculation_method method = ALEXANDER;
 	calculation_method method = LINKFIND;
 	double threshold = DBL_MAX;
-	int maxdim=2;;  // compute PH for these dimensions
+	int maxdim=2;  // compute PH up to this dimension
 	bool print = false; // flag for printing persistence pairs to stdout
 	bool verbose = false;
 	bool tconstruction = false; // T-construction or V-construction

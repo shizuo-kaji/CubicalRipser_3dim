@@ -121,62 +121,27 @@ vector<uint32_t> DenseCubicalGrids::ParentVoxel(uint8_t _dim, Cube &c){
 	uint32_t cw = c.w();
 
 	if (dim < 4) {
-		if(c.birth == dense3[cx+1][cy+1][cz+1]){
-			return {cx,cy,cz};
-		}else if(c.birth == dense3[cx+0][cy+1][cz+1]){			// T-construction
-			return { cx - 1,cy,cz };
-		}else if(c.birth == dense3[cx+0][cy+0][cz+1]){
-			return { cx - 1,cy-1,cz };
-		}else if(c.birth == dense3[cx+0][cy+0][cz+0]){
-			return { cx - 1,cy-1,cz-1 };
-		}else if(c.birth == dense3[cx+0][cy+1][cz+0]){
-			return { cx - 1,cy,cz-1 };
-		}else if(c.birth == dense3[cx+1][cy+0][cz+1]){
-			return { cx,cy-1,cz};
-		}else if(c.birth == dense3[cx+1][cy+0][cz+0]){
-			return { cx,cy-1,cz-1};
-		}else if(c.birth == dense3[cx+1][cy+1][cz+0]){
-			return { cx,cy,cz-1};
-		}else{
-			cerr << "parent voxel not found!" << endl;
-			return { 0,0,0 };
+		static const int off[8][3] = {
+			{1,1,1},{0,1,1},{0,0,1},{0,0,0},{0,1,0},{1,0,1},{1,0,0},{1,1,0}
+		};
+		for (const auto &o : off) {
+			if (c.birth == dense3[cx+o[0]][cy+o[1]][cz+o[2]])
+				return { uint32_t(cx+o[0]-1), uint32_t(cy+o[1]-1), uint32_t(cz+o[2]-1) };
 		}
-	} else { // dim == 4
-		if(c.birth == dense4[cx+1][cy+1][cz+1][cw+1]){
-			return {cx,cy,cz,cw};
-		} else if(c.birth == dense4[cx+0][cy+1][cz+1][cw+1]){
-			return {cx-1,cy,cz,cw};
-		} else if(c.birth == dense4[cx+0][cy+0][cz+1][cw+1]){
-			return {cx-1,cy-1,cz,cw};
-		} else if(c.birth == dense4[cx+0][cy+0][cz+0][cw+1]){
-			return {cx-1,cy-1,cz-1,cw};
-		} else if(c.birth == dense4[cx+0][cy+1][cz+0][cw+1]){
-			return {cx-1,cy,cz-1,cw};
-		} else if(c.birth == dense4[cx+1][cy+0][cz+1][cw+1]){
-			return {cx,cy-1,cz,cw};
-		} else if(c.birth == dense4[cx+1][cy+0][cz+0][cw+1]){
-			return {cx,cy-1,cz-1,cw};
-		} else if(c.birth == dense4[cx+1][cy+1][cz+0][cw+1]){
-			return {cx,cy,cz-1,cw};
-		} else if(c.birth == dense4[cx+1][cy+1][cz+1][cw+0]){
-			return {cx,cy,cz,cw-1};
-		} else if(c.birth == dense4[cx+0][cy+1][cz+1][cw+0]){
-			return {cx-1,cy,cz,cw-1};
-		} else if(c.birth == dense4[cx+0][cy+0][cz+1][cw+0]){
-			return {cx-1,cy-1,cz,cw-1};
-		} else if(c.birth == dense4[cx+0][cy+0][cz+0][cw+0]){
-			return {cx-1,cy-1,cz-1,cw-1};
-		} else if(c.birth == dense4[cx+0][cy+1][cz+0][cw+0]){
-			return {cx-1,cy,cz-1,cw-1};
-		} else if(c.birth == dense4[cx+1][cy+0][cz+1][cw+0]){
-			return {cx,cy-1,cz,cw-1};
-		} else if(c.birth == dense4[cx+1][cy+0][cz+0][cw+0]){
-			return {cx,cy-1,cz-1,cw-1};
-		} else if(c.birth == dense4[cx+1][cy+1][cz+0][cw+0]){
-			return {cx,cy,cz-1,cw-1};
-		} else {
-			cerr << "parent voxel not found!" << endl;
-			return {0,0,0,0};
+		cerr << "parent voxel not found!" << endl;
+		return {0,0,0};
+	} else {
+		static const int off[16][4] = {
+			{1,1,1,1},{0,1,1,1},{0,0,1,1},{0,0,0,1},
+			{0,1,0,1},{1,0,1,1},{1,0,0,1},{1,1,0,1},
+			{1,1,1,0},{0,1,1,0},{0,0,1,0},{0,0,0,0},
+			{0,1,0,0},{1,0,1,0},{1,0,0,0},{1,1,0,0}
+		};
+		for (const auto &o : off) {
+			if (c.birth == dense4[cx+o[0]][cy+o[1]][cz+o[2]][cw+o[3]])
+				return { uint32_t(cx+o[0]-1), uint32_t(cy+o[1]-1), uint32_t(cz+o[2]-1), uint32_t(cw+o[3]-1) };
 		}
+		cerr << "parent voxel not found!" << endl;
+		return {0,0,0,0};
 	}
 }
