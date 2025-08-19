@@ -107,11 +107,36 @@ pd = cripser.computePH(arr, maxdim=2)
 
 They indicate the dimension of the cycle, birth-time, death-time, location (x1,y1,z1) of the cell giving birth to the cycle, and location (x2,y2,z2) of the cell destroying the cycle.
 
-- To use the **T-construction**:
-  ```python
-  import tcripser
-  pd = tcripser.computePH(arr, maxdim=2)
-  ```
+  - To use the **T-construction**:
+    ```python
+    import tcripser
+    pd = tcripser.computePH(arr, maxdim=2)
+    ```
+
+#### GUDHI Conversion Helpers
+For convenience, a small utility package `cripser.utils` is included to convert
+the raw output into GUDHI-compatible formats.
+
+```python
+import numpy as np
+import cripser
+from cripser.utils import to_gudhi_diagrams, to_gudhi_persistence
+
+arr = np.load("input.npy").astype(np.float64)
+ph = cripser.computePH(arr, maxdim=2)
+
+# List of diagrams per dimension, each an array of shape (k, 2)
+dgms = to_gudhi_diagrams(ph)
+
+# Or, GUDHI SimplexTree-like list of (dim, (birth, death))
+persistence = to_gudhi_persistence(ph)
+
+# Example: plot using GUDHI
+import gudhi as gd
+gd.plot_persistence_diagram(diagrams=dgms)
+```
+
+Infinite deaths encoded internally as `DBL_MAX` are automatically converted to `np.inf`.
 
 ### Command-Line Executable
 ```bash

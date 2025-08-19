@@ -1,50 +1,25 @@
-import csv
-import glob
 import math
-import os
-import subprocess
+import numpy as np
+import cripser
 
 
-def get_exec(name: str) -> str:
-    pattern = os.path.join('build', 'temp.*', name)
-    matches = glob.glob(pattern)
-    if not matches:
-        raise FileNotFoundError(f'Executable {name} not found')
-    return matches[0]
+def test_4d_sphere_ph():
+    # Compute up to H3 on the 4D array via Python module
+    arr = np.load('sample/4d_hole.npy').astype(np.float64)
+    ph = cripser.computePH(arr, maxdim=3)
+    dims = ph[:, 0].astype(int)
+    births = ph[:, 1]
+    deaths = ph[:, 2]
 
+    # Exactly one H0 infinite bar at birth 0.0
+    h0_inf_idx = np.where((dims == 0) & np.isinf(deaths))[0]
+    assert len(h0_inf_idx) == 1
+    assert abs(births[h0_inf_idx[0]] - 0.0) < 1e-9
 
-def read_csv_rows(path: str):
-    rows = []
-    with open(path, newline='') as f:
-        r = csv.reader(f)
-        for row in r:
-            if not row:
-                continue
-            # convert first three columns: dim, birth, death
-            dim = int(float(row[0]))
-            birth = float(row[1])
-            death = float(row[2])
-            rows.append((dim, birth, death))
-    return rows
-
-
-def test_4d_sphere_ph(tmp_path):
-    exe = get_exec('cubicalripser')
-    out = tmp_path / 'out.csv'
-
-    # Compute up to H3 on the 4D array
-    subprocess.run([exe, '--maxdim', '3', '--output', str(out), 'sample/4d_hole.npy'], check=True)
-
-    rows = read_csv_rows(str(out))
-
-    # Expect exactly one H0 infinite bar at birth 0.0
-    h0_inf = [(b, d) for (dim, b, d) in rows if dim == 0 and math.isinf(d)]
-    assert len(h0_inf) == 1
-    assert abs(h0_inf[0][0] - 0.0) < 1e-9
-
-    # Expect exactly one H3 bar (0.0, 1.0)
-    h3 = [(b, d) for (dim, b, d) in rows if dim == 3]
-    assert len(h3) == 1
-    b, d = h3[0]
+    # Exactly one H3 bar (0.0, 1.0)
+    h3_idx = np.where(dims == 3)[0]
+    assert len(h3_idx) == 1
+    b = float(births[h3_idx[0]])
+    d = float(deaths[h3_idx[0]])
     assert abs(b - 0.0) < 1e-9
     assert abs(d - 1.0) < 1e-9

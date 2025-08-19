@@ -36,7 +36,9 @@ public:
 	double*** dense3;
 	double**** dense4;
 
-	DenseCubicalGrids(Config&);
+    DenseCubicalGrids(Config&);
+    // Overloaded constructor allowing explicit shape initialization
+    DenseCubicalGrids(Config&, uint8_t dim, uint32_t ax, uint32_t ay = 1, uint32_t az = 1, uint32_t aw = 1);
 	~DenseCubicalGrids(){
 		if (dim < 4){
 			free(dense3[0][0]);
@@ -68,6 +70,8 @@ public:
 	}
 	// allocate 4d array
 	double ****alloc4d(uint32_t x, uint32_t y, uint32_t z, uint32_t w) {
+		#include <stdexcept>
+		throw std::runtime_error("not implemented yet");
 		double ****d = (double****)malloc(x * sizeof(double***));
 		d[0] = (double***)malloc(x * y * sizeof(double**));
 		d[0][0] = (double**)malloc(x*y*z * sizeof(double*));

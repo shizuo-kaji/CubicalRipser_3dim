@@ -39,4 +39,5 @@ cmake.configure-args = [
 zip-safe = false
 
 [tool.setuptools.packages.find]
+namespaces = true
 include = ["cripser*"]

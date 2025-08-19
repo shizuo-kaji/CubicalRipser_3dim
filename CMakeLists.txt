@@ -38,11 +38,18 @@ add_library(tmylib STATIC
 # Python modules using pybind11
 add_subdirectory(pybind11)
 
-pybind11_add_module(cripser src/cubicalripser_pybind.cpp)
-target_link_libraries(cripser PRIVATE mylib vmylib)
+pybind11_add_module(_cripser src/cubicalripser_pybind.cpp)
+target_link_libraries(_cripser PRIVATE mylib vmylib)
 
 pybind11_add_module(tcripser src/cubicalripser_pybind_T.cpp)
 target_link_libraries(tcripser PRIVATE mylib tmylib)
+
+# Inject package version from setup.py if provided
+if(DEFINED CRIPSER_VERSION)
+  message(STATUS "Injecting version ${CRIPSER_VERSION} into pybind11 modules")
+  target_compile_definitions(_cripser PRIVATE VERSION_INFO=\"${CRIPSER_VERSION}\")
+  target_compile_definitions(tcripser PRIVATE VERSION_INFO=\"${CRIPSER_VERSION}\")
+endif()
 
 # Command-line executables
 add_executable(cubicalripser src/cubicalripser.cpp)
@@ -52,4 +59,4 @@ add_executable(tcubicalripser src/cubicalripser.cpp)
 target_link_libraries(tcubicalripser PRIVATE mylib tmylib)
 
 # Optional: Group libraries and executables in folders in IDEs
-set_target_properties(mylib vmylib tmylib cripser tcripser cubicalripser tcubicalripser PROPERTIES FOLDER "cripser")
+set_target_properties(mylib vmylib tmylib _cripser tcripser cubicalripser tcubicalripser PROPERTIES FOLDER "cripser")

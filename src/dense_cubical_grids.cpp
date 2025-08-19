@@ -22,9 +22,19 @@ using namespace std;
 
 
 DenseCubicalGrids::DenseCubicalGrids(Config& _config)  {
-	config = &_config;
-	threshold = config->threshold;
-	config->tconstruction = false;
+    config = &_config;
+    threshold = config->threshold;
+    config->tconstruction = false;
+}
+
+// Explicit-shape constructor (V-construction)
+DenseCubicalGrids::DenseCubicalGrids(Config& _config, uint8_t d, uint32_t x, uint32_t y, uint32_t z, uint32_t w)  {
+    config = &_config;
+    threshold = config->threshold;
+    config->tconstruction = false;
+    dim = d;
+    ax = x; ay = y; az = z; aw = w;
+    img_x = ax; img_y = ay; img_z = az; img_w = aw;
 }
 
 // return filtlation value for a cube

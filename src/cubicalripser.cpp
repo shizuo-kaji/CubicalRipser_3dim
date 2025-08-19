@@ -333,26 +333,19 @@ int main(int argc, char** argv) {
                 config.maxdim = std::min<uint8_t>(config.maxdim, dcg.dim - 1);
 
                 Timer timer;
-                // For 4D, fall back to general algorithm for H0
-                if (dcg.dim >= 4) {
-                    ComputePairs cp0(&dcg, writepairs, config);
-                    cp0.assemble_columns_to_reduce(ctr, 0);
-                    cp0.compute_pairs_main(ctr);
-                } else {
-                    JointPairs jp(&dcg, writepairs, config);
-                    // Enumerate edges based on dimension (1D/2D/3D)
-                    if (dcg.dim == 1) {
-                        jp.enum_edges({0}, ctr);
-                    }
-                    else if (dcg.dim == 2) {
-                        jp.enum_edges({0, 1}, ctr);
-                    }
-                    else { // 3D
-                        jp.enum_edges({0, 1, 2}, ctr);
-                    }
-                    // Compute dimension 0 via union-find
-                    jp.joint_pairs_main(ctr, 0);
+                JointPairs jp(&dcg, writepairs, config);
+                // Enumerate edges based on dimension (1D/2D/3D)
+                if (dcg.dim == 1) {
+                    jp.enum_edges({0}, ctr);
                 }
+                else if (dcg.dim == 2) {
+                    jp.enum_edges({0, 1}, ctr);
+                }
+                else { // 3D
+                    jp.enum_edges({0, 1, 2}, ctr);
+                }
+                // Compute dimension 0 via union-find
+                jp.joint_pairs_main(ctr, 0);
                 const auto msec = timer.milliseconds();
 
                 betti.push_back(writepairs.size());

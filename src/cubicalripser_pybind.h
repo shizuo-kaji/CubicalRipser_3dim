@@ -47,14 +47,19 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	vector<WritePairs> writepairs; // (dim birth death x y z)
 	writepairs.reserve(1000);
 	//writepairs.clear();
-	
-	auto dcg = std::make_unique<DenseCubicalGrids>(config);
+
+	std::unique_ptr<DenseCubicalGrids> dcg;
 	vector<Cube> ctr;
 
     const auto &buff_info = img.request();
     const auto &shape = buff_info.shape;
-	dcg->dim = buff_info.ndim;
+	const uint8_t ndim = static_cast<uint8_t>(buff_info.ndim);
 	config.maxdim = maxdim;
+	const uint32_t sx = static_cast<uint32_t>(shape[0]);
+	const uint32_t sy = (ndim > 1) ? static_cast<uint32_t>(shape[1]) : 1u;
+	const uint32_t sz = (ndim > 2) ? static_cast<uint32_t>(shape[2]) : 1u;
+	const uint32_t sw = (ndim > 3) ? static_cast<uint32_t>(shape[3]) : 1u;
+	dcg = std::make_unique<DenseCubicalGrids>(config, ndim, sx, sy, sz, sw);
 	config.maxdim = std::min<uint8_t>(config.maxdim, dcg->dim - 1);
 	if(top_dim && dcg->dim > 1){
 		config.method = ALEXANDER;
@@ -63,13 +68,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 		config.embedded = embedded;
 	}
 
-	dcg->ax = shape[0];
-	dcg->img_x = shape[0];
-    dcg->ay = (dcg->dim > 1) ? shape[1] : 1;
-    dcg->img_y = dcg->ay;
-    dcg->az = (dcg->dim > 2) ? shape[2] : 1;
-    dcg->img_z = dcg->az;
-	bool fortran_order = img.flags() & py::array::f_style;
+    bool fortran_order = img.flags() & py::array::f_style;
 	dcg -> gridFromArray(&img.data()[0], embedded, fortran_order);
 //	dense3[x][y][z] = -(*img.data(x-2, y-2, z-2));
 
@@ -83,7 +82,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	dcg -> axy = dcg->ax * dcg->ay;
 	dcg -> ayz = dcg->ay * dcg->az;
 	dcg -> axyz = dcg->ax * dcg->ay * dcg->az;
-	
+
 
 	// compute PH
 	if(config.method==ALEXANDER){
@@ -99,9 +98,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 			jp -> enum_edges({0,1,2,3,4,5,6,7,8,9,10,11,12},ctr);
 			jp -> joint_pairs_main(ctr,2); // dim2
 		}
-//		delete jp;
 	}else{
-        auto cp = std::make_unique<ComputePairs>(dcg.get(), writepairs, config);
         auto jp = std::make_unique<JointPairs>(dcg.get(), writepairs, config);
         std::vector<uint32_t> betti;
 		if(dcg->dim==1){
@@ -114,18 +111,17 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 		jp -> joint_pairs_main(ctr,0); // dim0
 		betti.push_back(writepairs.size());
 		if(config.maxdim>0){
-			cp -> compute_pairs_main(ctr); // dim1
+			ComputePairs cp(dcg.get(), writepairs, config);
+	        //auto cp = std::make_unique<ComputePairs>(dcg.get(), writepairs, config);
+			cp.compute_pairs_main(ctr); // dim1
 			betti.push_back(writepairs.size() - betti[0]);
 			if(config.maxdim>1){
-				cp -> assemble_columns_to_reduce(ctr,2);
-				cp -> compute_pairs_main(ctr); // dim2
+				cp.assemble_columns_to_reduce(ctr,2);
+				cp.compute_pairs_main(ctr); // dim2
 				betti.push_back(writepairs.size() - betti[0] - betti[1]);
 			}
 		}
-		// delete jp;
-		// delete cp;
 	}
-//	delete dcg;
 
 	// result
 	// determine shift between dcg and the voxel coordinates

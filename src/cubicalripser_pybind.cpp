@@ -19,7 +19,7 @@ using namespace std;
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(cripser, m) {
+PYBIND11_MODULE(_cripser, m) {
     m.doc() = R"pbdoc(
         Cubical Ripser plugin
         -----------------------
