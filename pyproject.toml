@@ -1,10 +1,10 @@
 [project]
 name = "cripser"
-version = "0.0.15"
+version = "0.0.16"
 description = "Cubical Ripser Python binding"
 license = { file = "LICENSE" }
-urls = { "Homepage" = "https://github.com/shizuo-kaji/CubicalRipser_3dim" } 
-keywords = ["persistent homology", "TDA", "cubical complex"]
+urls = { "Homepage" = "https://github.com/shizuo-kaji/CubicalRipser_3dim" }
+keywords = ["persistent homology", "TDA", "cubical complex", "image", "volume"]
 readme = "README.md"
 authors = [
     { name = "Shizuo Kaji", email = "shizuo.kaji@gmail.com"}
@@ -12,7 +12,15 @@ authors = [
 requires-python = ">=3.8"
 
 [build-system]
-requires = ["scikit-build>=0.13", "cmake>=3.15"]
+# setuptools reads metadata from [project]; your setup.py just defines the CMake build.
+requires = [
+  "setuptools>=68",
+  "wheel",
+  # Optional but helpful so pip can provide a CMake/Ninja during build:
+  "cmake>=3.21",
+  "ninja; platform_system != 'Windows'",
+]
+build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
 archs = "x86_64 arm64" # Build for both architectures
@@ -27,3 +35,8 @@ cmake.configure-args = [
     "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
 ]
 
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["cripser*"]
