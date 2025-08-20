@@ -20,18 +20,17 @@ include_directories("src/")
 # Create static libraries
 add_library(mylib STATIC
     src/compute_pairs.cpp
+    src/coboundary_enumerator.cpp
     src/joint_pairs.cpp
 )
 
 # V-construction library
 add_library(vmylib STATIC
-    src/coboundary_enumerator.cpp
     src/dense_cubical_grids.cpp
 )
 
 # T-construction library
 add_library(tmylib STATIC
-    src/coboundary_enumerator_T.cpp
     src/dense_cubical_grids_T.cpp
 )
 

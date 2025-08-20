@@ -335,7 +335,7 @@ int main(int argc, char** argv) {
                 Timer timer;
                 JointPairs jp(&dcg, writepairs, config);
                 // Enumerate edges based on dimension (1D/2D/3D)
-                if (dcg.dim == 1) {
+                if (dcg.dim == 1) { // TODO: bug in T-construction in 1D
                     jp.enum_edges({0}, ctr);
                 }
                 else if (dcg.dim == 2) {
@@ -399,6 +399,9 @@ int main(int argc, char** argv) {
             }
 
             case COMPUTEPAIRS: {
+                if (config.tconstruction) {
+                    throw std::runtime_error("compute_pairs for T-construction not implemented");
+                }
                 dcg.loadImage(config.embedded);
                 config.maxdim = std::min<uint8_t>(config.maxdim, dcg.dim - 1);
 

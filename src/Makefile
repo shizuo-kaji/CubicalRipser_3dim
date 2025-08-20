@@ -6,7 +6,7 @@ CFLAGS = -O3 -std=c++11 -march=native -W
 TARGET1 = cubicalripser
 TARGET2 = tcubicalripser
 SRCS1 = cubicalripser.cpp dense_cubical_grids.cpp coboundary_enumerator.cpp joint_pairs.cpp compute_pairs.cpp
-SRCS2 = cubicalripser.cpp dense_cubical_grids_T.cpp coboundary_enumerator_T.cpp joint_pairs.cpp compute_pairs.cpp
+SRCS2 = cubicalripser.cpp dense_cubical_grids_T.cpp coboundary_enumerator.cpp joint_pairs.cpp compute_pairs.cpp
 DEPS=$(SRCS:.cpp=.d)
 OBJS1=$(SRCS1:.cpp=.o)
 OBJS2=$(SRCS2:.cpp=.o)

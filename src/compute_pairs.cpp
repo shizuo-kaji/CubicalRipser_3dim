@@ -198,7 +198,7 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
 	dim = _dim;
 	ctr.clear();
 	double birth;
-    uint8_t max_m = 3;
+    uint8_t max_m = 3; // TODO: 4D
 	if (dim == 0) {
         max_m = 1;
         pivot_column_index.clear();
