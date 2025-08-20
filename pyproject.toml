@@ -16,6 +16,7 @@ requires-python = ">=3.8"
 requires = [
   "setuptools>=68",
   "wheel",
+  "numpy>=1.23",
   # Optional but helpful so pip can provide a CMake/Ninja during build:
   "cmake>=3.21",
   "ninja; platform_system != 'Windows'",

@@ -25,7 +25,7 @@ CoboundaryEnumerator::CoboundaryEnumerator(DenseCubicalGrids* _dcg, uint8_t _dim
 	dcg = _dcg;
     dim = _dim;
 }
-	
+
 void CoboundaryEnumerator::setCoboundaryEnumerator(Cube& _s) {
 	cube = _s;
     if(dcg->az==1 && dim ==1){
@@ -37,7 +37,6 @@ void CoboundaryEnumerator::setCoboundaryEnumerator(Cube& _s) {
 
 bool CoboundaryEnumerator::hasNextCoface() {
 	double birth=0;
-	// note the shift of indices to account for the boundary
 	auto cx = cube.x();
 	auto cy = cube.y();
 	auto cz = cube.z();
