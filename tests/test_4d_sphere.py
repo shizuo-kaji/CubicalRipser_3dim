@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import cripser
+import signal
 
 
 def test_4d_sphere_ph():
