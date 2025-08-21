@@ -40,8 +40,15 @@ add_subdirectory(pybind11)
 pybind11_add_module(_cripser src/cubicalripser_pybind.cpp)
 target_link_libraries(_cripser PRIVATE mylib vmylib)
 
-pybind11_add_module(tcripser src/cubicalripser_pybind_T.cpp)
+# Build the T-construction python module from the same binding source,
+# overriding module name and docs via compile definitions.
+pybind11_add_module(tcripser src/cubicalripser_pybind.cpp)
 target_link_libraries(tcripser PRIVATE mylib tmylib)
+target_compile_definitions(tcripser PRIVATE
+  CRIPSER_MODULE_NAME=tcripser
+  CRIPSER_MODULE_DOC="Cubical Ripser (T-construction) plugin"
+  CRIPSER_CURRENTMODULE="tcripser"
+)
 
 # Inject package version from setup.py if provided
 if(DEFINED CRIPSER_VERSION)

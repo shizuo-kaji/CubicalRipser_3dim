@@ -1,4 +1,4 @@
-/* dense_cubical_grids.cpp
+/* dense_cubical_grids_T.cpp (for T-construction)
 
 This file is part of CubicalRipser
 Copyright 2017-2018 Takeki Sudo and Kazushi Ahara.
@@ -36,7 +36,6 @@ DenseCubicalGrids::DenseCubicalGrids(Config& _config, uint8_t d, uint32_t x, uin
     ax = x; ay = y; az = z; aw = w;
     img_x = ax; img_y = ay; img_z = az; img_w = aw;
 }
-
 
 // return filtlation value for a cube
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz){

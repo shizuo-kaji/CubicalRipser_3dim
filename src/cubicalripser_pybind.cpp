@@ -19,19 +19,33 @@ using namespace std;
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(_cripser, m) {
-    m.doc() = R"pbdoc(
-        Cubical Ripser plugin
-        -----------------------
-        .. currentmodule:: cripser
-        .. autosummary::
-           :toctree: _generate
-           add
-           subtract
-    )pbdoc";
+// Allow building two modules from this single source by parameterizing
+// the module name and doc metadata via compile definitions.
+#ifndef CRIPSER_MODULE_NAME
+#  define CRIPSER_MODULE_NAME _cripser
+#endif
 
-    m.def("computePH", &computePH, R"pbdoc(Compute Persistent Homology
-    )pbdoc", py::arg("arr"),  py::arg("maxdim")=2, py::arg("top_dim")=false, py::arg("embedded")=false, py::arg("location")="yes");
+#ifndef CRIPSER_MODULE_DOC
+#  define CRIPSER_MODULE_DOC "Cubical Ripser plugin"
+#endif
+
+#ifndef CRIPSER_CURRENTMODULE
+#  define CRIPSER_CURRENTMODULE "cripser"
+#endif
+
+PYBIND11_MODULE(CRIPSER_MODULE_NAME, m) {
+    m.doc() =
+        CRIPSER_MODULE_DOC "\n"
+        "-----------------------\n"
+        ".. currentmodule:: " CRIPSER_CURRENTMODULE "\n"
+        ".. autosummary::\n"
+        "   :toctree: _generate\n"
+        "   add\n"
+        "   subtract\n";
+
+    m.def("computePH", &computePH, "Compute Persistent Homology",
+          py::arg("arr"),  py::arg("maxdim")=2, py::arg("top_dim")=false,
+          py::arg("embedded")=false, py::arg("location")="yes");
 
 #ifdef VERSION_INFO
     m.attr("__version__") = VERSION_INFO;

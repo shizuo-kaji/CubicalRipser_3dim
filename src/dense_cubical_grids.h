@@ -33,23 +33,16 @@ public:
 	uint32_t img_x, img_y, img_z, img_w;
 	uint32_t ax, ay, az, aw;
     uint32_t axy, axyz, ayz, azw, axw, ayw;
-	double*** dense3;
-	double**** dense4;
+	double*** dense3; // TODO: replace this with a flat array and implement coordinate-index mapping
+	double**** dense4; // DUMMY: 4D array for T-construction
 
     DenseCubicalGrids(Config&);
     // Overloaded constructor allowing explicit shape initialization
     DenseCubicalGrids(Config&, uint8_t dim, uint32_t ax, uint32_t ay = 1, uint32_t az = 1, uint32_t aw = 1);
 	~DenseCubicalGrids(){
-		if (dim < 4){
-			free(dense3[0][0]);
-			free(dense3[0]);
-			free(dense3);
-		} else {
-			free(dense4[0][0][0]);
-			free(dense4[0][0]);
-			free(dense4[0]);
-			free(dense4);
-		}
+		free(dense3[0][0]);
+		free(dense3[0]);
+		free(dense3);
 	}
 	double getBirth(uint32_t x, uint32_t y, uint32_t z);
 	double getBirth(uint32_t x, uint32_t y, uint32_t z, uint32_t w, uint8_t cm, uint8_t dim);
@@ -68,26 +61,7 @@ public:
 		}
 		return d;
 	}
-	// allocate 4d array
-	double ****alloc4d(uint32_t x, uint32_t y, uint32_t z, uint32_t w) {
-		#include <stdexcept>
-		throw std::runtime_error("not implemented yet");
-		double ****d = (double****)malloc(x * sizeof(double***));
-		d[0] = (double***)malloc(x * y * sizeof(double**));
-		d[0][0] = (double**)malloc(x*y*z * sizeof(double*));
-		d[0][0][0] = (double*)malloc(x*y*z*w * sizeof(double));
-		for (uint32_t i = 0; i < x; i++) {
-			d[i] = d[0] + i * y;
-			for (uint32_t j = 0; j < y; j++) {
-				d[i][j] = d[0][0] + (i * y + j) * z;
-				for (uint32_t k = 0; k < z; k++) d[i][j][k] = d[0][0][0] + (i * y*z + j * z + k) * w;
-			}
-		}
-		if (d == NULL) {
-			cerr << "not enough memory!" << endl;
-		}
-		return d;
-	}
+
 	// load image array from file
 	void loadImage(bool embedded){
 		// read file
@@ -217,7 +191,7 @@ public:
 					exit(-2);
 				}
 				if(shape.size() > 4){
-					cerr << "Input array should be 1,2,3 or 4 dimensional " << endl;
+					cerr << "Input array should be 1,2, or 3 dimensional " << endl;
 					exit(-1);
 				}
 				dim = shape.size();
@@ -245,7 +219,7 @@ public:
 			cout << "x : y : z = " << img_x << " : " << img_y << " : " << img_z << endl;
 		else
 			cout << "x : y : z : w = " << img_x << " : " << img_y << " : " << img_z << " : " << img_w << endl;
-		// T-construction (the number of vertices = that of the top cells in each dimension)
+		// T-construction (the number of vertices = that of the top cells plus one, in each dimension)
 		if(config->tconstruction){
 			if(dim>3) aw++;
 			if(dim>2) az++;
@@ -306,41 +280,6 @@ public:
 								dense3[x][y][z] = config->threshold;
 							}else{  // only for embedded; inner boundary
 								dense3[x][y][z] = -config->threshold;
-							}
-						}
-					}
-				}
-			}
-		} else { // dim==4
-			dense4 = alloc4d(ax + x_shift, ay + y_shift, az + z_shift, aw + w_shift);
-			if(fortran_order){
-				for (uint32_t w = 0; w < aw + w_shift; ++w) {
-					for (uint32_t z = 0; z < az + z_shift; ++z) {
-						for (uint32_t y = 0; y < ay + y_shift; ++y) {
-							for (uint32_t x = 0; x < ax + x_shift; ++x) {
-								if (x_shift/2-1 < x && x <= ax+x_shift/2-1 && y_shift/2-1 < y && y <= ay+y_shift/2-1 && z_shift/2-1 < z && z<= az+z_shift/2-1 && w_shift/2-1 < w && w<= aw+w_shift/2-1) {
-									dense4[x][y][z][w] = sgn * arr[i++];
-								}else if (0==x || x==ax-1+y_shift || 0==y || y==ay-1+y_shift || 0==z || z==az-1+z_shift || 0==w || w==aw-1+w_shift) { // outer boundary
-									dense4[x][y][z][w] = config->threshold;
-								}else{  // only for embedded; inner boundary
-									dense4[x][y][z][w] = -config->threshold;
-								}
-							}
-						}
-					}
-				}
-			}else{
-				for (uint32_t x = 0; x < ax + x_shift; ++x) {
-					for (uint32_t y = 0; y < ay + y_shift; ++y) {
-						for (uint32_t z = 0; z < az + z_shift; ++z) {
-							for (uint32_t w = 0; w < aw + w_shift; ++w) {
-								if (x_shift/2-1 < x && x <= ax+x_shift/2-1 && y_shift/2-1 < y && y <= ay+y_shift/2-1 && z_shift/2-1 < z && z<= az+z_shift/2-1 && w_shift/2-1 < w && w<= aw+w_shift/2-1) {
-									dense4[x][y][z][w] = sgn * arr[i++];
-								}else if (0==x || x==ax-1+y_shift || 0==y || y==ay-1+y_shift || 0==z || z==az-1+z_shift || 0==w || w==aw-1+w_shift) { // outer boundary
-									dense4[x][y][z][w] = config->threshold;
-								}else{  // only for embedded; inner boundary
-									dense4[x][y][z][w] = -config->threshold;
-								}
 							}
 						}
 					}

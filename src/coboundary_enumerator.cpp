@@ -26,7 +26,7 @@ CoboundaryEnumerator::CoboundaryEnumerator(DenseCubicalGrids* _dcg, uint8_t _dim
 void CoboundaryEnumerator::setCoboundaryEnumerator(Cube& _s) {
 	cube = _s;
 	// current position of coface search
-    if (dcg->az == 1 && dcg->config->tconstruction && dim == 1) {
+    if (dcg->az == 1 && dcg->config->tconstruction && dim < 2) {
         // For 2D images under T-construction, skip out-of-plane (z) cofaces
         position = 2;
     } else {

@@ -325,18 +325,17 @@ int main(int argc, char** argv) {
         std::vector<Cube> ctr;
 
         DenseCubicalGrids dcg(config);
+        dcg.loadImage(config.embedded);
+        config.maxdim = std::min<uint8_t>(config.maxdim, dcg.dim - 1);
 
         // Compute persistent homology
         switch (config.method) {
             case LINKFIND: {
-                dcg.loadImage(config.embedded);
-                config.maxdim = std::min<uint8_t>(config.maxdim, dcg.dim - 1);
-
                 Timer timer;
                 JointPairs jp(&dcg, writepairs, config);
                 // Enumerate edges based on dimension (1D/2D/3D)
-                if (dcg.dim == 1) { // TODO: bug in T-construction in 1D
-                    jp.enum_edges({0}, ctr);
+                if (dcg.dim == 1) {
+                    jp.enum_edges({0, 1}, ctr);
                 }
                 else if (dcg.dim == 2) {
                     jp.enum_edges({0, 1}, ctr);
@@ -399,14 +398,8 @@ int main(int argc, char** argv) {
             }
 
             case COMPUTEPAIRS: {
-                if (config.tconstruction) {
-                    throw std::runtime_error("compute_pairs for T-construction not implemented");
-                }
-                dcg.loadImage(config.embedded);
-                config.maxdim = std::min<uint8_t>(config.maxdim, dcg.dim - 1);
-
+                // TODO: bug in T-construction in PH0
                 ComputePairs cp(&dcg, writepairs, config);
-
                 // Dimension 0
                 cp.assemble_columns_to_reduce(ctr, 0);
                 cp.compute_pairs_main(ctr);
@@ -443,8 +436,6 @@ int main(int argc, char** argv) {
                 if (config.tconstruction) {
                     throw std::runtime_error("Alexander duality for T-construction not implemented");
                 }
-
-                dcg.loadImage(config.embedded);
                 Timer timer;
                 JointPairs jp(&dcg, writepairs, config);
 
