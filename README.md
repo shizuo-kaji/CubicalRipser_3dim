@@ -32,8 +32,8 @@ Refer to the [LICENSE](LICENSE) file for more details.
 ## Getting Started
 
 ### Try Online
-- **Google Colab Demo**: [CubicalRipser in Action](https://colab.research.google.com/github/shizuo-kaji/CubicalRipser_3dim/blob/master/demo/cubicalripser.ipynb)
-- **Topological Data Analysis (TDA) Tutorial**: [Hands-On Guide](https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/master/TopologicalDataAnalysisWithPython.ipynb)
+- **Google Colab Demo**: [CubicalRipser in Action](https://colab.research.google.com/github/shizuo-kaji/CubicalRipser_3dim/blob/main/demo/cubicalripser.ipynb)
+- **Topological Data Analysis (TDA) Tutorial**: [Hands-On Guide](https://colab.research.google.com/github/shizuo-kaji/TutorialTopologicalDataAnalysis/blob/main/TopologicalDataAnalysisWithPython.ipynb)
 - **Applications in Deep Learning**:
   - [Example 1: Homology-enhanced CNNs](https://github.com/shizuo-kaji/HomologyCNN)
   - [Example 2: Pretraining CNNs without Data](https://github.com/shizuo-kaji/PretrainCNNwithNoData)
