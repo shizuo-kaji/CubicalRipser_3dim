@@ -12,28 +12,15 @@ authors = [
 requires-python = ">=3.8"
 
 [build-system]
-# setuptools reads metadata from [project]; your setup.py just defines the CMake build.
+# setuptools reads metadata from [project]; setup.py drives CMake directly.
 requires = [
   "setuptools>=68",
   "wheel",
-  "numpy",
-  # Optional but helpful so pip can provide a CMake/Ninja during build:
-  "cmake>=3.21",
 ]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
 archs = "x86_64 arm64" # Build for both architectures
-
-[tool.scikit-build]
-wheel.expand-macos-universal-tags = true
-minimum-version = "build-system.requires"
-cmake.configure-args = [
-    "-DCMAKE_CXX_STANDARD=14",
-    "-DCMAKE_CXX_STANDARD_REQUIRED=ON",
-    "-DCMAKE_CXX_FLAGS=-O3", # Or "-DCMAKE_CXX_FLAGS_RELEASE=-O3" for Release builds
-    "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
-]
 
 [tool.setuptools]
 zip-safe = false
