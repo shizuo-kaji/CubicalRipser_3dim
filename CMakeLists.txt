@@ -6,11 +6,21 @@ project(cripser LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS "-O3")
+#set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_OSX_ARCHITECTURES arm64;x86_64)
 
-find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+if(MSVC)
+    add_compile_options(/O2 /EHsc)
+else()
+    add_compile_options(-O3)
+endif()
+
+# Ensure pybind11 uses modern CMake FindPython and the active interpreter
+set(PYBIND11_FINDPYTHON ON CACHE BOOL "Use CMake's FindPython in pybind11" FORCE)
+
+# Prefer Python3 package to avoid legacy FindPythonInterp/FindPythonLibs
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
 #find_package(pybind11 CONFIG REQUIRED)
 
 

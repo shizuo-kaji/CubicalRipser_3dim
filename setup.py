@@ -80,8 +80,11 @@ class CMakeBuild(build_ext):
             configure_cmd: List[str] = [
                 "cmake",
                 f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={build_temp}",
+                f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY={build_temp}",
+                f"-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY={build_temp}",
                 f"-DCMAKE_BUILD_TYPE={cfg}",
                 "-DPython_EXECUTABLE=" + sys.executable,
+                "-DPython3_EXECUTABLE=" + sys.executable,
                 f"-DCRIPSER_VERSION={version}",
                 ext.sourcedir,
             ]
@@ -100,10 +103,10 @@ class CMakeBuild(build_ext):
         ]
         subprocess.check_call(build_cmd, cwd=build_temp)  # noqa: S603,S607
 
-        # Locate the built artifact in the build_temp directory
-        built_candidates = []
+        # Locate the built artifact in the build_temp directory (search recursively for MSVC Release/)
+        built_candidates: List[str] = []
         for pat in (f"{ext.target}*.so", f"{ext.target}*.pyd", f"{ext.target}*.dylib"):
-            built_candidates.extend(glob.glob(str(build_temp / pat)))
+            built_candidates.extend([str(p) for p in build_temp.rglob(pat)])
         if not built_candidates:
             raise RuntimeError(f"Could not find built artifact for {ext.target} in {build_temp}")
 
@@ -129,6 +132,7 @@ if __name__ == "__main__":
         packages=[
             "cripser*",
         ],
-        include_package_data=True,
+        # Avoid copying arbitrary files (e.g., egg-info) into wheels on Windows
+        include_package_data=False,
         zip_safe=False,
     )

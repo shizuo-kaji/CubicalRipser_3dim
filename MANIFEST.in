@@ -1,3 +1,6 @@
-include src/*
+# Include only the sources needed for sdist; avoid egg-info
+recursive-include src *.cpp *.cxx *.cc *.c *.hpp *.h *.ipp
+prune src/cripser.egg-info
+exclude *.egg-info
 recursive-include pybind11 *
 include CMakeLists.txt
