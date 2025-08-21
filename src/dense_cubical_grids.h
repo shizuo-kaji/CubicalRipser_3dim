@@ -18,12 +18,44 @@ with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 #include <cassert>
+#include <memory>
 
 #include "config.h"
 #include "cube.h"
 #include "npy.hpp"
 
 using namespace std;
+
+template<typename T>
+class NDArray {
+private:
+    std::vector<T> data_;
+    std::vector<size_t> dimensions_;
+    std::vector<size_t> strides_;
+
+public:
+    NDArray(std::initializer_list<size_t> dims) : dimensions_(dims) {
+        size_t total_size = 1;
+        strides_.resize(dims.size());
+
+        // Calculate strides (row-major order)
+        for (int i = dims.size() - 1; i >= 0; --i) {
+            strides_[i] = total_size;
+            total_size *= dimensions_[i];
+        }
+        data_.resize(total_size);
+    }
+
+    template<typename... Indices>
+    T& operator()(Indices... indices) {
+        std::array<size_t, sizeof...(indices)> idx_array = {static_cast<size_t>(indices)...};
+        size_t flat_index = 0;
+        for (size_t i = 0; i < idx_array.size(); ++i) {
+            flat_index += idx_array[i] * strides_[i];
+        }
+        return data_[flat_index];
+    }
+};
 
 class DenseCubicalGrids{
 public:
@@ -33,34 +65,16 @@ public:
 	uint32_t img_x, img_y, img_z, img_w;
 	uint32_t ax, ay, az, aw;
     uint32_t axy, axyz, ayz, azw, axw, ayw;
-	double*** dense3; // TODO: replace this with a flat array and implement coordinate-index mapping
-	double**** dense4; // DUMMY: 4D array for T-construction
+	std::unique_ptr<NDArray<double>> dense3;
+	std::unique_ptr<NDArray<double>> dense4;
 
     DenseCubicalGrids(Config&);
     // Overloaded constructor allowing explicit shape initialization
     DenseCubicalGrids(Config&, uint8_t dim, uint32_t ax, uint32_t ay = 1, uint32_t az = 1, uint32_t aw = 1);
-	~DenseCubicalGrids(){
-		free(dense3[0][0]);
-		free(dense3[0]);
-		free(dense3);
-	}
+	~DenseCubicalGrids() = default; // NDArray uses RAII, no manual cleanup needed
 	double getBirth(uint32_t x, uint32_t y, uint32_t z);
 	double getBirth(uint32_t x, uint32_t y, uint32_t z, uint32_t w, uint8_t cm, uint8_t dim);
 	vector<uint32_t> ParentVoxel(uint8_t _dim, Cube &c);
-	// allocate 3d array
-	double ***alloc3d(uint32_t x, uint32_t y, uint32_t z) {
-		double ***d = (double***)malloc(x * sizeof(double**));
-		d[0] = (double**)malloc(x * y * sizeof(double*));
-		d[0][0] = (double*)malloc(x*y*z * sizeof(double));
-		for (uint32_t i = 0; i < x; i++) {
-			d[i] = d[0] + i * y;
-			for (uint32_t j = 0; j < y; j++) d[i][j] = d[0][0] + i * y*z + j * z;
-		}
-		if (d == NULL) {
-			cerr << "not enough memory!" << endl;
-		}
-		return d;
-	}
 
 	// load image array from file
 	void loadImage(bool embedded){
@@ -255,17 +269,17 @@ public:
 			if (aw>1) w_shift = 4;
 		}
 		if (dim < 4){
-			dense3 = alloc3d(ax + x_shift, ay + y_shift, az + z_shift);
+			dense3 = std::make_unique<NDArray<double>>(std::initializer_list<size_t>{ax + x_shift, ay + y_shift, az + z_shift});
 			if(fortran_order){
 				for (uint32_t z = 0; z < az + z_shift; ++z) {
 					for (uint32_t y = 0; y < ay + y_shift; ++y) {
 						for (uint32_t x = 0; x < ax + x_shift; ++x) {
 							if (x_shift/2-1 < x && x <= ax+x_shift/2-1 && y_shift/2-1 < y && y <= ay+y_shift/2-1 && z_shift/2-1 < z && z<= az + z_shift/2-1) {
-								dense3[x][y][z] = sgn * arr[i++];
+								(*dense3)(x, y, z) = sgn * arr[i++];
 							}else if (0 == x || x == ax-1+y_shift || 0 == y || y == ay-1+y_shift || z==0 || z==az-1+z_shift) { // outer boundary
-								dense3[x][y][z] = config->threshold;
+								(*dense3)(x, y, z) = config->threshold;
 							}else{  // only for embedded; inner boundary
-								dense3[x][y][z] = -config->threshold;
+								(*dense3)(x, y, z) = -config->threshold;
 							}
 						}
 					}
@@ -275,11 +289,11 @@ public:
 					for (uint32_t y = 0; y < ay + y_shift; ++y) {
 						for (uint32_t z = 0; z < az + z_shift; ++z) {
 							if (x_shift/2-1 < x && x <= ax+x_shift/2-1 && y_shift/2-1 < y && y <= ay+y_shift/2-1 && z_shift/2-1 < z && z<= az + z_shift/2-1) {
-								dense3[x][y][z] = sgn * arr[i++];
+								(*dense3)(x, y, z) = sgn * arr[i++];
 							}else if (0 == x || x == ax-1+y_shift || 0 == y || y == ay-1+y_shift || z==0 || z==az-1+z_shift) { // outer boundary
-								dense3[x][y][z] = config->threshold;
+								(*dense3)(x, y, z) = config->threshold;
 							}else{  // only for embedded; inner boundary
-								dense3[x][y][z] = -config->threshold;
+								(*dense3)(x, y, z) = -config->threshold;
 							}
 						}
 					}
