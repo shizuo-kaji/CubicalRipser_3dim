@@ -340,7 +340,7 @@ int main(int argc, char** argv) {
                 else if (dcg.dim == 2) {
                     jp.enum_edges({0, 1}, ctr);
                 }
-                else { // 3D
+                else { // 3D, 4D
                     jp.enum_edges({0, 1, 2}, ctr);
                 }
                 // Compute dimension 0 via union-find
@@ -453,6 +453,9 @@ int main(int argc, char** argv) {
                     jp.enum_edges({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, ctr);
                     jp.joint_pairs_main(ctr, 2);
                     std::cout << "Number of pairs in dim 2: " << writepairs.size() << std::endl;
+                }
+                else if (dcg.dim == 4) {
+                    throw std::runtime_error("Alexander duality not implemented for 4D");
                 }
 
                 const auto msec = timer.milliseconds();

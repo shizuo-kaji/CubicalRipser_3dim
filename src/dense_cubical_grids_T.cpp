@@ -39,48 +39,121 @@ DenseCubicalGrids::DenseCubicalGrids(Config& _config, uint8_t d, uint32_t x, uin
 
 // return filtlation value for a cube
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz){
-	return min({ (*dense3)(cx, cy, cz), (*dense3)(cx+1, cy, cz),
-				(*dense3)(cx+1, cy+1, cz), (*dense3)(cx, cy+1, cz),
-				(*dense3)(cx, cy, cz+1), (*dense3)(cx+1, cy, cz+1),
-				(*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx, cy+1, cz+1) });
-}
+	return min({ (*dense)(cx, cy, cz), (*dense)(cx+1, cy, cz),
+				(*dense)(cx+1, cy+1, cz), (*dense)(cx, cy+1, cz),
+				(*dense)(cx, cy, cz+1), (*dense)(cx+1, cy, cz+1),
+				(*dense)(cx+1, cy+1, cz+1), (*dense)(cx, cy+1, cz+1) });
+	}
+double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw){
+	return min({ (*dense)(cx, cy, cz, cw), (*dense)(cx+1, cy, cz, cw),
+					(*dense)(cx+1, cy+1, cz, cw), (*dense)(cx, cy+1, cz, cw),
+					(*dense)(cx, cy, cz+1, cw), (*dense)(cx+1, cy, cz+1, cw),
+					(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
+					(*dense)(cx, cy, cz, cw+1), (*dense)(cx+1, cy, cz, cw+1),
+					(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
+					(*dense)(cx, cy, cz+1, cw+1), (*dense)(cx+1, cy, cz+1, cw+1),
+					(*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1) });
+	}
+
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw, uint8_t cm, uint8_t dim) {
 	// beware of the shift due to the boundary
 	if (this->dim < 4) {
 		switch (dim) {
 			case 3:
-				return (*dense3)(cx+1, cy+1, cz+1);
+				return (*dense)(cx+1, cy+1, cz+1);
 			case 2:
 				switch (cm) {
 					case 0: // fix z
-						return min((*dense3)(cx+1, cy+1, cz), (*dense3)(cx + 1, cy + 1, cz + 1));
+						return min((*dense)(cx+1, cy+1, cz), (*dense)(cx + 1, cy + 1, cz + 1));
 					case 1: // fix y
-						return min((*dense3)(cx+1, cy, cz+1), (*dense3)(cx + 1, cy + 1, cz + 1));
+						return min((*dense)(cx+1, cy, cz+1), (*dense)(cx + 1, cy + 1, cz + 1));
 					case 2: // fix x
-						return min((*dense3)(cx, cy+1, cz+1), (*dense3)(cx + 1, cy + 1, cz + 1));
+						return min((*dense)(cx, cy+1, cz+1), (*dense)(cx + 1, cy + 1, cz + 1));
 					break;
 				}
 			case 1:
 				switch (cm) {
 					case 0: // x,x+1
-						return min({ (*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx+1, cy+1, cz),
-							(*dense3)(cx+1, cy, cz+1), (*dense3)(cx+1, cy, cz) });
+						return min({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx+1, cy+1, cz),
+							(*dense)(cx+1, cy, cz+1), (*dense)(cx+1, cy, cz) });
 					case 1: // y,y+1
-						return min({ (*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx, cy+1, cz+1),
-							(*dense3)(cx+1, cy+1, cz), (*dense3)(cx, cy+1, cz) });
+						return min({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx, cy+1, cz+1),
+							(*dense)(cx+1, cy+1, cz), (*dense)(cx, cy+1, cz) });
 					case 2: // z,z+1
-						return min({ (*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx, cy+1, cz+1),
-							(*dense3)(cx+1, cy, cz+1), (*dense3)(cx, cy, cz+1) });
+						return min({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx, cy+1, cz+1),
+							(*dense)(cx+1, cy, cz+1), (*dense)(cx, cy, cz+1) });
 					break;
 				}
 			case 0:
-				return min({ (*dense3)(cx, cy, cz), (*dense3)(cx+1, cy, cz),
-					(*dense3)(cx+1, cy+1, cz), (*dense3)(cx, cy+1, cz),
-					(*dense3)(cx, cy, cz+1), (*dense3)(cx+1, cy, cz+1),
-					(*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx, cy+1, cz+1) });
-			}
+				return min({ (*dense)(cx, cy, cz), (*dense)(cx+1, cy, cz),
+					(*dense)(cx+1, cy+1, cz), (*dense)(cx, cy+1, cz),
+					(*dense)(cx, cy, cz+1), (*dense)(cx+1, cy, cz+1),
+					(*dense)(cx+1, cy+1, cz+1), (*dense)(cx, cy+1, cz+1) });
+		}
+	} else {
+		// 4D case - T-construction
+		switch (dim) {
+			case 4:
+				return (*dense)(cx+1, cy+1, cz+1, cw+1);
+			case 3:
+				switch (cm) {
+					case 0: // fix w
+						return min((*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx + 1, cy + 1, cz + 1, cw + 1));
+					case 1: // fix z
+						return min((*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx + 1, cy + 1, cz + 1, cw + 1));
+					case 2: // fix y
+						return min((*dense)(cx+1, cy, cz+1, cw+1), (*dense)(cx + 1, cy + 1, cz + 1, cw + 1));
+					case 3: // fix x
+						return min((*dense)(cx, cy+1, cz+1, cw+1), (*dense)(cx + 1, cy + 1, cz + 1, cw + 1));
+					break;
+				}
+			case 2:
+				switch (cm) {
+					case 0: // x,x+1 (fix y,z,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+1, cz+1, cw),
+							(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx+1, cy+1, cz, cw),
+							(*dense)(cx+1, cy, cz+1, cw+1), (*dense)(cx+1, cy, cz+1, cw),
+							(*dense)(cx+1, cy, cz, cw+1), (*dense)(cx+1, cy, cz, cw) });
+					case 1: // y,y+1 (fix x,z,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1),
+							(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
+							(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
+							(*dense)(cx+1, cy+1, cz, cw), (*dense)(cx, cy+1, cz, cw) });
+					case 2: // z,z+1 (fix x,y,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1),
+							(*dense)(cx+1, cy, cz+1, cw+1), (*dense)(cx, cy, cz+1, cw+1),
+							(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
+							(*dense)(cx+1, cy, cz+1, cw), (*dense)(cx, cy, cz+1, cw) });
+					case 3: // w,w+1 (fix x,y,z)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1),
+							(*dense)(cx+1, cy, cz+1, cw+1), (*dense)(cx, cy, cz+1, cw+1),
+							(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
+							(*dense)(cx+1, cy, cz, cw+1), (*dense)(cx, cy, cz, cw+1) });
+					break;
+				}
+			case 1:
+				// All 16 vertices of the 4D hypercube for 1-cells
+				return min({ (*dense)(cx, cy, cz, cw), (*dense)(cx+1, cy, cz, cw),
+					(*dense)(cx+1, cy+1, cz, cw), (*dense)(cx, cy+1, cz, cw),
+					(*dense)(cx, cy, cz+1, cw), (*dense)(cx+1, cy, cz+1, cw),
+					(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
+					(*dense)(cx, cy, cz, cw+1), (*dense)(cx+1, cy, cz, cw+1),
+					(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
+					(*dense)(cx, cy, cz+1, cw+1), (*dense)(cx+1, cy, cz+1, cw+1),
+					(*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1) });
+			case 0:
+				// All 16 vertices of the 4D hypercube for 0-cells
+				return min({ (*dense)(cx, cy, cz, cw), (*dense)(cx+1, cy, cz, cw),
+					(*dense)(cx+1, cy+1, cz, cw), (*dense)(cx, cy+1, cz, cw),
+					(*dense)(cx, cy, cz+1, cw), (*dense)(cx+1, cy, cz+1, cw),
+					(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
+					(*dense)(cx, cy, cz, cw+1), (*dense)(cx+1, cy, cz, cw+1),
+					(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
+					(*dense)(cx, cy, cz+1, cw+1), (*dense)(cx+1, cy, cz+1, cw+1),
+					(*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1) });
+		}
 	}
-	return threshold; // dim > 4
+	return threshold; // fallback
 }
 
 // (x,y,z) of the voxel which defines the birthtime of the cube
@@ -95,10 +168,20 @@ vector<uint32_t> DenseCubicalGrids::ParentVoxel(uint8_t _dim, Cube &c){
 			{1,1,1},{0,1,1},{0,0,1},{0,0,0},{0,1,0},{1,0,1},{1,0,0},{1,1,0}
 		};
 		for (const auto &o : off) {
-			if (c.birth == (*dense3)(cx+o[0], cy+o[1], cz+o[2]))
+			if (c.birth == (*dense)(cx+o[0], cy+o[1], cz+o[2]))
 				return { uint32_t(cx+o[0]-1), uint32_t(cy+o[1]-1), uint32_t(cz+o[2]-1) };
 		}
-		cerr << "parent voxel not found!" << endl;
-		return {0,0,0};
+	} else {
+		// 4D case
+		static const int off4d[16][4] = {
+			{1,1,1,1},{0,1,1,1},{0,0,1,1},{0,0,0,1},{0,1,0,1},{1,0,1,1},{1,0,0,1},{1,1,0,1},
+			{1,1,1,0},{0,1,1,0},{0,0,1,0},{0,0,0,0},{0,1,0,0},{1,0,1,0},{1,0,0,0},{1,1,0,0}
+		};
+		for (const auto &o : off4d) {
+			if (c.birth == (*dense)(cx+o[0], cy+o[1], cz+o[2], cw+o[3]))
+				return { uint32_t(cx+o[0]-1), uint32_t(cy+o[1]-1), uint32_t(cz+o[2]-1), uint32_t(cw+o[3]-1) };
+		}
 	}
+	cerr << "parent voxel not found!" << endl;
+	return dim < 4 ? vector<uint32_t>{0,0,0} : vector<uint32_t>{0,0,0,0};
 }

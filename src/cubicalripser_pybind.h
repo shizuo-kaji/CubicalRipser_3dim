@@ -71,18 +71,7 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
     bool fortran_order = img.flags() & py::array::f_style;
 	dcg -> gridFromArray(&img.data()[0], embedded, fortran_order);
 //	dense3[x][y][z] = -(*img.data(x-2, y-2, z-2));
-
-	// padded boundary
-    if(config.tconstruction){
-        if(dcg->az>1) dcg->az++;
-        dcg->ax++;
-        dcg->ay++;
-    }
-
-	dcg -> axy = dcg->ax * dcg->ay;
-	dcg -> ayz = dcg->ay * dcg->az;
-	dcg -> axyz = dcg->ax * dcg->ay * dcg->az;
-
+	dcg->finalisePadding();
 
 	// compute PH
 	if(config.method==ALEXANDER){

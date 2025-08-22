@@ -24,25 +24,27 @@ private:
 public:
 	vector<double> birthtime;
 	UnionFind(DenseCubicalGrids* _dcg);
-	uint64_t find(uint64_t x); 
+	uint64_t find(uint64_t x);
 	void link(uint64_t x, uint64_t y);
 };
 
 UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
-	uint64_t n = _dcg->ax * _dcg->ay * _dcg->az;
+	uint64_t n = _dcg->ax * _dcg->ay * _dcg->az * _dcg->aw;
 	parent.resize(n);
 	birthtime.resize(n);
 	time_max.resize(n);
 
 	uint64_t i=0;
-	for (uint32_t z = 0; z < _dcg->az; ++z) {
-		for (uint32_t y = 0; y < _dcg->ay; ++y) {
-			for(uint32_t x = 0; x < _dcg->ax ; ++x){
-				parent[i] = i;
-				birthtime[i] = _dcg->getBirth(x,y,z);
-				time_max[i] = birthtime[i]; // maximum filtration value for the group
+	for (uint32_t w = 0; w < _dcg->aw; ++w) {
+		for (uint32_t z = 0; z < _dcg->az; ++z) {
+			for (uint32_t y = 0; y < _dcg->ay; ++y) {
+				for(uint32_t x = 0; x < _dcg->ax ; ++x){
+					parent[i] = i;
+					birthtime[i] = _dcg->getBirth(x,y,z,w);
+					time_max[i] = birthtime[i]; // maximum filtration value for the group
 //				cout << x << "," << y << "," << z << ": " << birthtime[i] << endl;
-				i++;
+					i++;
+				}
 			}
 		}
 	}
@@ -69,7 +71,7 @@ uint64_t UnionFind::find(uint64_t x){
 void UnionFind::link(uint64_t x, uint64_t y){
 	if (x == y) return;
 	if (birthtime[x] >= birthtime[y]){
-		parent[x] = y; 
+		parent[x] = y;
 		time_max[y] = std::max(time_max[x], time_max[y]);
 	} else if(birthtime[x] < birthtime[y]) {
 		parent[y] = x;

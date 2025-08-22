@@ -40,7 +40,11 @@ DenseCubicalGrids::DenseCubicalGrids(Config& _config, uint8_t d, uint32_t x, uin
 // return filtlation value for a cube
 // (cx,cy,cz) is the voxel coordinates in the original image
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz){
-	return (*dense3)(cx+1, cy+1, cz+1);
+	return (*dense)(cx+1, cy+1, cz+1);
+}
+
+double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw){
+	return (*dense)(cx+1, cy+1, cz+1, cw+1);
 }
 
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw, uint8_t cm, uint8_t dim) {
@@ -48,7 +52,7 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 	if (this->dim < 4) {
 		switch (dim) {
 			case 0:
-				return (*dense3)(cx+1, cy+1, cz+1);
+				return (*dense)(cx+1, cy+1, cz+1);
 			case 1: {
 				static const int off[13][3] = {
 					{1,0,0},{0,1,0},{0,0,1},{1,1,0},{1,-1,0},
@@ -56,29 +60,103 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 					{1,-1,-1},{1,0,-1},{1,1,-1}
 				};
 				if (cm < 13) {
-					const double b = (*dense3)(cx+1, cy+1, cz+1);
+					const double b = (*dense)(cx+1, cy+1, cz+1);
 					const int *o = off[cm];
-					return max(b, (*dense3)(cx+1+o[0], cy+1+o[1], cz+1+o[2]));
+					return max(b, (*dense)(cx+1+o[0], cy+1+o[1], cz+1+o[2]));
 				}
 				// fallthrough on invalid cm
 			}
 			case 2:
 				switch (cm) {
 				case 0: // x - y (fix z)
-					return max({ (*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx+2, cy+1, cz+1),
-						(*dense3)(cx+2, cy+2, cz+1), (*dense3)(cx+1, cy+2, cz+1) });
+					return max({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx+2, cy+1, cz+1),
+						(*dense)(cx+2, cy+2, cz+1), (*dense)(cx+1, cy+2, cz+1) });
 				case 1: // z - x (fix y)
-					return max({ (*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx+1, cy+1, cz+2),
-						(*dense3)(cx+2, cy+1, cz+2), (*dense3)(cx+2, cy+1, cz+1) });
+					return max({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx+1, cy+1, cz+2),
+						(*dense)(cx+2, cy+1, cz+2), (*dense)(cx+2, cy+1, cz+1) });
 				case 2: // y - z (fix x)
-					return max({ (*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx+1, cy+2, cz+1),
-						(*dense3)(cx+1, cy+2, cz+2), (*dense3)(cx+1, cy+1, cz+2) });
+					return max({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx+1, cy+2, cz+1),
+						(*dense)(cx+1, cy+2, cz+2), (*dense)(cx+1, cy+1, cz+2) });
 				}
 			case 3:
-				return max({ (*dense3)(cx+1, cy+1, cz+1), (*dense3)(cx+2, cy+1, cz+1),
-					(*dense3)(cx+2, cy+2, cz+1), (*dense3)(cx+1, cy+2, cz+1),
-					(*dense3)(cx+1, cy+1, cz+2), (*dense3)(cx+2, cy+1, cz+2),
-					(*dense3)(cx+2, cy+2, cz+2), (*dense3)(cx+1, cy+2, cz+2) });
+				return max({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx+2, cy+1, cz+1),
+					(*dense)(cx+2, cy+2, cz+1), (*dense)(cx+1, cy+2, cz+1),
+					(*dense)(cx+1, cy+1, cz+2), (*dense)(cx+2, cy+1, cz+2),
+					(*dense)(cx+2, cy+2, cz+2), (*dense)(cx+1, cy+2, cz+2) });
+			}
+	} else {
+		// 4D case
+		switch (dim) {
+			case 0:
+				return (*dense)(cx+1, cy+1, cz+1, cw+1);
+			case 1: {
+				static const int off4d[13][4] = {
+					{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1},{1,1,0,0},{1,-1,0,0},
+					{0,-1,1,0},{0,1,1,0},{1,-1,1,0},{1,0,1,0},{1,1,1,0},
+					{1,-1,-1,0},{1,0,-1,0}
+				};
+				if (cm < 13) {
+					const double b = (*dense)(cx+1, cy+1, cz+1, cw+1);
+					const int *o = off4d[cm];
+					return max(b, (*dense)(cx+1+o[0], cy+1+o[1], cz+1+o[2], cw+1+o[3]));
+				}
+				// fallthrough on invalid cm
+			}
+			case 2:
+				switch (cm) {
+				case 0: // x - y (fix z,w)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+2, cy+1, cz+1, cw+1),
+						(*dense)(cx+2, cy+2, cz+1, cw+1), (*dense)(cx+1, cy+2, cz+1, cw+1) });
+				case 1: // z - x (fix y,w)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+1, cz+2, cw+1),
+						(*dense)(cx+2, cy+1, cz+2, cw+1), (*dense)(cx+2, cy+1, cz+1, cw+1) });
+				case 2: // y - z (fix x,w)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+2, cz+1, cw+1),
+						(*dense)(cx+1, cy+2, cz+2, cw+1), (*dense)(cx+1, cy+1, cz+2, cw+1) });
+				case 3: // w - x (fix y,z)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+1, cz+1, cw+2),
+						(*dense)(cx+2, cy+1, cz+1, cw+2), (*dense)(cx+2, cy+1, cz+1, cw+1) });
+				case 4: // w - y (fix x,z)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+1, cz+1, cw+2),
+						(*dense)(cx+1, cy+2, cz+1, cw+2), (*dense)(cx+1, cy+2, cz+1, cw+1) });
+				case 5: // w - z (fix x,y)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+1, cz+1, cw+2),
+						(*dense)(cx+1, cy+1, cz+2, cw+2), (*dense)(cx+1, cy+1, cz+2, cw+1) });
+				}
+			case 3:
+				// 3D faces in 4D space - there are 8 such faces
+				switch (cm) {
+				case 0: // x-y-z (fix w)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+2, cy+1, cz+1, cw+1),
+						(*dense)(cx+2, cy+2, cz+1, cw+1), (*dense)(cx+1, cy+2, cz+1, cw+1),
+						(*dense)(cx+1, cy+1, cz+2, cw+1), (*dense)(cx+2, cy+1, cz+2, cw+1),
+						(*dense)(cx+2, cy+2, cz+2, cw+1), (*dense)(cx+1, cy+2, cz+2, cw+1) });
+				case 1: // x-y-w (fix z)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+2, cy+1, cz+1, cw+1),
+						(*dense)(cx+2, cy+2, cz+1, cw+1), (*dense)(cx+1, cy+2, cz+1, cw+1),
+						(*dense)(cx+1, cy+1, cz+1, cw+2), (*dense)(cx+2, cy+1, cz+1, cw+2),
+						(*dense)(cx+2, cy+2, cz+1, cw+2), (*dense)(cx+1, cy+2, cz+1, cw+2) });
+				case 2: // x-z-w (fix y)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+2, cy+1, cz+1, cw+1),
+						(*dense)(cx+1, cy+1, cz+2, cw+1), (*dense)(cx+2, cy+1, cz+2, cw+1),
+						(*dense)(cx+1, cy+1, cz+1, cw+2), (*dense)(cx+2, cy+1, cz+1, cw+2),
+						(*dense)(cx+1, cy+1, cz+2, cw+2), (*dense)(cx+2, cy+1, cz+2, cw+2) });
+				case 3: // y-z-w (fix x)
+					return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+2, cz+1, cw+1),
+						(*dense)(cx+1, cy+1, cz+2, cw+1), (*dense)(cx+1, cy+2, cz+2, cw+1),
+						(*dense)(cx+1, cy+1, cz+1, cw+2), (*dense)(cx+1, cy+2, cz+1, cw+2),
+						(*dense)(cx+1, cy+1, cz+2, cw+2), (*dense)(cx+1, cy+2, cz+2, cw+2) });
+				}
+			case 4:
+				// 4D hypercube
+				return max({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+2, cy+1, cz+1, cw+1),
+					(*dense)(cx+2, cy+2, cz+1, cw+1), (*dense)(cx+1, cy+2, cz+1, cw+1),
+					(*dense)(cx+1, cy+1, cz+2, cw+1), (*dense)(cx+2, cy+1, cz+2, cw+1),
+					(*dense)(cx+2, cy+2, cz+2, cw+1), (*dense)(cx+1, cy+2, cz+2, cw+1),
+					(*dense)(cx+1, cy+1, cz+1, cw+2), (*dense)(cx+2, cy+1, cz+1, cw+2),
+					(*dense)(cx+2, cy+2, cz+1, cw+2), (*dense)(cx+1, cy+2, cz+1, cw+2),
+					(*dense)(cx+1, cy+1, cz+2, cw+2), (*dense)(cx+2, cy+1, cz+2, cw+2),
+					(*dense)(cx+2, cy+2, cz+2, cw+2), (*dense)(cx+1, cy+2, cz+2, cw+2) });
 			}
 	}
 	return threshold;
@@ -97,10 +175,22 @@ vector<uint32_t> DenseCubicalGrids::ParentVoxel(uint8_t _dim, Cube &c){
 		};
 		for (auto &r : rel) {
 			int dx=r[0], dy=r[1], dz=r[2];
-			if (c.birth == (*dense3)(cx+1+dx, cy+1+dy, cz+1+dz))
+			if (c.birth == (*dense)(cx+1+dx, cy+1+dy, cz+1+dz))
 				return {cx+dx, cy+dy, cz+dz};
 		}
-		cerr << "parent voxel not found!" << endl;
-		return {0,0,0};
+	} else {
+		// 4D case
+		static const int rel4d[][4] = {
+			{0,0,0,0},{1,0,0,0},{1,1,0,0},{0,1,0,0},{0,0,1,0},{1,0,1,0},{0,1,1,0},{1,1,1,0},
+			{0,0,0,1},{1,0,0,1},{1,1,0,1},{0,1,0,1},{0,0,1,1},{1,0,1,1},{0,1,1,1},{1,1,1,1},
+			{1,-1,0,0},{0,-1,1,0},{1,-1,1,0},{1,-1,-1,0},{1,0,-1,0},{1,1,-1,0}
+		};
+		for (auto &r : rel4d) {
+			int dx=r[0], dy=r[1], dz=r[2], dw=r[3];
+			if (c.birth == (*dense)(cx+1+dx, cy+1+dy, cz+1+dz, cw+1+dw))
+				return {uint32_t(cx+dx), uint32_t(cy+dy), uint32_t(cz+dz), uint32_t(cw+dw)};
+		}
 	}
+	cerr << "parent voxel not found!" << endl;
+	return dim < 4 ? vector<uint32_t>{0,0,0} : vector<uint32_t>{0,0,0,0};
 }
