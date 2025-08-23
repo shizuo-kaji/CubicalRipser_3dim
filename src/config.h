@@ -24,7 +24,7 @@ struct Config {
 	output_location location = LOC_YES; // flag for saving location
 	int min_recursion_to_cache = 0; // num of minimum recursions for a reduced column to be cached
 	uint32_t cache_size = 1 << 31; // the maximum number of reduced columns to be cached
-	int maxiter = 1000; // maximum number of iterations for each column (for debug)
+	int maxiter = 1000000; // maximum number of iterations for each column (for debug)
 };
 
 #endif

@@ -110,6 +110,11 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 				cp.assemble_columns_to_reduce(ctr,2);
 				cp.compute_pairs_main(ctr); // dim2
 				betti.push_back(writepairs.size() - betti[0] - betti[1]);
+				if (config.maxdim > 2) {
+					cp.assemble_columns_to_reduce(ctr, 3);
+					cp.compute_pairs_main(ctr);  // dim3
+					betti.push_back(writepairs.size() - betti[0] - betti[1] - betti[2]);
+				}
 			}
 		}
 	}
@@ -119,20 +124,31 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 	auto pad_x = (dcg->ax - dcg->img_x)/2;
 	auto pad_y = (dcg->ay - dcg->img_y)/2;
 	auto pad_z = (dcg->az - dcg->img_z)/2;
+	auto pad_w = (dcg->aw - dcg->img_w)/2;
+	int num_column = 9;
+	int shift_column = 0;
+	if (dcg->dim > 3) {
+		num_column = 11;
+		shift_column = 1;
+	};
 	int64_t p = writepairs.size();
-	vector<ssize_t> result_shape{p,9};
+	vector<ssize_t> result_shape{p,num_column};
 	py::array_t<double> data{result_shape};
 	auto data_ptr = data.mutable_data();
 	for(int64_t i = 0; i < p; ++i){
-        data_ptr[i * 9 + 0] = writepairs[i].dim;
-        data_ptr[i * 9 + 1] = writepairs[i].birth;
-        data_ptr[i * 9 + 2] = writepairs[i].death;
-        data_ptr[i * 9 + 3] = writepairs[i].birth_x - pad_x;
-        data_ptr[i * 9 + 4] = writepairs[i].birth_y - pad_y;
-        data_ptr[i * 9 + 5] = writepairs[i].birth_z - pad_z;
-        data_ptr[i * 9 + 6] = writepairs[i].death_x - pad_x;
-        data_ptr[i * 9 + 7] = writepairs[i].death_y - pad_y;
-        data_ptr[i * 9 + 8] = writepairs[i].death_z - pad_z;
-	}
+        data_ptr[i * num_column + 0] = writepairs[i].dim;
+        data_ptr[i * num_column + 1] = writepairs[i].birth;
+        data_ptr[i * num_column + 2] = writepairs[i].death;
+        data_ptr[i * num_column + 3] = writepairs[i].birth_x - pad_x;
+        data_ptr[i * num_column + 4] = writepairs[i].birth_y - pad_y;
+        data_ptr[i * num_column + 5] = writepairs[i].birth_z - pad_z;
+        data_ptr[i * num_column + 6 + shift_column] = writepairs[i].death_x - pad_x;
+        data_ptr[i * num_column + 7 + shift_column] = writepairs[i].death_y - pad_y;
+        data_ptr[i * num_column + 8 + shift_column] = writepairs[i].death_z - pad_z;
+		if (dcg->dim > 3) {
+			data_ptr[i * num_column + 6] = writepairs[i].birth_w - pad_w;
+			data_ptr[i * num_column + 9] = writepairs[i].death_w - pad_w;
+		};
+	};
 	return data;
 }

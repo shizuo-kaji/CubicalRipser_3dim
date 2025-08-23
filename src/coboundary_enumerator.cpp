@@ -68,22 +68,22 @@ bool CoboundaryEnumerator::hasNextCoface() {
 		};
 		static const uint8_t counts[3] = {6,4,2};
 
-		if (dim > 2) return false;
-		uint8_t variant = cube.m();
-		uint8_t cnt = counts[dim];
+        if (dim > 2) return false;
+        uint8_t variant = cube.m();
+        uint8_t cnt = counts[dim];
 
-		for (uint8_t i = position; i < cnt; ++i) {
-			int x = cx + offsets[dim][variant][i][0];
-			int y = cy + offsets[dim][variant][i][1];
-			int z = cz + offsets[dim][variant][i][2];
-			int m = offsets[dim][variant][i][3];
-			birth = dcg->getBirth(x,y,z,cw,m, dim+1);
-			nextCoface = Cube(birth, x,y,z,cw, m);
-			if (birth != dcg->threshold) {
-				//cube.print();nextCoface.print();
-				position = i + 1; return true; }
-		}
-		return false;
+        for (uint8_t i = position; i < cnt; ++i) {
+            int x = cx + offsets[dim][variant][i][0];
+            int y = cy + offsets[dim][variant][i][1];
+            int z = cz + offsets[dim][variant][i][2];
+            int m = offsets[dim][variant][i][3];
+            birth = dcg->getBirth(x,y,z,cw,m, dim+1);
+            nextCoface = Cube(birth, x,y,z,cw, m);
+            if (birth != dcg->threshold) {
+                //cube.print();nextCoface.print();
+                position = i + 1; return true; }
+        }
+        return false;
 	} else { // dcg->dim == 4
 		// Explicit 4D coface enumeration matching getBirth() m-encodings
 		if (dim > 3) return false;

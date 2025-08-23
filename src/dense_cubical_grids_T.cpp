@@ -57,11 +57,11 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw, uint8_t cm, uint8_t dim) {
 	// beware of the shift due to the boundary
-	if (this->dim < 4) {
-		switch (dim) {
-			case 3:
-				return (*dense)(cx+1, cy+1, cz+1);
-			case 2:
+    if (this->dim < 4) {
+        switch (dim) {
+            case 3:
+                return (*dense)(cx+1, cy+1, cz+1);
+            case 2:
 				switch (cm) {
 					case 0: // fix z
 						return min((*dense)(cx+1, cy+1, cz), (*dense)(cx + 1, cy + 1, cz + 1));
@@ -71,8 +71,8 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 						return min((*dense)(cx, cy+1, cz+1), (*dense)(cx + 1, cy + 1, cz + 1));
 					break;
 				}
-			case 1:
-				switch (cm) {
+            case 1:
+                switch (cm) {
 					case 0: // x,x+1
 						return min({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx+1, cy+1, cz),
 							(*dense)(cx+1, cy, cz+1), (*dense)(cx+1, cy, cz) });
@@ -83,14 +83,13 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 						return min({ (*dense)(cx+1, cy+1, cz+1), (*dense)(cx, cy+1, cz+1),
 							(*dense)(cx+1, cy, cz+1), (*dense)(cx, cy, cz+1) });
 					break;
-				}
-			case 0:
-				return min({ (*dense)(cx, cy, cz), (*dense)(cx+1, cy, cz),
-					(*dense)(cx+1, cy+1, cz), (*dense)(cx, cy+1, cz),
-					(*dense)(cx, cy, cz+1), (*dense)(cx+1, cy, cz+1),
-					(*dense)(cx+1, cy+1, cz+1), (*dense)(cx, cy+1, cz+1) });
-		}
-	} else {
+                }
+            case 0:
+                // Align 0-cell birth with union-find behavior in T-construction
+                // by using the 4-argument overload (includes w-plane when present).
+                return getBirth(cx, cy, cz, cw);
+        }
+    } else {
 		// 4D case - T-construction
 		switch (dim) {
 			case 4:

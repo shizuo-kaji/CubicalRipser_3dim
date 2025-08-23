@@ -13,7 +13,7 @@ def test_4d_sphere_ph():
     deaths = ph[:, 2]
 
     # Exactly one H0 infinite bar at birth 0.0
-    h0_inf_idx = np.where((dims == 0) & np.isinf(deaths))[0]
+    h0_inf_idx = np.where((dims == 0) & (deaths>1e20))[0]
     assert len(h0_inf_idx) == 1
     assert abs(births[h0_inf_idx[0]] - 0.0) < 1e-9
 

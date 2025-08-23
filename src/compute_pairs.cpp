@@ -86,16 +86,17 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                 // make the column by enumerating cofaces
                 coface_entries.clear();
                 cofaces.setCoboundaryEnumerator(ctr[j]);
+                const bool avoid_apparent = (dcg->config->tconstruction && dcg->az == 1 && dim == 0);
                 while (cofaces.hasNextCoface()) {
                     coface_entries.push_back(cofaces.nextCoface);
                     // cout << "coface: " << j << endl;
                     // ctr[j].print();
                     // cofaces.nextCoface.print();
-                    if (might_be_apparent_pair && (ctr[j].birth == cofaces.nextCoface.birth)) { // we cannot find this coface on the left (Short-Circuit Evaluation)
+                    if (!avoid_apparent && might_be_apparent_pair && (ctr[j].birth == cofaces.nextCoface.birth)) { // we cannot find this coface on the left (Short-Circuit Evaluation)
                         if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
                             pivot.copyCube(cofaces.nextCoface);
                             found_persistence_pair = true;
-							break;
+                            				break;
                         } else {
                             might_be_apparent_pair = false;
                         }
@@ -217,6 +218,15 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
             case 1: max_m = 3; break;
             case 2: max_m = 3; break;
             default: max_m = 1; break; // dim == 3 (or lower)
+        }
+    }
+    // Special-case: 2D image under T-construction (embedded in 3D with az==1)
+    // Restrict mask variants to in-plane components so compute_pairs matches union-find.
+    if (dcg->config->tconstruction && dcg->az == 1 && dcg->dim < 4) {
+        switch (dim) {
+            case 0: max_m = 1; break;      // 0-cells: single variant
+            case 1: max_m = 2; break;      // 1-cells: only x- and y-edges (no z)
+            default: max_m = 1; break;     // 2-cells: single square variant (xy)
         }
     }
     if (dim == 0) {
