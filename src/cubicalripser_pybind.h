@@ -94,8 +94,10 @@ py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_di
 			jp -> enum_edges({0},ctr);
 		}else if(dcg->dim==2){
 			jp -> enum_edges({0,1},ctr);
-		}else{
+		}else if(dcg->dim==3){
 			jp -> enum_edges({0,1,2},ctr);
+		}else if(dcg->dim==4){
+			jp -> enum_edges({0,1,2,3},ctr);
 		}
 		jp -> joint_pairs_main(ctr,0); // dim0
 		betti.push_back(writepairs.size());

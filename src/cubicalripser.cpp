@@ -340,8 +340,11 @@ int main(int argc, char** argv) {
                 else if (dcg.dim == 2) {
                     jp.enum_edges({0, 1}, ctr);
                 }
-                else { // 3D, 4D
+                else if (dcg.dim == 3) { // 3D
                     jp.enum_edges({0, 1, 2}, ctr);
+                }
+                else { // 4D
+                    jp.enum_edges({0, 1, 2, 3}, ctr);
                 }
                 // Compute dimension 0 via union-find
                 jp.joint_pairs_main(ctr, 0);

@@ -245,11 +245,11 @@ public:
 				break;
 			}
 		}
+		finalisePadding();
 		if (dim < 4)
 			cout << "x : y : z = " << img_x << " : " << img_y << " : " << img_z << endl;
 		else
 			cout << "x : y : z : w = " << img_x << " : " << img_y << " : " << img_z << " : " << img_w << endl;
-		finalisePadding();
 	}
 
 	// construct volume with boundary
@@ -266,13 +266,13 @@ public:
 		double sgn = 1;
 		if(embedded){
 			sgn = -1;
-			x_shift = 4;
+			x_shift = 4; // 2 inner + 2 outer
 			y_shift = 4;
 			if (az>1) z_shift = 4;
 			if (aw>1) w_shift = 4;
 		}
 		if (dim < 4){
-			// allocate with boundary (original ax,ay,az not yet modified below)
+			// allocate with inner&outer boundary (original ax,ay,az not yet modified below)
 			const uint32_t size_x = ax + x_shift;
 			const uint32_t size_y = ay + y_shift;
 			const uint32_t size_z = az + z_shift;

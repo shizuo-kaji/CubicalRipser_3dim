@@ -68,7 +68,7 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
 		bool found_persistence_pair = false;
 		int num_recurse = 0;
 
-		while(true){
+		for(int k = 0; k < config->maxiter; ++k) { // for each column{}
             bool cache_hit = false;
             if(i!=j){
                 auto findWc = recorded_wc.find(j);
@@ -88,8 +88,9 @@ void ComputePairs::compute_pairs_main(vector<Cube>& ctr){
                 cofaces.setCoboundaryEnumerator(ctr[j]);
                 while (cofaces.hasNextCoface()) {
                     coface_entries.push_back(cofaces.nextCoface);
-    //                cout << "cf: " << j << endl;
-//                    cofaces.nextCoface.print();
+                    // cout << "coface: " << j << endl;
+                    // ctr[j].print();
+                    // cofaces.nextCoface.print();
                     if (might_be_apparent_pair && (ctr[j].birth == cofaces.nextCoface.birth)) { // we cannot find this coface on the left (Short-Circuit Evaluation)
                         if (pivot_column_index.find(cofaces.nextCoface.index) == pivot_column_index.end()) { // If coface is not in pivot list
                             pivot.copyCube(cofaces.nextCoface);
@@ -198,9 +199,27 @@ void ComputePairs::assemble_columns_to_reduce(vector<Cube>& ctr, uint8_t _dim) {
 	dim = _dim;
 	ctr.clear();
 	double birth;
-    uint8_t max_m = 3; // TODO: 4D
-	if (dim == 0) {
-        max_m = 1;
+    uint8_t max_m = 0;
+    // Determine number of mask types per target dimension based on ambient dimension
+    // 3D: dim 0/1/2/3 => 1/3/3/1
+    // 4D: dim 0/1/2/3/4 => 1/4/6/4/1
+    if (dcg->dim == 4) {
+        switch (dim) {
+            case 0: max_m = 1; break;
+            case 1: max_m = 4; break;
+            case 2: max_m = 6; break;
+            case 3: max_m = 4; break;
+            default: max_m = 1; break; // dim == 4
+        }
+    } else {
+        switch (dim) {
+            case 0: max_m = 1; break;
+            case 1: max_m = 3; break;
+            case 2: max_m = 3; break;
+            default: max_m = 1; break; // dim == 3 (or lower)
+        }
+    }
+    if (dim == 0) {
         pivot_column_index.clear();
     }
     for (uint8_t m = 0; m < max_m; ++m) {

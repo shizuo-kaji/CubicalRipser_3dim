@@ -326,7 +326,7 @@ Examples:
     parser.add_argument('input', type=str, nargs="*",
                        help="Input files: numpy array, multiple images, or directory containing images")
     parser.add_argument('--output', '-o', default=None,
-                       help="Output file path (default: derived from input name)")
+                       help="Output file path (.npy or .csv)")
 
     # Computation parameters
     parser.add_argument('--filtration', '-f', choices=['V', 'T'], default='V',
@@ -514,11 +514,18 @@ Examples:
     if args.output is not None:
         if args.output.endswith(".csv"):
             # Save as CSV with specific formatting
+            fmt_add = "" if args.software == "gudhi" else "%d,%d,%d,%d,%d,%d"
+            if img_arr.ndim < 4:
+                header = 'dim,birth,death,birth_x,birth_y,birth_z,death_x,death_y,death_z'
+            else:
+                header = 'dim,birth,death,birth_x,birth_y,birth_z,birth_w,death_x,death_y,death_z,death_w'
+                if args.software != "gudhi":
+                    fmt_add += ',%d,%d'
             np.savetxt(
                 args.output, res,
                 delimiter=',',
-                fmt='%d,%18.10f,%18.10f,%d,%d,%d,%d,%d,%d',
-                header='dim,birth,death,x1,y1,z1,x2,y2,z2'
+                fmt='%i,%18.10f,%18.10f'+fmt_add,
+                header=header
             )
         else:
             # Save as NumPy binary format (.npy)
