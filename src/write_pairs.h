@@ -55,8 +55,8 @@ public:
         death_z=d[2];
         death_w=d[3];
         if (print == true) {
-            _birthC.print();
-            _deathC.print();
+            //_birthC.print();
+            //_deathC.print();
             if (_dcg->dim < 4)
                 std::cout << "[" << birth << "," << death << ")" << " birth loc. (" << birth_x << "," << birth_y << "," << birth_z << "), " << " death loc. (" << death_x << "," << death_y << "," << death_z << ")" << std::endl;
             else

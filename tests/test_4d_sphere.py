@@ -7,7 +7,12 @@ import signal
 def test_4d_sphere_ph():
     # Compute up to H3 on the 4D array via Python module
     arr = np.load('sample/4d_hole.npy').astype(np.float64)
-    ph = cripser.computePH(arr, maxdim=3)
+    ph = cripser.compute_ph(arr, maxdim=3, filtration="V")
+    check(ph)
+    pht = cripser.compute_ph(arr, maxdim=3, filtration="T")
+    check(pht)
+
+def check(ph):
     dims = ph[:, 0].astype(int)
     births = ph[:, 1]
     deaths = ph[:, 2]

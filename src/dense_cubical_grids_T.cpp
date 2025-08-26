@@ -85,9 +85,8 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 					break;
                 }
             case 0:
-                // Align 0-cell birth with union-find behavior in T-construction
-                // by using the 4-argument overload (includes w-plane when present).
-                return getBirth(cx, cy, cz, cw);
+                // 0-cells in 3D T-construction: min over 8 adjacent voxels
+                return getBirth(cx, cy, cz);
         }
     } else {
 		// 4D case - T-construction
@@ -108,38 +107,50 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32
 				}
 			case 2:
 				switch (cm) {
-					case 0: // x,x+1 (fix y,z,w)
-						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+1, cz+1, cw),
-							(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx+1, cy+1, cz, cw),
-							(*dense)(cx+1, cy, cz+1, cw+1), (*dense)(cx+1, cy, cz+1, cw),
-							(*dense)(cx+1, cy, cz, cw+1), (*dense)(cx+1, cy, cz, cw) });
-					case 1: // y,y+1 (fix x,z,w)
-						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1),
-							(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
-							(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
-							(*dense)(cx+1, cy+1, cz, cw), (*dense)(cx, cy+1, cz, cw) });
-					case 2: // z,z+1 (fix x,y,w)
-						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1),
-							(*dense)(cx+1, cy, cz+1, cw+1), (*dense)(cx, cy, cz+1, cw+1),
-							(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
-							(*dense)(cx+1, cy, cz+1, cw), (*dense)(cx, cy, cz+1, cw) });
-					case 3: // w,w+1 (fix x,y,z)
-						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1),
-							(*dense)(cx+1, cy, cz+1, cw+1), (*dense)(cx, cy, cz+1, cw+1),
-							(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
-							(*dense)(cx+1, cy, cz, cw+1), (*dense)(cx, cy, cz, cw+1) });
-					break;
+					// 2D faces in 4D: min over 4 adjacent 4D voxels
+					case 0: // m=0: x-y plane (normals: z,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy+1, cz,   cw+1),
+							           (*dense)(cx+1, cy+1, cz+1, cw  ), (*dense)(cx+1, cy+1, cz,   cw  ) });
+					case 1: // m=1: z-x plane (normals: y,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy,   cz+1, cw+1),
+							           (*dense)(cx+1, cy+1, cz+1, cw  ), (*dense)(cx+1, cy,   cz+1, cw  ) });
+					case 2: // m=2: y-z plane (normals: x,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx,   cy+1, cz+1, cw+1),
+							           (*dense)(cx+1, cy+1, cz+1, cw  ), (*dense)(cx,   cy+1, cz+1, cw  ) });
+					case 3: // m=3: w-x plane (normals: y,z)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy,   cz+1, cw+1),
+							           (*dense)(cx+1, cy+1, cz,   cw+1), (*dense)(cx+1, cy,   cz,   cw+1) });
+					case 4: // m=4: w-y plane (normals: x,z)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx,   cy+1, cz+1, cw+1),
+							           (*dense)(cx+1, cy+1, cz,   cw+1), (*dense)(cx,   cy+1, cz,   cw+1) });
+					case 5: // m=5: w-z plane (normals: x,y)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx,   cy+1, cz+1, cw+1),
+							           (*dense)(cx+1, cy,   cz+1, cw+1), (*dense)(cx,   cy,   cz+1, cw+1) });
 				}
 			case 1:
-				// All 16 vertices of the 4D hypercube for 1-cells
-				return min({ (*dense)(cx, cy, cz, cw), (*dense)(cx+1, cy, cz, cw),
-					(*dense)(cx+1, cy+1, cz, cw), (*dense)(cx, cy+1, cz, cw),
-					(*dense)(cx, cy, cz+1, cw), (*dense)(cx+1, cy, cz+1, cw),
-					(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
-					(*dense)(cx, cy, cz, cw+1), (*dense)(cx+1, cy, cz, cw+1),
-					(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
-					(*dense)(cx, cy, cz+1, cw+1), (*dense)(cx+1, cy, cz+1, cw+1),
-					(*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1) });
+				switch (cm) {
+					// 1D edges in 4D: min over 8 adjacent 4D voxels (toggle other 3 axes)
+					case 0: // edge along x (toggle y,z,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx+1, cy,   cz+1, cw+1),
+							           (*dense)(cx+1, cy+1, cz,   cw+1), (*dense)(cx+1, cy,   cz,   cw+1),
+							           (*dense)(cx+1, cy+1, cz+1, cw  ), (*dense)(cx+1, cy,   cz+1, cw  ),
+							           (*dense)(cx+1, cy+1, cz,   cw  ), (*dense)(cx+1, cy,   cz,   cw  ) });
+					case 1: // edge along y (toggle x,z,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx,   cy+1, cz+1, cw+1),
+							           (*dense)(cx+1, cy+1, cz,   cw+1), (*dense)(cx,   cy+1, cz,   cw+1),
+							           (*dense)(cx+1, cy+1, cz+1, cw  ), (*dense)(cx,   cy+1, cz+1, cw  ),
+							           (*dense)(cx+1, cy+1, cz,   cw  ), (*dense)(cx,   cy+1, cz,   cw  ) });
+					case 2: // edge along z (toggle x,y,w)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx,   cy+1, cz+1, cw+1),
+							           (*dense)(cx+1, cy,   cz+1, cw+1), (*dense)(cx,   cy,   cz+1, cw+1),
+							           (*dense)(cx+1, cy+1, cz+1, cw  ), (*dense)(cx,   cy+1, cz+1, cw  ),
+							           (*dense)(cx+1, cy,   cz+1, cw  ), (*dense)(cx,   cy,   cz+1, cw  ) });
+					case 3: // edge along w (toggle x,y,z)
+						return min({ (*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx,   cy+1, cz+1, cw+1),
+							           (*dense)(cx+1, cy,   cz+1, cw+1), (*dense)(cx,   cy,   cz+1, cw+1),
+							           (*dense)(cx+1, cy+1, cz,   cw+1), (*dense)(cx,   cy+1, cz,   cw+1),
+							           (*dense)(cx+1, cy,   cz,   cw+1), (*dense)(cx,   cy,   cz,   cw+1) });
+				}
 			case 0:
 				// All 16 vertices of the 4D hypercube for 0-cells
 				return min({ (*dense)(cx, cy, cz, cw), (*dense)(cx+1, cy, cz, cw),
