@@ -245,11 +245,15 @@ public:
 				break;
 			}
 		}
+		cout << "dim = " << dim << " T-construction = " << config->tconstruction << " method = " << config->method << endl;
 		finalisePadding();
-		if (dim < 4)
+		if (dim < 4){
 			cout << "x : y : z = " << img_x << " : " << img_y << " : " << img_z << endl;
-		else
+			cout << "x : y : z = " << ax << " : " << ay << " : " << az << endl;
+		}else{
 			cout << "x : y : z : w = " << img_x << " : " << img_y << " : " << img_z << " : " << img_w << endl;
+			cout << "x : y : z : w = " << ax << " : " << ay << " : " << az << " : " << aw << endl;
+		}
 	}
 
 	// construct volume with boundary

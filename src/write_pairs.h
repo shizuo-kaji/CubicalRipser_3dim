@@ -46,8 +46,6 @@ public:
         death = _deathC.birth;
         auto b =  _dcg->ParentVoxel(dim, _birthC);
         auto d =  _dcg->ParentVoxel(dim, _deathC);
-        // vector<uint32_t> b = {0,0,0};
-        // vector<uint32_t> d = {0,0,0};
         birth_x=b[0];
         birth_y=b[1];
         birth_z=b[2];
@@ -57,6 +55,8 @@ public:
         death_z=d[2];
         death_w=d[3];
         if (print == true) {
+            _birthC.print();
+            _deathC.print();
             if (_dcg->dim < 4)
                 std::cout << "[" << birth << "," << death << ")" << " birth loc. (" << birth_x << "," << birth_y << "," << birth_z << "), " << " death loc. (" << death_x << "," << death_y << "," << death_z << ")" << std::endl;
             else

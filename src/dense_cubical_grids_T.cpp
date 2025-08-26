@@ -163,22 +163,25 @@ vector<uint32_t> DenseCubicalGrids::ParentVoxel(uint8_t _dim, Cube &c){
 	uint32_t cw = c.w();
 
 	if (dim < 4) {
-		static const int off[8][3] = {
-			{1,1,1},{0,1,1},{0,0,1},{0,0,0},{0,1,0},{1,0,1},{1,0,0},{1,1,0}
+		static const int rel[][3] = {
+			{0,0,0},{-1,0,0},{-1,-1,0},{-1,-1,-1},{-1,0,-1},{0,-1,0},{0,-1,-1},{0,0,-1}
 		};
-		for (const auto &o : off) {
-			if (c.birth == (*dense)(cx+o[0], cy+o[1], cz+o[2]))
-				return { uint32_t(cx+o[0]-1), uint32_t(cy+o[1]-1), uint32_t(cz+o[2]-1) };
+		for (auto &r : rel) {
+			int dx=r[0], dy=r[1], dz=r[2];
+			if (c.birth == (*dense)(cx+1+dx, cy+1+dy, cz+1+dz))
+				return {cx+dx, cy+dy, cz+dz};
 		}
 	} else {
 		// 4D case
-		static const int off4d[16][4] = {
-			{1,1,1,1},{0,1,1,1},{0,0,1,1},{0,0,0,1},{0,1,0,1},{1,0,1,1},{1,0,0,1},{1,1,0,1},
-			{1,1,1,0},{0,1,1,0},{0,0,1,0},{0,0,0,0},{0,1,0,0},{1,0,1,0},{1,0,0,0},{1,1,0,0}
+		static const int rel4d[][4] = {
+			{0,0,0,0},{-1,0,0,0},{-1,-1,0,0},{-1,-1,-1,0},
+			{-1,0,-1,0},{0,-1,0,0},{0,-1,-1,0},{0,0,-1,0},
+			{0,0,0,-1},{-1,0,0,-1},{-1,-1,0,-1},{-1,-1,-1,-1},
+			{-1,0,-1,-1},{0,-1,0,-1},{0,-1,-1,-1},{0,0,-1,-1}
 		};
-		for (const auto &o : off4d) {
-			if (c.birth == (*dense)(cx+o[0], cy+o[1], cz+o[2], cw+o[3]))
-				return { uint32_t(cx+o[0]-1), uint32_t(cy+o[1]-1), uint32_t(cz+o[2]-1), uint32_t(cw+o[3]-1) };
+		for (const auto &r : rel4d) {
+			if (c.birth == (*dense)(cx+1+r[0], cy+1+r[1], cz+1+r[2], cw+1+r[3]))
+				return { uint32_t(cx+r[0]), uint32_t(cy+r[1]), uint32_t(cz+r[2]), uint32_t(cw+r[3]) };
 		}
 	}
 	cerr << "parent voxel not found!" << endl;

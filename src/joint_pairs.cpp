@@ -61,33 +61,40 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
     double min_birth = config->threshold;
     uint64_t min_idx = 0;
 
+    auto decode = [&](uint64_t idx, uint32_t& x, uint32_t& y, uint32_t& z, uint32_t& w) {
+        uint64_t t = idx;
+        x = t % dcg->ax; t /= dcg->ax;
+        y = t % dcg->ay; t /= dcg->ay;
+        z = t % dcg->az;
+        w = t / dcg->az;
+    };
     // Process cubes in reverse order (starting from the highest birth time)
     for (auto e = ctr.rbegin(); e != ctr.rend(); ++e) {
         // Calculate the linear index for the union-find structure
         uint64_t uind, vind;
-        
+
         if (dcg->dim == 4) {
             // 4D indexing
             uind = e->x() + dcg->ax * e->y() + dcg->axy * e->z() + dcg->axyz * e->w();
-            
+
             // 4D neighbor offsets for edge types
             static const int8_t dx4d[4] = {1, 0, 0, 0};  // x, y, z, w edges
             static const int8_t dy4d[4] = {0, 1, 0, 0};
             static const int8_t dz4d[4] = {0, 0, 1, 0};
             static const int8_t dw4d[4] = {0, 0, 0, 1};
-            
+
             int m = e->m();
             if (m < 0 || m >= 4) std::exit(-1);
-            
+
             vind = static_cast<uint64_t>((int64_t)uind +
                           dx4d[m] +
                           (int64_t)dcg->ax * dy4d[m] +
                           (int64_t)dcg->axy * dz4d[m] +
                           (int64_t)dcg->axyz * dw4d[m]);
         } else {
-            // 3D indexing (original logic)
+            // 3D indexing
             uind = e->x() + dcg->ax * e->y() + dcg->axy * e->z();
-            
+
             static const int8_t dx[13]={1,0,0,1,1 ,0, 0,1, 1,1,1, 1, 1};
             static const int8_t dy[13]={0,1,0,1,-1,-1,1,-1,0,1,-1,0, 1};
             static const int8_t dz[13]={0,0,1,0,0, 1, 1,1, 1,1,-1,-1,-1};
@@ -130,56 +137,18 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
 
             // Record the birth-death pair if they are not equal
             if (birth != death) {
+                uint32_t bx, by, bz, bw, dx, dy, dz, dw;
+                decode(birth_ind, bx, by, bz, bw);
+                decode(death_ind, dx, dy, dz, dw);
+
                 if (config->tconstruction) {
-                    if (dcg->dim == 4) {
-                        // 4D case: extract x,y,z,w from linear index
-                        uint64_t temp = birth_ind;
-                        uint32_t bx = temp % dcg->ax;
-                        temp /= dcg->ax;
-                        uint32_t by = temp % dcg->ay;
-                        temp /= dcg->ay;
-                        uint32_t bz = temp % dcg->az;
-                        uint32_t bw = temp / dcg->az;
-                        
-                        temp = death_ind;
-                        uint32_t dx = temp % dcg->ax;
-                        temp /= dcg->ax;
-                        uint32_t dy = temp % dcg->ay;
-                        temp /= dcg->ay;
-                        uint32_t dz = temp % dcg->az;
-                        uint32_t dw = temp / dcg->az;
-                        
-                        wp->emplace_back(current_dim, Cube(birth, bx, by, bz, bw, 0),
-                                     Cube(death, dx, dy, dz, dw, 0), dcg, config->print);
-                    } else {
-                        wp->emplace_back(current_dim, Cube(birth, birth_ind % dcg->ax, (birth_ind / dcg->ax) % dcg->ay, (birth_ind / dcg->axy) % dcg->az, 0, 0),
-                                     Cube(death, death_ind % dcg->ax, (death_ind / dcg->ax) % dcg->ay, (death_ind / dcg->axy) % dcg->az, 0, 0), dcg, config->print);
-                    }
+                    wp->emplace_back(current_dim,
+                        Cube(birth, bx, by, bz, bw, 0),
+                        Cube(death, dx, dy, dz, dw, 0),
+                        dcg, config->print);
                 } else {
-                    if (dcg->dim == 4) {
-                        // 4D case: extract x,y,z,w from linear index
-                        uint64_t temp = birth_ind;
-                        uint32_t bx = temp % dcg->ax;
-                        temp /= dcg->ax;
-                        uint32_t by = temp % dcg->ay;
-                        temp /= dcg->ay;
-                        uint32_t bz = temp % dcg->az;
-                        uint32_t bw = temp / dcg->az;
-                        
-                        temp = death_ind;
-                        uint32_t dx = temp % dcg->ax;
-                        temp /= dcg->ax;
-                        uint32_t dy = temp % dcg->ay;
-                        temp /= dcg->ay;
-                        uint32_t dz = temp % dcg->az;
-                        uint32_t dw = temp / dcg->az;
-                        
-                        wp->emplace_back(current_dim, birth, death, bx, by, bz, bw,
-                                     dx, dy, dz, dw, config->print);
-                    } else {
-                        wp->emplace_back(current_dim, birth, death, birth_ind % dcg->ax, (birth_ind / dcg->ax) % dcg->ay, (birth_ind / dcg->axy) % dcg->az, 0,
-                                     death_ind % dcg->ax, (death_ind / dcg->ax) % dcg->ay, (death_ind / dcg->axy) % dcg->az, 0, config->print);
-                    }
+                    wp->emplace_back(current_dim, birth, death,
+                        bx, by, bz, bw, dx, dy, dz, dw, config->print);
                 }
             }
             e->index = NONE;  // Mark edge as processed
@@ -188,19 +157,9 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
 
     // Handle the base point component for H_0
     if (current_dim == 0) {
-        if (dcg->dim == 4) {
-            // 4D case: extract x,y,z,w from linear index
-            uint64_t temp = min_idx;
-            uint32_t mx = temp % dcg->ax;
-            temp /= dcg->ax;
-            uint32_t my = temp % dcg->ay;
-            temp /= dcg->ay;
-            uint32_t mz = temp % dcg->az;
-            uint32_t mw = temp / dcg->az;
-            wp->emplace_back(current_dim, min_birth, dcg->threshold, mx, my, mz, mw, 0, 0, 0, 0, config->print);
-        } else {
-            wp->emplace_back(current_dim, min_birth, dcg->threshold, min_idx % dcg->ax, (min_idx / dcg->ax) % dcg->ay, (min_idx / dcg->axy) % dcg->az, 0, 0, 0, 0, config->print);
-        }
+        uint32_t bx, by, bz, bw, dx, dy, dz, dw;
+        decode(min_idx, bx, by, bz, bw);
+        wp->emplace_back(current_dim, min_birth, dcg->threshold, bx, by, bz, bw, 0, 0, 0, 0, config->print);
     }
 
     // Remove unnecessary edges and optimize storage
