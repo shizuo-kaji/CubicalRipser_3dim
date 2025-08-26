@@ -1,33 +1,26 @@
-# CubicalRipser: Persistent Homology for 2D Image, 3D Voxel Data, and 1D Scalar Time Series
+# CubicalRipser: Persistent Homology for 1D Time Series, 2D Images, and 3D and 4D Volumes
 
-Written by
-- Takeki Sudo and Kazushi Ahara, Meiji University
-- Shizuo Kaji, Kyushu University.
+Authors: Takeki Sudo, Kazushi Ahara (Meiji University), Shizuo Kaji (Kyushu University / Kyoto University)
 
 ---
 
 ## Overview
+CubicalRipser is an adaptation of [Ripser](http://ripser.org) by Ulrich Bauer, specialised in fast computation of persistent homology for cubical complexes.
 
-CubicalRipser is an extension of [Ripser](http://ripser.org) by Ulrich Bauer, tailored for the efficient computation of persistent homology of cubical complexes.
+### Key Features
+- High performance (among the fastest for cubical complexes up to 4D)
+- Flexible filtrations: supports both V- and T-constructions (see: V and T Constructions)
+- Binary coefficients (field F2)
+- Python module and standalone CLI
+- Birth/death locations with creator/destroyer cells
 
-### Key Features:
-- **High Performance**: Among the fastest tools for computing persistent homology of 2D and 3D cubical complexes. (Computation with 4D complexes is yet to be implemented)
-- **Flexible Filtrations**: Supports both **V-construction** and **T-construction** for cubical complexes ([details](#v-and-t-constructions)).
-- **Binary Coefficients**: Computations are performed over the field with two elements.
-- **Cross-Platform**: Python module and standalone command-line executable available.
-
-For description, refer to the paper:
-*[Cubical Ripser: Software for Computing Persistent Homology of Image and Volume Data](https://arxiv.org/abs/2005.12692)*
-by Shizuo Kaji, Takeki Sudo, and Kazushi Ahara.
+For details, see:
+Cubical Ripser: Software for Computing Persistent Homology of Image and Volume Data (https://arxiv.org/abs/2005.12692)
 
 ---
 
 ## License
-
-CubicalRipser is open-source software licensed under the GNU Lesser General Public License v3.0 or later.
-Refer to the [LICENSE](LICENSE) file for more details.
-
----
+Distributed under the GNU Lesser General Public License v3.0 or later.
 
 ## Getting Started
 
@@ -55,7 +48,13 @@ pip install --no-binary cripser cripser
 #### Building from Source
 Requires a C++11-compatible compiler (e.g., GCC, Clang, MSVC).
 
-1. Build the command-line executable:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/shizuo-kaji/CubicalRipser_3dim.git
+   cd CubicalRipser_3dim
+   ```
+
+2. Build the command-line executable:
    ```bash
    cd build
    cmake ..
@@ -63,55 +62,50 @@ Requires a C++11-compatible compiler (e.g., GCC, Clang, MSVC).
    ```
    The executable `cubicalripser` will be created.
 
-2. Alternatively, without `cmake`:
+3. Alternatively, without `cmake`:
    ```bash
    cd src
    make all
    ```
    Modify the `Makefile` if needed.
 
-3. Install the Python module:
+4. Install the Python module:
    ```bash
    pip install .
    ```
 
-#### Windows Notes
-- Use a 64-bit compiler to match Python's architecture, e.g.:
-  ```bash
-  cmake .. -G"Visual Studio 15 2017 Win64"
-  cmake --build . --target ALL_BUILD --config Release
-  ```
-- Fix potential `ssize_t` issues in `pybind11` by adding:
-  ```cpp
-  typedef SSIZE_T ssize_t;
-  ```
-  in `pybind11/include/pybind11/numpy.h` after `#if defined(_MSC_VER)`.
-
----
-
 ## Usage
-
 ### Python Module
 
-Cubical Ripser accepts 1D/2D/3D Numpy arrays.
+CubicalRipser works on 1D / 2D / 3D / 4D NumPy arrays (dtype convertible to float64).
 
+Basic example (V-construction, default):
 ```python
-import cripser
-import numpy as np
+import numpy as np, cripser
 
-arr = np.load("input.npy").astype(np.float64)
-pd = cripser.computePH(arr, maxdim=2)
+arr = np.load("input.npy")
+ph = cripser.compute_ph(arr, maxdim=3, filtration="V")   # alias: computePH(...)
 ```
-**Result**: A NumPy array of shape `(n, 9)` where each row contains:
-`dim, birth, death, x1, y1, z1, x2, y2, z2`.
 
-They indicate the dimension of the cycle, birth-time, death-time, location (x1,y1,z1) of the cell giving birth to the cycle, and location (x2,y2,z2) of the cell destroying the cycle.
+Result:
+- For 1D–3D input: ph has shape (n, 9)
+  Columns: dim, birth, death, x1, y1, z1, x2, y2, z2
+- For 4D input: shape (n, 11)
+  Columns: dim, birth, death, x1, y1, z1, w1, x2, y2, z2, w2
+- death is DBL_MAX for essential features
 
-  - To use the **T-construction**:
-    ```python
-    import tcripser
-    pd = tcripser.computePH(arr, maxdim=2)
-    ```
+Creator (x1,...) gives birth; destroyer (x2,...) kills the class (see Creator and Destroyer cells).
+
+T-construction (8-neighborhood in 2D, etc.):
+```python
+ph_T = cripser.compute_ph(arr, maxdim=3, filtration="T")
+```
+
+Convert to GUDHI-style structures (see section below):
+```python
+dgms = cripser.to_gudhi_diagrams(ph)
+pers = cripser.to_gudhi_persistence(ph)
+```
 
 #### GUDHI Conversion Helpers
 For convenience, a small utility package is included to convert
@@ -121,8 +115,8 @@ the raw output into GUDHI-compatible formats.
 import numpy as np
 import cripser
 
-arr = np.load("input.npy").astype(np.float64)
-ph = cripser.computePH(arr, maxdim=2)
+arr = np.load("input.npy")
+ph = cripser.compute_ph(arr)
 
 # List of diagrams per dimension, each an array of shape (k, 2)
 dgms = cripser.to_gudhi_diagrams(ph)
@@ -137,19 +131,103 @@ gd.plot_persistence_diagram(diagrams=dgms)
 
 Infinite deaths encoded internally as `DBL_MAX` are automatically converted to `np.inf`.
 
-### Command-Line Executable
+### Helper Python script (demo/cr.py)
+
+A convenience wrapper around the core library for quick experiments without writing code.
+
+Typical capabilities:
+- Accepts a single file (e.g. .npy, image, DICOM) or a directory of sequential image / DICOM slices
+- Builds a 1D–4D NumPy array
+- Chooses V- or T-construction
+- Computes persistent homology up to a chosen max dimension
+- Writes raw PH pairs (CSV) or serialized NumPy results
+- Optional sorting of input slice filenames (useful for DICOM)
+
+Basic help:
+```bash
+python demo/cr.py -h
+```
+
+Examples
+
+1. Single NumPy array (default: V-construction, maxdim=2):
+```bash
+python demo/cr.py input.npy -o ph.csv
+```
+
+2. Increase max dimension and use T-construction:
+```bash
+python demo/cr.py volume.npy -o ph.csv --maxdim 3 --filtration T
+```
+
+3. Directory of DICOM files (sorted), output CSV:
+```bash
+python demo/cr.py dicom/ --sort -it dcm -o ph.csv
+```
+
+4. Directory of PNG slices -> PH (auto-detect by extension):
+```bash
+python demo/cr.py slices/ -o ph.csv
+```
+
+5. Save raw PH as NumPy (to reuse in Python):
+```bash
+python demo/cr.py volume.npy -o ph.npy --format npy
+```
+
+6. Invert intensities (example flag; use only if present in -h):
+```bash
+python demo/cr.py volume.npy -o ph.csv --invert
+```
+
+Typical options (exact list: see -h):
+- --maxdim k        maximum homology dimension
+- --filtration V|T  choose construction
+- --sort            lexicographically sort input filenames
+- -it EXT           explicit input slice extension (e.g. dcm, png)
+- -o FILE           output file (.csv or .npy)
+- --format csv|npy  override format if extension is ambiguous
+- --embedded        Alexander dual interpretation (matches CLI flag)
+- --invert          intensity inversion (if implemented)
+
+
+
+### Command-Line Usage
+
+Basic example (text / Perseus-style input):
 ```bash
 ./cubicalripser --print --maxdim 2 --output out.csv demo/3dimsample.txt
 ```
-**Result**: `out.csv` with rows formatted as:
-`dim, birth, death, x1, y1, z1, x2, y2, z2`.
+Output file (CSV): each row
+```
+dim, birth, death, x1, y1, z1, x2, y2, z2
+```
+Meaning:
+- dim: homology dimension
+- birth, death: filtration values (death = DBL_MAX if essential)
+- (x1,y1,z1): creator cell coordinates
+- (x2,y2,z2): destroyer cell coordinates (omitted / meaningless if death is infinite)
 
-Each line consists of nine numbers indicating
-the dimension of the cycle, birth-time, death-time, the creator location (x,y,z), and the destroyer location (x,y,z).
-
-For **Numpy arrays**:
+Numpy array input (1D–4D):
 ```bash
 ./cubicalripser --output result.csv input.npy
+```
+
+Common options:
+- --maxdim k        compute up to dimension k (default: 2)
+- --print           also print pairs to stdout
+- --embedded        use embedded (Alexander dual) interpretation
+- --filtration V|T  choose construction (default: V); T alternative executable: tcubicalripser
+- --output FILE     write CSV (omit to print only)
+
+Example (T-construction on a 3D volume):
+```bash
+./tcubicalripser --maxdim 3 --output volume_ph.csv volume.npy
+```
+
+Note: For 4D input, two extra coordinates (w1, w2) are appended:
+```
+dim, birth, death, x1, y1, z1, w1, x2, y2, z2, w2
 ```
 
 ---
@@ -323,6 +401,7 @@ It computes for the V-construction of the image.
 It computes for the V-construction of the image.
 
 ## Release Notes
+- (v0.0.19) added support for 4D cubical complexes
 - (v0.0.8) fixed memory leak in Python bindings (pointed out by Nicholas Byrne)
 - (v0.0.7) slight speed up
 - (v0.0.6) changes in the [definition of birth/death location](#Creator-and-Destroyer-cells) (suggested by Nicholas Byrne)
