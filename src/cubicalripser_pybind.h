@@ -39,7 +39,7 @@ using namespace std;
 namespace py = pybind11;
 
 /////////////////////////////////////////////
-py::array_t<double> computePH(py::array_t<double> img, int maxdim=0, bool top_dim=false, bool embedded=false, const std::string &location="yes"){
+py::array_t<double> computePH(py::array_t<double> img, int maxdim=3, bool top_dim=false, bool embedded=false, const std::string &location="yes"){
 	// we ignore "location" argument
 	Config config;
 	config.format = NUMPY;

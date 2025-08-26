@@ -335,7 +335,7 @@ Examples:
                        help="Compute top-dimensional homology")
     parser.add_argument('--embedded', '-e', action='store_true',
                        help='Compute for the Alexander dual complex')
-    parser.add_argument('--maxdim', '-m', default=2, type=int,
+    parser.add_argument('--maxdim', '-m', default=3, type=int,
                        help="Maximum dimension for homology computation (default: 2)")
     parser.add_argument('--software', type=str, default="cubicalripser",
                        choices=["cubicalripser", "gudhi"],
@@ -504,7 +504,7 @@ Examples:
             )
 
         # Display Betti numbers for dimensions 0, 1, 2
-        print("Betti numbers: ", [res[res[:, 0] == i].shape[0] for i in range(3)])
+        print("Betti numbers: ", [res[res[:, 0] == i].shape[0] for i in range(args.maxdim + 1)])
 
     print("Computation took: {:.2f} seconds".format(time.time() - start))
 
