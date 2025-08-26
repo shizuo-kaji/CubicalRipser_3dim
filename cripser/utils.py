@@ -40,7 +40,7 @@ def compute_ph(
     *,
     #module: str = "_cripser",
     filtration: str = "V",
-    maxdim: int = 2,
+    maxdim: int = 3,
     top_dim: bool = False,
     embedded: bool = False,
     location: str = "yes",
