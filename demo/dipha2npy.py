@@ -145,7 +145,7 @@ def convert_numpy_to_dipha_complex(input_file: str, output_file: str, verbose: b
         print(f"Error converting NumPy to DIPHA: {e}")
         sys.exit(1)
 
-def convert_perseus_to_numpy(input_file: str, output_file: str, verbose: bool = False) -> None:
+def convert_perseus_to_numpy(input_file: str, output_file: str = None, verbose: bool = False) -> None:
     """
     Convert PERSEUS text format to NumPy array.
 
@@ -268,9 +268,10 @@ def convert_perseus_to_numpy(input_file: str, output_file: str, verbose: bool = 
             print(f"  Unique values: {len(unique_vals)} (showing first 10: {unique_vals[:10]})")
 
         # Save the array
-        np.save(output_file, result_array)
-        print(f"Saved to: {output_file}")
-
+        if output_file is not None:
+            np.save(output_file, result_array)
+            print(f"Saved to: {output_file}")
+        return result_array
     except Exception as e:
         print(f"Error converting PERSEUS file: {e}")
         raise

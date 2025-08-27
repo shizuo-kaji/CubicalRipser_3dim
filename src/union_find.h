@@ -33,6 +33,7 @@ UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
 	parent.resize(n);
 	birthtime.resize(n);
 	time_max.resize(n);
+	//cout << n << " vertices" << endl;
 
 	uint64_t i=0;
 	for (uint32_t w = 0; w < _dcg->aw; ++w) {
@@ -40,9 +41,9 @@ UnionFind::UnionFind(DenseCubicalGrids* _dcg) {
 			for (uint32_t y = 0; y < _dcg->ay; ++y) {
 				for(uint32_t x = 0; x < _dcg->ax ; ++x){
 					parent[i] = i;
-					birthtime[i] = _dcg->getBirth(x,y,z,w);
+					birthtime[i] = _dcg->getBirth(x,y,z,w,0,0);
 					time_max[i] = birthtime[i]; // maximum filtration value for the group
-//				cout << x << "," << y << "," << z << ": " << birthtime[i] << endl;
+					//cout << x << "," << y << "," << z << "," << w << ": " << birthtime[i] << endl;
 					i++;
 				}
 			}

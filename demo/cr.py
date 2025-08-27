@@ -148,6 +148,9 @@ def load_vol(fns, transform=None, shift_value=None, threshold=None, threshold_up
             magic, tp, sz, dim = struct.unpack_from("qqqq", dat, 0)
             sp = struct.unpack_from("q"*dim, dat, 8*4)  # offset = 8byte x 4
             im = np.array(struct.unpack_from("d"*sz, dat, 8*(4+dim))).reshape(sp)
+        elif ext == ".txt":
+            from dipha2npy import convert_perseus_to_numpy
+            im = convert_perseus_to_numpy(ffn)
         else:
             # Default: treat as standard image file (jpg, png, etc.)
             im = np.array(Image.open(ffn).convert('L'))
@@ -327,6 +330,8 @@ Examples:
                        help="Input files: numpy array, multiple images, or directory containing images")
     parser.add_argument('--output', '-o', default=None,
                        help="Output file path (.npy or .csv)")
+    parser.add_argument('--print', '-p', action='store_true',
+                       help="Print output to console")
 
     # Computation parameters
     parser.add_argument('--filtration', '-f', choices=['V', 'T'], default='V',
@@ -532,5 +537,8 @@ Examples:
             np.save(args.output, res)
 
         print(f"Results saved to: {args.output}")
+
+    if args.print:
+        print(res)
 
     print("Persistent homology computation completed successfully!")

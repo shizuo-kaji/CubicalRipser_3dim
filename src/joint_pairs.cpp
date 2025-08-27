@@ -73,9 +73,15 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
         // Calculate the linear index for the union-find structure
         uint64_t uind, vind;
 
+        // source coordinates
+        const uint32_t ex = e->x();
+        const uint32_t ey = e->y();
+        const uint32_t ez = e->z();
+        const uint32_t ew = (dcg->dim >= 4) ? e->w() : 0u;
+
         if (dcg->dim == 4) {
             // 4D indexing
-            uind = e->x() + dcg->ax * e->y() + dcg->axy * e->z() + dcg->axyz * e->w();
+            uind = ex + dcg->ax * ey + dcg->axy * ez + dcg->axyz * ew;
 
             // 4D neighbor offsets for edge types
             static const int8_t dx4d[4] = {1, 0, 0, 0};  // x, y, z, w edges
@@ -83,36 +89,48 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
             static const int8_t dz4d[4] = {0, 0, 1, 0};
             static const int8_t dw4d[4] = {0, 0, 0, 1};
 
-            int m = e->m();
+            const int m = e->m();
             if (m < 0 || m >= 4) std::exit(-1);
 
-            vind = static_cast<uint64_t>((int64_t)uind +
-                          dx4d[m] +
-                          (int64_t)dcg->ax * dy4d[m] +
-                          (int64_t)dcg->axy * dz4d[m] +
-                          (int64_t)dcg->axyz * dw4d[m]);
-        } else {
-            // 3D indexing
-            uind = e->x() + dcg->ax * e->y() + dcg->axy * e->z();
+            // neighbor coordinates with strict per-axis bounds check
+            const int64_t nx = static_cast<int64_t>(ex) + dx4d[m];
+            const int64_t ny = static_cast<int64_t>(ey) + dy4d[m];
+            const int64_t nz = static_cast<int64_t>(ez) + dz4d[m];
+            const int64_t nw = static_cast<int64_t>(ew) + dw4d[m];
 
-            static const int8_t dx[13]={1,0,0,1,1 ,0, 0,1, 1,1,1, 1, 1};
-            static const int8_t dy[13]={0,1,0,1,-1,-1,1,-1,0,1,-1,0, 1};
-            static const int8_t dz[13]={0,0,1,0,0, 1, 1,1, 1,1,-1,-1,-1};
-            int m = e->m();
+            vind = static_cast<uint64_t>(nx)
+                 + static_cast<uint64_t>(dcg->ax) * static_cast<uint64_t>(ny)
+                 + static_cast<uint64_t>(dcg->axy) * static_cast<uint64_t>(nz)
+                 + static_cast<uint64_t>(dcg->axyz) * static_cast<uint64_t>(nw);
+        } else {
+            // up to 3D indexing (handles 1D/2D/3D uniformly with az,aw possibly 1)
+            uind = ex + dcg->ax * ey + dcg->axy * ez;
+
+            // 13 neighbor patterns used in V/T constructions (3D); for 1D/2D
+            // only the relevant prefixes are referenced by m
+            static const int8_t dx[13]={1,0,0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1};
+            static const int8_t dy[13]={0,1,0, 1,-1,-1, 1,-1, 0, 1,-1, 0, 1};
+            static const int8_t dz[13]={0,0,1, 0, 0, 1, 1, 1, 1, 1,-1,-1,-1};
+            const int m = e->m();
             if (m < 0 || m >= 13) std::exit(-1);
-            vind = static_cast<uint64_t>( (int64_t)uind +
-                          dx[m] +
-                          (int64_t)dcg->ax * dy[m] +
-                          (int64_t)dcg->axy * dz[m] );
+
+            const int64_t nx = static_cast<int64_t>(ex) + dx[m];
+            const int64_t ny = static_cast<int64_t>(ey) + dy[m];
+            const int64_t nz = static_cast<int64_t>(ez) + dz[m];
+
+            vind = static_cast<uint64_t>(nx)
+                 + static_cast<uint64_t>(dcg->ax) * static_cast<uint64_t>(ny)
+                 + static_cast<uint64_t>(dcg->axy) * static_cast<uint64_t>(nz);
         }
 
         u = dset.find(uind);
         v = dset.find(vind);
+        //cout << "u: " << uind << ", v: " << vind << endl;
 
         if (u != v) {  // If u and v are not already connected
             double birth;
             uint64_t birth_ind, death_ind;
-
+            //cout << dset.birthtime[u] << ", " << dset.birthtime[v] << endl;
             // Determine which component is younger and will be merged
             if (dset.birthtime[u] >= dset.birthtime[v]) {
                 birth = dset.birthtime[u];
@@ -134,6 +152,7 @@ void JointPairs::joint_pairs_main(vector<Cube>& ctr, int current_dim) {
 
             double death = e->birth;
             dset.link(u, v);  // Union the sets
+            //cout << "Pair found: [" << birth << ", " << death << ") from indices " << birth_ind << " to " << death_ind << endl;
 
             // Record the birth-death pair if they are not equal
             if (birth != death) {

@@ -5,8 +5,6 @@ cmake_policy(SET CMP0028 NEW)
 project(cripser LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-#set(CMAKE_CXX_FLAGS "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_OSX_ARCHITECTURES arm64;x86_64)
 
@@ -56,15 +54,15 @@ pybind11_add_module(tcripser src/cubicalripser_pybind.cpp)
 target_link_libraries(tcripser PRIVATE mylib tmylib)
 target_compile_definitions(tcripser PRIVATE
   CRIPSER_MODULE_NAME=tcripser
-  CRIPSER_MODULE_DOC="Cubical Ripser (T-construction) plugin"
+  CRIPSER_MODULE_DOC="Cubical Ripser T-construction plugin"
   CRIPSER_CURRENTMODULE="tcripser"
 )
 
 # Inject package version from setup.py if provided
 if(DEFINED CRIPSER_VERSION)
   message(STATUS "Injecting version ${CRIPSER_VERSION} into pybind11 modules")
-  target_compile_definitions(_cripser PRIVATE VERSION_INFO=\"${CRIPSER_VERSION}\")
-  target_compile_definitions(tcripser PRIVATE VERSION_INFO=\"${CRIPSER_VERSION}\")
+  target_compile_definitions(_cripser PRIVATE VERSION_INFO="${CRIPSER_VERSION}")
+  target_compile_definitions(tcripser PRIVATE VERSION_INFO="${CRIPSER_VERSION}")
 endif()
 
 # Command-line executables

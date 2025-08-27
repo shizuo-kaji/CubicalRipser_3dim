@@ -43,17 +43,7 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz){
 				(*dense)(cx+1, cy+1, cz), (*dense)(cx, cy+1, cz),
 				(*dense)(cx, cy, cz+1), (*dense)(cx+1, cy, cz+1),
 				(*dense)(cx+1, cy+1, cz+1), (*dense)(cx, cy+1, cz+1) });
-	}
-double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw){
-	return min({ (*dense)(cx, cy, cz, cw), (*dense)(cx+1, cy, cz, cw),
-					(*dense)(cx+1, cy+1, cz, cw), (*dense)(cx, cy+1, cz, cw),
-					(*dense)(cx, cy, cz+1, cw), (*dense)(cx+1, cy, cz+1, cw),
-					(*dense)(cx+1, cy+1, cz+1, cw), (*dense)(cx, cy+1, cz+1, cw),
-					(*dense)(cx, cy, cz, cw+1), (*dense)(cx+1, cy, cz, cw+1),
-					(*dense)(cx+1, cy+1, cz, cw+1), (*dense)(cx, cy+1, cz, cw+1),
-					(*dense)(cx, cy, cz+1, cw+1), (*dense)(cx+1, cy, cz+1, cw+1),
-					(*dense)(cx+1, cy+1, cz+1, cw+1), (*dense)(cx, cy+1, cz+1, cw+1) });
-	}
+}
 
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw, uint8_t cm, uint8_t dim) {
 	// beware of the shift due to the boundary

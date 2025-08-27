@@ -333,7 +333,7 @@ int main(int argc, char** argv) {
             case LINKFIND: {
                 Timer timer;
                 JointPairs jp(&dcg, writepairs, config);
-                // Enumerate edges based on dimension (1D/2D/3D)
+                // Enumerate edges based on dimension
                 if (dcg.dim == 1) {
                     jp.enum_edges({0, 1}, ctr);
                 }

@@ -74,7 +74,6 @@ public:
     DenseCubicalGrids(Config&, uint8_t dim, uint32_t ax, uint32_t ay = 1, uint32_t az = 1, uint32_t aw = 1);
 	~DenseCubicalGrids() = default; // NDArray uses RAII, no manual cleanup needed
 	double getBirth(uint32_t x, uint32_t y, uint32_t z);
-	double getBirth(uint32_t x, uint32_t y, uint32_t z, uint32_t w);
 	double getBirth(uint32_t x, uint32_t y, uint32_t z, uint32_t w, uint8_t cm, uint8_t dim);
 	vector<uint32_t> ParentVoxel(uint8_t _dim, Cube &c);
 

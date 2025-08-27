@@ -43,10 +43,6 @@ double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz){
 	return (*dense)(cx+1, cy+1, cz+1);
 }
 
-double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw){
-	return (*dense)(cx+1, cy+1, cz+1, cw+1);
-}
-
 double DenseCubicalGrids::getBirth(uint32_t cx, uint32_t cy, uint32_t cz, uint32_t cw, uint8_t cm, uint8_t dim) {
 	// beware of the shift due to the boundary
 	if (this->dim < 4) {
